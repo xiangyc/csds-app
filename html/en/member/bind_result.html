@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>Add Successfully</title>
+    <link rel="stylesheet" type="text/css" href="../../../css/aui.css" />
+    <link rel="stylesheet" type="text/css" href="../../../css/common.css" />
+    <link rel="stylesheet" type="text/css" href="../../../css/member.css" />
+</head>
+<body>
+<header class="aui-bar aui-bar-text  padded-t-25">
+    <a tapmode onclick="api.closeWin();" class="black-return-text">
+        <img src="../../../image/member/black-return.png">Bind Result
+    </a>
+</header>
+ <div class="add-bankcard-success">
+     <i><img src="../../../image/member/register-success.png"></i>
+ </div>
+</body>
+<script type="text/javascript" src="../../../script/api.js"></script>
+<script type="text/javascript" src="../../../script/common/global.js" ></script>
+<script type="text/javascript">
+	apiready = function(){
+		initEvent();
+	}
+	
+	/**
+	 *初始化事件 
+	 */
+	function initEvent(){
+		api.addEventListener({
+	        name:'viewappear'
+        },function(ret,err){
+        	//flag(1:银行卡，2:信用卡)
+        	if(api.pageParam.flag === 1){
+	        	api.closeWin({
+	        		name : 'addBandCardSubWin'
+	            });
+	            api.closeWin({
+		        	name : 'addBandCardSubWin2'
+		        });
+	            api.closeWin({
+	        		name : 'addBandCardSubWin3'
+	            });
+	            api.closeWin({
+	        		name : 'addBandCardSubWin4'
+	            });
+
+	            api.sendEvent({
+	                 name:'addBankCardEndEvent'
+                });
+
+                global.setBindBankCard(1);
+                
+            }else{
+            	
+            	api.closeWin({
+	        		name : 'addCreditCardSubWin'
+	            });
+            	api.closeWin({
+	        		name : 'addCreditCardSubWin2'
+	            });
+	            api.closeWin({
+	        		name : 'addCreditCardSubWin3'
+	            });
+	            api.closeWin({
+	        		name : 'addCreditCardSubWin4'
+	            });
+	        
+	            api.sendEvent({
+	                 name:'addCreditCardEndEvent'
+                });
+
+                global.setBindBankCard(1);
+                global.setBindCreditCard(1);
+            }
+
+         /*   api.closeWin({
+	        	name : 'bindResultWin'
+	        });*/
+
+	        setTimeout(function(){
+	        	 api.closeWin({
+	        		name : 'bindResultWin'
+	       		 });
+	        }, 2000);
+        });
+        
+        setTimeout(function(){
+        	api.closeWin();
+        }, 3000);
+	}
+</script>
+</html>

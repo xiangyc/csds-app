@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>Transations</title>
+    <link rel="stylesheet" type="text/css" href="../../../css/aui.css" />
+    <link rel="stylesheet" type="text/css" href="../../../css/common.css" />
+    <link rel="stylesheet" type="text/css" href="../../../css/member.css" />
+</head>
+<body>
+ <div class="consume-frame-box">
+	<!-- 按时间-->
+	<script id="consume1-template" type="text/x-dot-template">
+      {{ for(var i=0; i< it.length; i++) { }}
+          <p class="nearly-week shop-border-bottom">
+          {{ if(i==0 && it[i].createTimeName != lastCreateTimeName){ }}
+			{{=tranCreateTimeName(it[i].createTimeName) }}
+		  {{ }else if(i>0 && it[i].createTimeName != it[i-1].createTimeName){}}
+			{{=tranCreateTimeName(it[i].createTimeName) }}
+		  {{ } }}
+          </p>
+          <ul class="nearly-week-ul">
+              <li class="shop-border-bottom">
+                  <div class="nearly-week-left">
+                      <h4>{{=it[i].storeName }}</h4>
+                      <span>{{=tranStatusName(it[i].status)}}</span>
+                      <em>{{=global.formatDate(it[i].createTime, 'yyyy-MM-dd hh:mm') }}</em>
+                  </div>
+                  <div class="nearly-week-right">￥{{=global.formatCurrency(it[i].payAmount) }}</div>
+              </li>
+          </ul>
+      {{ } }}
+	</script>
+    <div id="consume1-content" class="consume-list aui-hide">
+    </div>
+     
+    <!-- 按分类-->
+    <script id="consume2-template" type="text/x-dot-template">
+      {{ for(var i=0; i< it.length; i++) { }}
+		<p class="shop-border-bottom">{{=tranPayWay(it[i].payWay)}}</p>
+		<ul>
+			<li class="shop-border-bottom">
+				<div class="nearly-week-left">
+					<h4>{{=it[i].storeName }}</h4>
+					<span>{{=tranStatusName(it[i].status)}}</span>
+					<em>{{=global.formatDate(it[i].createTime, 'yyyy-MM-dd hh:mm') }}</em>
+                </div>
+                <div class="nearly-week-right">￥{{=global.formatCurrency(it[i].payAmount) }}</div>
+             </li>
+		</ul>
+      {{ } }}
+	</script>
+    <div id="consume2-content" class="consume-list aui-hide">
+    </div>
+     
+    <!-- 按状态-->
+    <script id="consume3-template" type="text/x-dot-template">
+      {{ for(var i=0; i< it.length; i++) { }}
+		<p class="shop-border-bottom">{{=tranStatusName(it[i].status) }}</p>
+		<ul>
+			<li class="shop-border-bottom">
+				<div class="nearly-week-left">
+					<h4>{{=it[i].storeName }}</h4>
+					<span>{{=tranStatusName(it[i].status) }}</span>
+					<em>{{=global.formatDate(it[i].createTime, 'yyyy-MM-dd hh:mm') }}</em>
+                </div>
+                <div class="nearly-week-right">￥{{=global.formatCurrency(it[i].payAmount) }}</div>
+             </li>
+		</ul>
+      {{ } }}
+	</script>
+    <div id="consume3-content" class="consume-list">
+    </div>
+    
+    <div class="no-data aui-hide" id="nonDataId">
+         <i></i>
+        	 no data
+     </div>
+ </div>
+</body>
+
+<script type="text/javascript" src="../../../script/api.js"></script>
+<script type="text/javascript" src="../../../script/common/global.js"></script>
+<script type="text/javascript" src="../../../script/common/page.js"></script>
+<script type="text/javascript" src="../../../script/library/doT.min.js"></script>
+<script type="text/javascript">
+	//type 1=按时间 2=按分类 3=按状态
+    var type = 3;	
+    //开始页数
+	var start = 0;
+	//总页数
+	var totalPages = 0;
+    //时间名称
+	var lastCreateTimeName = '';
+
+    apiready = function(){
+      initEvent();
+      queryList();
+    }
+
+    /**
+     *查询 
+     */
+    function queryList(){
+    	if(type === 1){
+			api.ajax({
+				method : 'get',
+				cache : true,
+				dataType : 'json',
+				returnAll : false,
+				url : global.getRequestUri() + '/order/consume/list?type=1&maxResult=20&start=' + start,
+				headers : global.getRequestToken()
+			}, function(ret, err) {
+				if(ret){
+					totalPages = ret.totalPages;
+					if (ret.items && ret.items.length > 0) {
+		                var template = $api.byId('consume1-template').text;
+		                var tempFun = doT.template(template);
+		                if(start === 0){
+		                	$api.html($api.byId('consume1-content'), tempFun(ret.items));
+		                }else{
+		                	$api.append($api.byId('consume1-content'), tempFun(ret.items));
+		                }
+		                
+		                lastCreateTimeName = ret.items[ret.items.length-1].createTimeName;
+					}
+				}
+				
+				start = start + 1;
+				
+				if(totalPages === 0){
+					$api.removeCls($api.byId('nonDataId'), 'aui-hide');
+            		return;
+            	}
+			});
+    	}else{
+	        var params = '?start=0&maxResult=20&type=' + type;
+	        var url = global.getRequestUri() + '/order/consume/list';
+	        page.init(20, 'consume' + type + '-content', 'consume' + type + '-template', url, params, true, 'nonDataId');
+        }  
+    }
+
+    /**
+    *初始化事件
+    */
+   function initEvent() {
+	api.setCustomRefreshHeaderInfo({
+      	bgColor : '#fdf7e7',
+      	image : {
+        pull : global.pullImage(),
+        load : global.pushImage()
+      }
+    }, function(ret, err) {
+		start = 0;
+    	totalPages = 0;
+    	lastCreateTimeName = '';
+    	queryList();
+    	
+		api.refreshHeaderLoadDone();
+    });
+  
+	api.addEventListener({
+      name : 'scrolltobottom',
+      extra : {
+        threshold : 0
+      }
+    }, function(ret, err) {
+    	if(type === 1){
+    		if(start + 1 <= totalPages){
+				queryList();
+	        }
+    	}else{
+			page.scrollRefresh();
+		}
+    });
+  }
+
+	/**
+	 *切换内容 
+	 */
+	function openPay(id){
+		api.openWin({
+			name : 'consumePayWin',
+			url : './consume_pay.html',
+			pageParam : {
+				id : id
+			}
+		});
+	}
+	
+	/**
+	 *切换类型 
+	 */
+	function switchType(item){
+        type = item;
+
+		$api.addCls($api.byId('consume1-content'), 'aui-hide');
+		$api.addCls($api.byId('consume2-content'), 'aui-hide');
+		$api.addCls($api.byId('consume3-content'), 'aui-hide');
+
+		$api.removeCls($api.byId('consume' + item + '-content'), 'aui-hide');
+		queryList();
+	}
+	
+		/**
+	 *转换状态 
+	 */
+	function tranStatusName(status){
+		//NON_PAYMENT("未支付", 0), SUCCESS("已支付", 1), SEND_OUT_GOODS("已发货", 2), RETURN_OF_GOODS("退货", 3), EXCHANGE_OF_GOODS("换货", 4), CHECK_OF_GOODS("验货", 5);
+		var statusName = status
+		switch(status){
+			case 0:
+				statusName = 'Pending';
+				break;
+			case 1:
+				statusName = '';//Paymented
+				break;
+			case 2:
+				statusName = 'Shipped';
+				break;
+			case 3:
+				statusName = 'Return goods';
+				break;
+			case 4:
+				statusName = 'Exchange goods';
+				break;	
+			case 5:
+				statusName = 'Inspection';
+				break;	
+		}
+		
+		return statusName;
+	}
+
+	function tranCreateTimeName(createTimeName){
+		if(createTimeName =='近一周'){
+			return '';
+			//return 'The recent week';
+		}		
+		
+	}
+
+	function tranPayWay(payWay){
+    	if(payWay ==1){
+    		return 'Balance';
+    	}else if(payWay ==5){
+    		return 'Credit card';
+    	}else if(payWay ==6){
+    		return 'Union pay';
+    	}else{
+    		return 'Union pay';
+    	}
+	}	
+</script>
+</html>

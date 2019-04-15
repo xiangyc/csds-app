@@ -1,0 +1,107 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, initial-scale=1.0, width=device-width"/>
+    <meta name="format-detection" content="telephone=no, email=no, date=no, address=no">
+    <title>关注</title>
+    <link rel="stylesheet" type="text/css" href="../../css/aui.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/common.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/portal.css" />
+</head>
+<body>
+    <div class="aui-content">
+       <script id="store-template" type="text/x-dot-template">
+          {{ for(var i=0; i< it.length; i++) { }}
+           <div  tapmode onclick="openDetail({{=it[i].supermarketId }}, {{=it[i].storeId }});"  class="attention-shop-list list-item-arrow">
+                <img class="pic" src="{{=global.getImgUri() + '/' + it[i].icon}}" onerror="this.src='../../image/portal/shop-top-img.jpg'">
+                <div class="attention-shop-l">
+                    <div class="shopname aui-ellipsis-1">{{=it[i].storeName }}</div>
+                    <div class="notice aui-ellipsis-1">{{=it[i].promotion }}</div>
+                    <div class="aui-label aui-label-shop">特价</div><div class="aui-label aui-label-shop">店庆</div><div class="aui-label aui-label-shop">优惠券</div></div>
+            </div>
+          {{ } }}
+        </script>
+	        
+        <div id="store-content" class="attention-shop-box">
+        </div>
+
+    </div>
+    
+    <div class="no-data aui-hide" id="nonDataId">
+         <i></i>
+        	 暂无数据
+     </div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/common/global.js"></script>
+<script type="text/javascript" src="../../script/common/page.js"></script>
+<script type="text/javascript" src="../../script/library/doT.min.js"></script>
+<script type="text/javascript">
+	apiready = function(){
+		queryInterest();
+		initEvent();
+	}
+	
+	/**
+	 *查询数据 
+	 */
+	function queryInterest(){
+	  	var params = '?start=0&maxResult=20';
+	  	var url = global.getRequestUri() + '/interest/list';
+	  	
+  		page.init(20, 'store-content', 'store-template', url, params, true, 'nonDataId');
+	}
+		
+	/**
+	 *初始化事件
+	 */
+	function initEvent() {
+		api.setCustomRefreshHeaderInfo({
+			bgColor : '#fdf7e7',
+			image : {
+				pull : global.pullImage(),
+				load : global.pushImage()
+			}
+		}, function(ret, err) {
+			queryInterest();
+			api.refreshHeaderLoadDone();
+		});
+	
+		api.addEventListener({
+			name : 'scrolltobottom',
+			extra : {
+				threshold : 0
+			}
+		}, function(ret, err) {
+			page.scrollRefresh();
+		});
+		
+		api.addEventListener({
+	        name:'interestEvent'
+        },function(ret,err){
+        	queryInterest();
+        });
+        
+	    api.addEventListener({
+	        name:'loginSuccessEvent'
+        },function(ret,err){
+			queryInterest();
+        });
+	}
+	
+	/**
+	 *打开详情 
+	 */
+	function openDetail(supermarketId, id){
+		api.openWin({
+			name : 'productWin',
+			url : './store_detail_win.html',
+			pageParam : {
+				supermarketId : supermarketId,
+				storeId : id
+			}
+		});
+	}
+</script>
+</html>

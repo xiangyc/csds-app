@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>确认交易</title>
+    <link rel="stylesheet" type="text/css" href="../../../css/aui.css" />
+    <link rel="stylesheet" type="text/css" href="../../../css/common.css" />
+    <link rel="stylesheet" type="text/css" href="../../../css/member.css" />
+</head>
+<body>
+<header class="aui-bar aui-bar-text  padded-t-25">
+    <a tapmode onclick="api.closeWin();" class="black-return-text">
+        <img src="../../../image/member/black-return.png">确认交易
+    </a>
+</header>
+ <div class="pay-password-box">
+     <div class="text-title">Enter the payment password</div>
+     <div class="password-input">
+         <div id="virbox1" class="virbox">
+             <span></span>
+             <span></span>
+             <span></span>
+             <span></span>
+             <span></span>
+             <span></span>
+         </div>
+         <input id="realbox1" type="password" class="realbox" maxlength="6">
+     </div>
+     <div class="aui-btn-box">
+         <div tapmode onclick="openConfirmPay();" class="aui-btn aui-btn-login">next</div>
+     </div>
+ </div>
+
+</body>
+<script type="text/javascript" src="../../../script/api.js"></script>
+<script type="text/javascript" src="../../../script/library/zepto.min.js"></script>
+<script>
+	var id;
+	apiready = function(){
+		id = api.pageParam.id;
+		
+		var softInput = api.require('softInputMgr');
+		document.getElementById("realbox1").focus();
+		softInput.toggleKeyboard();
+	}
+	
+	/**
+	 *下一步 
+	 */
+	function openConfirmPay(){
+		api.openWin({
+			name : 'consumePayWin2',
+			url : './consume_pay_cofirm.html',
+			pageParam : {
+				id : id
+			}
+		});
+	}
+	
+    $('#virbox1').click(function(){
+        $('#realbox1').focus();
+        $('#virbox1 span').css('background','#d8dfec');
+    });
+    $('#realbox1').blur(function(){
+        $('#virbox1 span').css('background','#d8dfec');
+    });
+
+    $('#realbox1').keyup(function(){
+        $('#virbox1 span').html('');
+        var realboxLength = Number($('#realbox1').val().length);
+
+        for(var i=0;i<realboxLength;i++){
+            payPwd = $('#realbox1').val();
+            $('#virbox1 span').eq(i).html('·');
+            if(i == 5) {
+            }
+        }
+    });
+</script>
+</html>

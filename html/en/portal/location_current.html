@@ -1,0 +1,85 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, initial-scale=1.0, width=device-width"/>
+    <meta name="format-detection" content="telephone=no, email=no, date=no, address=no">
+    <title>location</title>
+    <link rel="stylesheet" type="text/css" href="../../../css/aui.css" />
+    <link rel="stylesheet" type="text/css" href="../../../css/common.css" />
+    <link rel="stylesheet" type="text/css" href="../../../css/portal.css" />
+    <style>
+    	html,body {
+			background-color: transparent !important;
+		}
+    </style>
+</head>
+<body>
+<div id="maskDiv" class="aui-mask aui-mask-in"></div>
+<div class="location-mask">
+    <h3>Do you want to navigate to the current location?</h3>
+    <div class="location-icon" style="width:100%; text-align: center;">
+        <img src="../../../image/portal/location-icon.png">current location<span id="cityName" style="width:150px;"></span>
+    </div>
+    <div class="location-btn">
+        <div tapmode onclick="setLocation();" class="aui-btn aui-btn-login">Yes</div>
+        <div tapmode onclick="selectCity();" class="aui-btn aui-btn-login">Selection</div>
+    </div>
+</div>
+</body>
+<script type="text/javascript" src="../../../script/api.js"></script>
+<script type="text/javascript" src="../../../script/common/global.js"></script>
+<script type="text/javascript">
+
+	//经度
+	var longitude;
+	//纬度
+	var latitude;
+	//城市名
+	var cityName;
+	
+    apiready = function(){
+    	longitude = api.pageParam.lon;
+    	latitude = api.pageParam.lat;
+    	cityName = api.pageParam.cityName;
+    	
+    	$api.html($api.byId('cityName'), cityName);
+    };
+
+	/**
+	 *初始化页面事件
+	 */
+    function initEvent(){
+    	api.addEventListener({
+            name:'citySelectorEvent'
+        },function(ret,err){
+        	api.closeFrame({
+            });
+        });
+    }
+
+	/**
+	 *设置位置 
+	 */
+	function setLocation(){
+		api.sendEvent({
+	        name:'setLocationEvent',
+	        extra:{
+	        	lon : longitude,
+	        	lat : latitude,
+	        	cityName : cityName
+	        }
+        });
+	}
+	
+	/**
+	 *选择城市 
+	 */
+	function selectCity(){
+		api.openWin({
+			name : 'cityWin',
+			url : './city_win.html'
+		});
+	}
+</script>
+</html>

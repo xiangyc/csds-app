@@ -1,0 +1,81 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, initial-scale=1.0, width=device-width"/>
+    <meta name="format-detection" content="telephone=no, email=no, date=no, address=no">
+    <title>超市商城</title>
+    <link rel="stylesheet" type="text/css" href="../../css/aui.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/common.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/portal.css" />
+</head>
+<body>
+    <div id="header" class="aui-content">
+        <div id="header" class="aui-bar aui-bar-text">
+            <a tapmode onclick="api.closeWin();" class="black-return-text">
+                <img src="../../image/member/black-return.png"/><span id="title"></span>
+            </a>
+        </div>
+    </div>
+    
+    <footer id="footer" class="aui-bar aui-bar-tab shop-b-fixed">
+		<div class="aui-bar-tab-item aui-border-r" tapmode="" style="width: 3.65rem;">
+			<div id="countDiv" class="aui-bar-tab-label text-blue">0件商品</div>
+		</div>
+		<div class="aui-bar-tab-item" tapmode="" style="width: 7.2rem;">
+			<div tapmode onclick="openShopcatWin();" class="aui-bar-tab-label">加入购物车</div>
+		</div>
+		<div tapmode onclick="next();" class="aui-bar-tab-item bg-blue aui-text-white" tapmode="" style="width: auto;">结算</div>
+	</footer>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript">
+	apiready = function(){
+	    var header = $api.byId('header');
+	    var footer = $api.byId('footer');
+	    
+		$api.fixTabBar(footer);
+		$api.fixStatusBar(header);
+		var pos = $api.offset(header);
+		var posF = $api.offset(footer);
+		
+		$api.html($api.byId('title'), api.pageParam.title);
+
+	    api.openFrame({
+	        name: 'nearbyFrame',
+	        url: './nearby.html',
+	        rect:{
+	            x: 0,
+	            y: pos.h,
+	            w: 'auto',
+	            h: api.winHeight - posF.h - pos.h - 1
+	        },
+	        pageParam : api.pageParam,
+	        bounces: false,
+	        vScrollBarEnabled: false
+	    });
+	    
+	    api.addEventListener({
+	        name:'productSelectEvent'
+        },function(ret,err){
+        	if(ret.value){
+        		$api.html($api.byId('countDiv'), ret.value.productCount + '件商品');
+        	}
+        });
+	}
+	
+	function openShopcatWin(){
+		api.execScript({
+			frameName: 'nearbyFrame',
+	        script: 'openShopcatWin();'
+        });
+	}
+	
+	function next(){
+		api.execScript({
+			frameName: 'nearbyFrame',
+	        script: 'next();'
+        });
+	}
+</script>
+</html>

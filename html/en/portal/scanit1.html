@@ -1,0 +1,355 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, initial-scale=1.0, width=device-width"/>
+	<meta name="format-detection" content="telephone=no, email=no, date=no, address=no">
+	<title>Scan</title>
+	<link rel="stylesheet" type="text/css" href="../../../css/aui.css" />
+	<link rel="stylesheet" type="text/css" href="../../../css/common.css" />
+	<link rel="stylesheet" type="text/css" href="../../../css/portal.css" />
+</head>
+<body>
+<div id="header" class="aui-bar aui-bar-text padded-t-25">
+	<a tapmode onclick="api.closeWin();" class="black-return-text">
+		<img src="../../../image/member/black-return.png"/>Scan
+	</a>
+	<a tapmode onclick="inputScan();" class="black-return-text-r">Enter Number</a>
+</div>
+</body>
+</body>
+<script type="text/javascript" src="../../../script/api.js"></script>
+<script type="text/javascript" src="../../../script/common/global.js"></script>
+<script type="text/javascript">
+	var h = 0;
+	var FNScanner;
+	var viewH =0;
+	apiready = function(){
+		initEvent();
+
+		var header = $api.byId('header');
+		var pos = $api.offset(header);
+		FNScanner = api.require('FNScanner');
+		
+		h = pos.h;
+		if(api.systemType === 'ios'){
+			viewH =100;
+		}
+		openView();
+	}
+
+	function openView(){
+		FNScanner.openView({
+            rect:{
+                x: 0,
+                y: h,
+                w: api.winWidth,
+               // h: api.winHeight - h - api.safeArea.top - viewH
+               h: api.winHeight - api.safeArea.bottom 
+            },
+            autorotation: true,
+        },function( ret, err ){   
+	    	if(ret && ret.content){    	
+				
+				var param = ret.content;
+				if(param.length > 0){
+					scanResult(param);
+				}
+	    	}
+        });
+
+        setTimeout('openScanFrame();', 300);
+	}
+
+
+	function initEvent(){
+		api.addEventListener({
+		    name: 'openScanitEvent'
+		}, function(ret, err){
+			openView();
+
+			api.closeWin({
+			    name: 'scanit2'
+			});
+
+			api.closeWin({
+			    name: 'storeWin'
+			});
+
+			api.closeWin({
+			    name: 'scanit4'
+			});
+
+			api.closeWin({
+			    name: 'memberCardInputWin'
+			});
+		  
+		});
+	}
+	
+	function openScanFrame(){
+	    api.openFrame({
+            name: 'scan_frame',
+            url: './scan_frame.html',
+            scrollEnabled:false,
+            vScrollBarEnabled:false,
+            reload: true,
+            bounces:false,
+            rect: {
+   				x: 0,
+                y: h,
+                w: api.winWidth,
+                h: api.winHeight - h
+            }
+        });
+	}
+	
+	/**
+	 * 扫一扫结果处理
+	 */
+	function scanResult(param){
+		if(param.length < 2){
+			return;
+		}
+		
+		var no = param.substring(0,3);
+		switch(no){
+			case 'GSN':
+				//扫超市SN
+				resetView();
+				openStoreWin(param);
+				break;
+			case 'GPN':
+				//扫商品PN
+				resetView();
+				openProduct(param);
+				break;
+			case 'GMN':
+				//扫会员卡MN
+				resetView();
+				openMemberCard(param);
+				break;
+			case 'GCN':
+				//扫优惠券CN
+				resetView();
+				openCoupon(param);
+				break;
+			default:
+				//global.setToast('Invalid code');
+
+				//errCode();
+				resetView();
+				err();					
+				break;
+		}
+	}
+	
+	function errCode(){
+		//openScanFrame();
+		setTimeout(function(){
+			if(FNScanner){
+				FNScanner.closeView();
+			}
+		}, 2500);
+	
+		api.sendEvent({
+	        name:'closeScanit1Event'				        
+        });
+	}
+
+	function err(){
+		api.closeFrame({name: 'scan_frame'});
+		
+	    api.openFrame({
+	        name: 'couponAddErrFrm',
+	        url: '../member/coupon_add_err.html'
+	        
+        });
+	}
+	/**
+	 *门店列表 
+	 */
+	function openStoreWin(no){
+		api.ajax({
+			method : 'get',
+			cache : false,
+			dataType : 'json',
+			returnAll : false,
+			url : global.getRequestUri() + '/supermarket/qrcode?qrcode=' + no,
+			headers : global.getRequestToken()
+		}, function(ret, err) {
+			if (ret && ret.id) {
+				openScanFrame();
+				api.openWin({
+					name : 'storeWin',
+					url : '../common/common_win.html',
+					slidBackEnabled : false,
+					pageParam : {
+						title : ret.name,
+						page : '../portal/store_frame',
+						supermarketId : ret.id,
+						type : 1
+					}
+				});
+			}else{
+				global.setToast('The barcode is incorrect');
+				errCode();
+			}
+		});
+	}
+	
+	/**
+	 *商品 
+	 */
+	function openProduct(no){
+		api.ajax({
+			method : 'get',
+			cache : false,
+			dataType : 'json',
+			returnAll : false,
+			url : global.getRequestUri() + '/product/qrcode?qrcode=' + no,
+			headers : global.getRequestToken()
+		}, function(ret, err) {
+			if (ret && ret.id) {
+				openScanFrame();
+//				api.openWin({
+//					name : 'scanit4',
+//					url : './scanit4.html',
+//					slidBackEnabled : false,
+//					pageParam : {
+//						productId : ret.id,
+//						name : ret.name,
+//						storeId : ret.supermarketStoreId 
+//					}
+//				});
+
+				api.ajax({
+					method : 'post',
+					cache : false,
+					dataType : 'json',
+					returnAll : false,
+					url : global.getRequestUri() + '/shopcart/add',
+					headers : global.getRequestToken(),
+					data : {
+						values : {
+							productId : ret.id,
+							number : 1,
+							amount : ret.priceDiscount
+						}
+					}
+				}, function(ret, err) {
+					setTimeout(function(){
+						api.sendEvent({
+		                    name:'openScanitEvent'
+	                    });
+                    }, 500);
+					if (ret) {
+						if(ret.success){
+							api.sendEvent({
+			                    name:'shopcartEvent'
+		                    });
+		                    
+							global.setToast('added to cart');
+						}else{
+							global.setToast(ret.message);
+						}
+					} else {
+						global.setToast('add cart failed');
+					}
+				});
+			}else{
+				global.setToast('The barcode is incorrect');
+				errCode();
+			}
+		});
+	}
+	
+	/**
+	 *会员卡
+	 */
+	function openMemberCard(no){
+		api.ajax({
+			method : 'get',
+			cache : false,
+			dataType : 'json',
+			returnAll : false,
+			url : global.getRequestUri() + '/card/qrcode?qrcode=' + no,
+			headers : global.getRequestToken()
+		}, function(ret, err) {
+			if (ret && ret.id) {
+				openScanFrame();
+				api.openWin({
+					name : 'memberCardInputWin',
+					url : '../member/member_card.html',
+					slidBackEnabled : false,
+					pageParam : {
+						no : ret.no
+					}
+				});
+			}else{
+				global.setToast('The barcode is incorrect');
+				errCode();
+			}
+		});
+	}
+	
+	/**
+	 *优惠券
+	 */
+	function openCoupon(no){
+		api.ajax({
+			method : 'get',
+			cache : false,
+			dataType : 'json',
+			returnAll : false,
+			url : global.getRequestUri() + '/coupon/qrcode?qrcode=' + no,
+			headers : global.getRequestToken()
+		}, function(ret, err) {
+			if (ret && ret.id) {
+				openScanFrame();
+				api.sendEvent({
+	                name:'scanCouponEvnet',
+	                extra: {
+	                	id: ret.id,
+	                	name: ret.name,
+	                	no: ret.no
+	                }
+                });
+                
+                api.openFrame({
+			        name: 'couponAddFrm',
+			        url: '../member/coupon_add.html',
+			        pageParam: {
+			        	no: ret.no
+			        }
+		        });
+			}else{
+				global.setToast('The barcode is incorrect');
+				errCode();
+			}
+		});
+	}
+	
+	/**
+	 *手动输入 
+	 */
+	function inputScan(){
+		setTimeout(function(){
+			FNScanner.closeView();
+		},500);
+		api.openWin({
+			name : 'scanit2',
+			url : './scanit2.html',
+			slidBackEnabled : false
+		});
+	}
+	
+	/**
+	 *重置扫一扫 
+	 */
+	function resetView(){
+		FNScanner.closeView();
+		//setTimeout('openView();', 1000);
+	}
+</script>
+</html>

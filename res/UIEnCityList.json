@@ -1,0 +1,338 @@
+[
+    {
+        "p_id": "36",
+        "name": "New York",
+        "p_no": "34",
+        "sub": [
+            {
+                "c_id": "484",
+                "name": "Albany",
+                "c_no": "0"
+            },
+            {
+                "c_id": "489",
+                "name": "Buffalo",
+                "c_no": "1"
+            },
+            {
+                "c_id": "510",
+                "name": "New York",
+                "c_no": "2"
+            }
+        ]
+    },
+    {
+        "p_id": "37",
+        "name": "Georgia",
+        "p_no": "35",
+        "sub": [
+            {
+                "c_id": "485",
+                "name": "Atlanta",
+                "c_no": "0"
+            }
+        ]
+    },
+    {
+        "p_id": "38",
+        "name": "Maryland",
+        "p_no": "36",
+        "sub": [
+            {
+                "c_id": "486",
+                "name": "Annapolis",
+                "c_no": "0"
+            },
+            {
+                "c_id": "487",
+                "name": "Baltimore",
+                "c_no": "1"
+            }
+        ]
+    },
+    {
+        "p_id": "39",
+        "name": "Alabama",
+        "p_no": "37",
+        "sub": [
+            {
+                "c_id": "488",
+                "name": "Birmingham",
+                "c_no": "0"
+            }
+        ]
+    },
+    {
+        "p_id": "40",
+        "name": "Illinois",
+        "p_no": "38",
+        "sub": [
+            {
+                "c_id": "490",
+                "name": "Chicago",
+                "c_no": "0"
+            }
+        ]
+    },
+    {
+        "p_id": "41",
+        "name": "Ohio",
+        "p_no": "39",
+        "sub": [
+            {
+                "c_id": "491",
+                "name": "Cincinnati",
+                "c_no": "0"
+            },
+            {
+                "c_id": "492",
+                "name": "Cleveland",
+                "c_no": "1"
+            },
+            {
+                "c_id": "493",
+                "name": "Columbus",
+                "c_no": "2"
+            }
+        ]
+    },
+    {
+        "p_id": "42",
+        "name": "Texas",
+        "p_no": "40",
+        "sub": [
+            {
+                "c_id": "494",
+                "name": "Dallas",
+                "c_no": "0"
+            }
+        ]
+    },
+    {
+        "p_id": "43",
+        "name": "Colorado",
+        "p_no": "41",
+        "sub": [
+            {
+                "c_id": "495",
+                "name": "Denver",
+                "c_no": "0"
+            }
+        ]
+    },
+    {
+        "p_id": "44",
+        "name": "Alaska",
+        "p_no": "42",
+        "sub": [
+            {
+                "c_id": "496",
+                "name": "Fairbanks",
+                "c_no": "0"
+            }
+        ]
+    },
+    {
+        "p_id": "45",
+        "name": "Pennsylvania",
+        "p_no": "43",
+        "sub": [
+            {
+                "c_id": "497",
+                "name": "Philidelphia",
+                "c_no": "0"
+            },
+            {
+                "c_id": "514",
+                "name": "Pittsburgh",
+                "c_no": "1"
+            }
+        ]
+    },
+    {
+        "p_id": "46",
+        "name": "Hawaii",
+        "p_no": "44",
+        "sub": [
+            {
+                "c_id": "498",
+                "name": "Honolulu",
+                "c_no": "0"
+            }
+        ]
+    },
+    {
+        "p_id": "47",
+        "name": "Indiana",
+        "p_no": "45",
+        "sub": [
+            {
+                "c_id": "499",
+                "name": "Indianapolis",
+                "c_no": "0"
+            }
+        ]
+    },
+    {
+        "p_id": "48",
+        "name": "Florida",
+        "p_no": "46",
+        "sub": [
+            {
+                "c_id": "500",
+                "name": "Jacksonville",
+                "c_no": "0"
+            },
+            {
+                "c_id": "518",
+                "name": "Tampa",
+                "c_no": "1"
+            }
+        ]
+    },
+    {
+        "p_id": "49",
+        "name": "Kansas",
+        "p_no": "47",
+        "sub": [
+            {
+                "c_id": "501",
+                "name": "Kansas City",
+                "c_no": "0"
+            }
+        ]
+    },
+    {
+        "p_id": "50",
+        "name": "California",
+        "p_no": "48",
+        "sub": [
+            {
+                "c_id": "502",
+                "name": "Los Angeles",
+                "c_no": "0"
+            },
+            {
+                "c_id": "503",
+                "name": "Sacramento",
+                "c_no": "1"
+            },
+            {
+                "c_id": "504",
+                "name": "San Diego",
+                "c_no": "2"
+            },
+            {
+                "c_id": "505",
+                "name": "San Francisco",
+                "c_no": "3"
+            },
+            {
+                "c_id": "506",
+                "name": "San Jose",
+                "c_no": "4"
+            }
+        ]
+    },
+    {
+        "p_id": "51",
+        "name": "Nevada",
+        "p_no": "49",
+        "sub": [
+            {
+                "c_id": "507",
+                "name": "Las Vegas",
+                "c_no": "0"
+            }
+        ]
+    },
+    {
+        "p_id": "52",
+        "name": "Minnesota",
+        "p_no": "50",
+        "sub": [
+            {
+                "c_id": "508",
+                "name": "Minneapolis",
+                "c_no": "0"
+            },
+            {
+                "c_id": "509",
+                "name": "Saint Paul",
+                "c_no": "1"
+            }
+        ]
+    },
+    {
+        "p_id": "53",
+        "name": "Louisiana",
+        "p_no": "51",
+        "sub": [
+            {
+                "c_id": "511",
+                "name": "New Orleaans",
+                "c_no": "0"
+            }
+        ]
+    },
+    {
+        "p_id": "54",
+        "name": "Nebraska",
+        "p_no": "52",
+        "sub": [
+            {
+                "c_id": "512",
+                "name": "Omaha",
+                "c_no": "0"
+            }
+        ]
+    },
+    {
+        "p_id": "55",
+        "name": "Arizona",
+        "p_no": "53",
+        "sub": [
+            {
+                "c_id": "513",
+                "name": "Phoenix",
+                "c_no": "0"
+            }
+        ]
+    },
+    {
+        "p_id": "56",
+        "name": "Utah",
+        "p_no": "54",
+        "sub": [
+            {
+                "c_id": "515",
+                "name": "Salt Lake City",
+                "c_no": "0"
+            }
+        ]
+    },
+    {
+        "p_id": "57",
+        "name": "Missouri",
+        "p_no": "55",
+        "sub": [
+            {
+                "c_id": "516",
+                "name": "Saint Louis",
+                "c_no": "0"
+            }
+        ]
+    },
+    {
+        "p_id": "58",
+        "name": "Washington",
+        "p_no": "56",
+        "sub": [
+            {
+                "c_id": "517",
+                "name": "Seattle",
+                "c_no": "0"
+            }
+        ]
+    }
+]

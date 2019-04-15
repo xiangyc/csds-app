@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>客服与反馈</title>
+    <link rel="stylesheet" type="text/css" href="../../css/aui.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/common.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/member.css" />
+</head>
+<body>
+<header class="aui-bar aui-bar-text  padded-t-25">
+    <a tapmode onclick="api.closeWin();" class="black-return-text">
+        <img src="../../image/member/black-return.png">客服与反馈
+    </a>
+</header>
+ <div class="feedback">
+     <p>填写您的意见与反馈</p>
+     <textarea id="content" placeholder="请输入至少10个文字" maxlength="500" style="overflow-y:scroll"></textarea>
+     <div class="aui-btn aui-btn-login" id="btnSave" onclick="save();">提交</div>
+ </div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/common/global.js" ></script>
+<script type="text/javascript" src="../../script/common/validate.js" ></script>
+<script type="text/javascript">
+    
+    function save(){
+        var content = $api.val($api.byId('content'));
+
+        if (validate.isEmpty(content)) {
+            global.setToast('意见与反馈不能为空');
+            return;
+        }
+
+        if (content.length >500) {
+            global.setToast('意见与反馈过长');
+            return;
+        }
+
+        $api.removeAttr($api.byId('btnSave'), 'onclick');
+        api.ajax({
+            method : 'post',
+            cache : false,
+            dataType : 'json',
+            returnAll : false,
+            url : global.getRequestUri() + '/feedback/add',
+            headers : global.getRequestToken(),
+            data : {
+                values :  {
+                    'content' : content
+                }
+            }
+        }, function(ret, err) {
+            if (ret) {
+                if (ret.success) {
+                    global.setToast('意见反馈成功，感谢您的宝贵意见');
+                    setTimeout(api.closeWin, 1000);
+                } else {
+                    global.setToast(ret.message);
+                }
+            } else {
+                global.setErrorToast();
+            }
+
+            $api.attr($api.byId('btnSave'), 'onclick', 'save();');
+        });
+    }
+ </script>   
+</html>

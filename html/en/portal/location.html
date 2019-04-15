@@ -1,0 +1,242 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, initial-scale=1.0, width=device-width"/>
+    <meta name="format-detection" content="telephone=no, email=no, date=no, address=no">
+    <title>location</title>
+    <link rel="stylesheet" type="text/css" href="../../../css/aui.css" />
+    <link rel="stylesheet" type="text/css" href="../../../css/common.css" />
+    <link rel="stylesheet" type="text/css" href="../../../css/portal.css" />
+</head>
+<body>
+<div id="header" class="aui-bar padded-t-25">
+    <a tapmode onclick="api.closeWin();" class="black-return-text">
+        <img src="../../../image/member/black-return.png">location
+    </a>
+</div>
+<div id="top" class="location-bar">
+    <a tapmode onclick="currentFrame();" class="aui-pull-left location-icon">
+        <img src="../../../image/portal/location-icon.png">current location<span id="cityName"></span>
+    </a>
+    <a tapmode onclick="selectCity();" class="location-text-r">select city</a>
+</div>
+</body>
+<script type="text/javascript" src="../../../script/api.js"></script>
+<script type="text/javascript" src="../../../script/common/global.js"></script>
+<script type="text/javascript">
+	//地图对象
+	var googleMap;
+	//经度
+	var longitude;
+	//纬度
+	var latitude;
+	//城市名
+	var cityName;
+	
+    apiready = function(){
+    	googleMap = api.require('googleMap');
+    	openMap();  
+    	
+		initEvent();
+    };
+
+	/**
+	 *初始化页面事件
+	 */
+    function initEvent(){
+    	api.addEventListener({
+            name:'citySelectorEvent'
+        },function(ret,err){
+        	api.closeFrame({
+        		name : 'currentLocationFrame'
+            });
+            api.closeWin({
+            	name : 'cityWin'
+            });
+           // alert('citySelectorEvent===='+JSON.stringify(ret));
+        	if(ret && ret.value){
+        		$api.html($api.byId('cityName'), ret.value.cityName);
+        		var address = 'Shipyard Park';
+        		googleMap.getCoordsFromName({
+				    city: ret.value.cityName,
+				    //address: 'Chicago, USA'
+				    address:  ret.value.cityName + ', USA'
+				}, function(ret, err) {
+					// alert('getCoordsFromName ret===='+JSON.stringify(ret));
+					// alert('getCoordsFromName err===='+JSON.stringify(err));
+				    if (ret.status) {
+				        setCenterLocation(ret.lon, ret.lat);
+				    }
+				});
+        	}
+        });
+        
+        api.addEventListener({
+	        name:'setLocationEvent'
+        },function(ret,err){
+			setTimeout(function(){
+	            api.closeFrame({
+	        		name : 'currentLocationFrame'
+	            });
+            },300);
+             //alert('setLocationEvent===='+JSON.stringify(ret));
+        	if(ret && ret.value){
+        		$api.html($api.byId('cityName'), ret.value.cityName);
+        		setCenterLocation(ret.value.lon, ret.value.lat);
+        	}
+        });
+    }
+    
+    /**
+     *打开地图 
+     */
+    function openMap(){    
+	    var header = $api.byId('header');
+	    var top = $api.byId('top');
+	    if(header){
+	        $api.fixIos7Bar(header);
+	    }
+	    var pos = $api.offset(header);
+	    var topBar = $api.offset(top);
+		var h = pos.h + topBar.h;
+
+		googleMap.open({
+		    rect: {
+		        x: 0,
+		        y: h,
+    			h: api.winHeight - h
+		    },
+		    showUserLocation: true,
+		    zoomLevel: 11,
+		    center: {
+		        lon: -74.115263,
+		        lat: 40.900701
+		    },
+		    fixedOn: api.frameName,
+		    fixed: true
+		}, function(ret) {
+			
+				//alert('open===='+JSON.stringify(ret));
+				if(ret.status){
+					currentFrame();
+				
+					var city = global.getCityName();
+					if(city){
+						googleMap.getCoordsFromName({
+							city: city,
+						    address: city
+						}, function(ret, err) {
+		 					//alert('getCoordsFromName===='+JSON.stringify(ret));
+							
+						    if (ret.status) {				     
+					    		longitude = ret.lon;
+								latitude = ret.lat;		
+								
+								setCenterLocation(longitude, latitude);
+						    }else{
+						    	getLocation();
+						    }
+						});
+					}else{
+						getLocation();
+					}
+			    }
+		});
+    }
+	
+	/**
+	 *获取位置 
+	 */
+	function getLocation(){
+		googleMap.getLocation(function(ret, err) {
+			//alert('getLocation===='+JSON.stringify(ret));
+	    	if (ret.status) {		
+	    		longitude = ret.lon;
+				latitude = ret.lat;		
+				
+				setCenterLocation(longitude, latitude);
+	    	}
+		});
+	}
+	
+	/**
+	 *设置中心点 
+	 */
+	function setCenterLocation(lon, lat){
+		//alert('setCenterLocation,lon=='+lon+' ,lat=' +lat);
+	   googleMap.setCenter({
+		    coords: {
+		        lon: lon,
+		        lat: lat
+		    }
+		});
+		
+		//alert('setCenterLocation,getNameFromCoords');
+		googleMap.getNameFromCoords({
+	    	lon: lon,
+		    lat: lat
+		}, function(ret, err) {
+			//alert('setCenterLocation ret===='+JSON.stringify(ret));
+			//alert('setCenterLocation err===='+JSON.stringify(err));
+		    if (ret.status) {
+		    	if(ret.city){
+		        	$api.html($api.byId('cityName'), ret.city);
+		        }else{
+		        	$api.html($api.byId('cityName'), ret.state);
+		        }
+		    }
+		});
+	}
+	
+	/**
+	 *当前城市 
+	 */
+	function currentFrame(){
+		googleMap.getLocation(function(ret, err) {
+			//alert('currentFrame 1===='+JSON.stringify(ret));
+	    	if (ret.status) {		
+	    		var lon = ret.lon;
+				var lat = ret.lat;
+				
+				googleMap.getNameFromCoords({
+			    	lon: lon,
+				    lat: lat
+				}, function(ret, err) {
+					//alert('currentFrame 2===='+JSON.stringify(ret));
+					//alert('currentFrame err===='+JSON.stringify(err) +'--lon='+lon+'--lat='+lat);
+				    if (ret.status) {
+				    	$api.html($api.byId('cityName'), ret.city);
+
+    					api.openFrame({
+					        name: 'currentLocationFrame',
+					        url: './location_current.html', 
+					        rect: {
+							    x:0,
+							    y:0,
+							    w:api.winWidth,
+							    h:api.winHeight
+						    },
+					        pageParam: {
+					        	lon : lon,
+					        	lat : lat,
+					        	cityName : ret.city
+					        }
+				        });
+				    }
+				});
+	    	}
+		});
+	}
+	
+	/**
+	 *选择城市 
+	 */
+	function selectCity(){
+		api.openWin({
+			name : 'cityWin',
+			url : './city_win.html'
+		});
+	}
+</script>
+</html>

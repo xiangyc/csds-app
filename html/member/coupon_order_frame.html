@@ -1,0 +1,131 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, initial-scale=1.0, width=device-width"/>
+	<meta name="format-detection" content="telephone=no, email=no, date=no, address=no">
+	<title>优惠券</title>
+	<link rel="stylesheet" type="text/css" href="../../css/aui.css" />
+	<link rel="stylesheet" type="text/css" href="../../css/common.css" />
+	<link rel="stylesheet" type="text/css" href="../../css/member.css" />
+</head>
+<body>
+<div class="aui-content">
+	<div class="coupon-box coupon-box-index">
+	    <script id="coupon-template" type="text/x-dot-template">
+          {{ for(var i=0; i< it.length; i++) { }}
+          	{{if(it[i].status === 8){}}
+    		<div class="coupon-list">
+    		{{ }else{ }}
+    		<div class="coupon-list coupon-gray">
+    		{{ } }}
+				<div class="coupon-l"><div><sub>{{=it[i].couponTypeUnit}}</sub><em>{{=it[i].couponValue}}</em></div><span><i>{{=it[i].couponTypeName }}</i><em>{{=it[i].couponName }}</em></span></div>
+				<div class="coupon-r">
+					<div tapmode onclick="useCoupon({{=it[i].id}}, '{{=it[i].couponName }}', {{=it[i].status }});" class="coupon-r-btn">
+						{{if(it[i].status === -1){}}
+							待领取
+						{{ }else if(it[i].status === 0){ }}
+							不能使用
+						{{ }else if(it[i].status === 1){ }}
+							已使用
+						{{ }else if(it[i].status === 8){ }}
+							使用
+						{{ }else{ }}
+							已过期
+						{{ } }}
+					</div>
+				</div>
+			</div>
+          {{ } }}
+        </script>
+
+        <div id="coupon-content"></div>
+
+	</div>
+</div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/common/global.js"></script>
+<script type="text/javascript" src="../../script/common/page.js"></script>
+<script type="text/javascript" src="../../script/library/doT.min.js"></script>
+<script type="text/javascript">
+	//券ID
+	var id;
+	//券名称
+	var couponName;
+	//来源(1：下单选择,2:其它);
+	var src = 2;
+
+	var productIds;
+	var	numbers ;
+	
+	apiready = function(){
+		src = api.pageParam.src;
+		productIds = api.pageParam.productIds;
+		numbers = api.pageParam.numbers;	
+
+		queryCoupon();
+		initEvent();
+	}
+	
+	/**
+	 *初始化事件
+	 */
+	function initEvent() {
+		api.setCustomRefreshHeaderInfo({
+			bgColor : '#fdf7e7',
+			image : {
+				pull : global.pullImage(),
+				load : global.pushImage()
+			}
+		}, function(ret, err) {
+			queryCoupon();
+			api.refreshHeaderLoadDone();
+		});
+	
+		api.addEventListener({
+			name : 'scrolltobottom',
+			extra : {
+				threshold : 0
+			}
+		}, function(ret, err) {
+			page.scrollRefresh();
+		});
+		
+	}
+	
+	/**
+	 *使用券 
+	 */
+	function useCoupon(id, couponName, status){
+		if(src === 1 && status === 8){
+			api.sendEvent({
+	            name:'couponSelectEvent',
+	            extra: {
+	            	id: id,
+	            	couponName: couponName
+	            }
+            });
+		}
+	}
+			
+	/**
+	 *查询券
+	 */
+	function queryCoupon(){
+	  	var params = '?start=0&maxResult=20&productIds='+productIds+'&numbers='+numbers;
+	  	var url = global.getRequestUri() + '/coupon/order/list';
+  		page.init(20, 'coupon-content', 'coupon-template', url, params, true, '');
+	}
+	
+	/**
+	 *关闭遮罩 
+	 */
+	function addCoupon(){
+    	api.openFrame({
+	        name: 'couponAddFrm',
+	        url: 'coupon_add.html',
+        });
+	}
+</script>
+</html>

@@ -1,0 +1,406 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, initial-scale=1.0, width=device-width"/>
+	<meta name="format-detection" content="telephone=no, email=no, date=no, address=no">
+	<title>Setting</title>
+	<link rel="stylesheet" type="text/css" href="../../../css/aui.css" />
+	<link rel="stylesheet" type="text/css" href="../../../css/common.css" />
+	<link rel="stylesheet" type="text/css" href="../../../css/member.css" />
+</head>
+<body>
+<header class="aui-bar aui-bar-text  padded-t-25">
+    <a tapmode onclick="api.closeWin();" class="black-return-text">
+		<img src="../../../image/member/black-return.png">Setting
+	</a>
+</header>
+<div class="set-box">
+	<ul class="set-list">
+		<li tapmode onclick="openPayPasswordModify();" class="auth-info list-item-arrow"><div class="item-title">Change the payment password</div></li>
+		<li tapmode onclick="openPasswordModify();" class="auth-info list-item-arrow"><div class="item-title">Change the login password</div></li>
+		<li class="auth-info" tapmode onclick="cleanCache();"><div class="item-title">Clean up the cache</div><div id='cacheSizeDivIs' class="item-right"></div></li>
+		<li class="auth-info list-item-arrow" tapmode onclick="aboutUs();"><div class="item-title">About us</div></li>
+		<li class="auth-info" id="versionLi" tapmode onclick="versionCheck();"><div class="item-title">Update</div><div id="version" class="item-right">v1.0</div></li>
+		<li tapmode onclick="lanuageSelect();" tapmode class="auth-info list-item-arrow list-item-arrow-down"><div class="item-title">Lanuage</div><div id="lanuageDiv" class="item-right-znen"></div>
+			<div id="lanuageSelectDiv" class="gender-box aui-hide"><span tapmode onclick="lanuageSet('zh');">Chinese</span><span tapmode onclick="lanuageSet('en');">English</span></div>
+		</li>
+		<li tapmode onclick="logOut();" class="auth-info list-item-arrow"><div class="item-title">Sign out</div></li>
+	</ul>
+</div>
+
+ <div id="versionUpdateDropDiv" class="aui-mask aui-mask-in aui-hide"></div>
+
+<div id="versionUpdate" class="bomb-box aui-hide">
+	<div class="bomb-main">
+        <h4 class="title">Update content<br/>
+        </h4>
+        <div class="bomb-c"><p id="versionDescription">
+        	
+        </p></div>
+    </div>
+    <div class="bomb-button-b"><button class="bomb-button" onclick="versionCancel()">Cancel</button><button id="submitBtn" class="bomb-button yellow" onclick="download();">Update</button></div>
+</div>
+
+</body>
+<script type="text/javascript" src="../../../script/api.js"></script>
+<script type="text/javascript" src="../../../script/common/global.js" ></script>
+<script type="text/javascript">
+
+	apiready = function(){
+		initEvent();
+		cacheSize();
+
+		$api.html($api.byId('version'), 'v' + global.getVersion());
+
+		if (api.systemType !== 'ios' ){
+			$api.attr($api.byId('versionLi'), 'onclick', 'versionCheck();');
+		}
+		
+		if(global.getLanuage() === 'en'){
+			$api.html($api.byId('lanuageDiv'), 'English');
+		}else{
+			$api.html($api.byId('lanuageDiv'), 'Chinese');
+		}
+	};
+
+	function initEvent(){
+		api.addEventListener({
+		    name: 'keyback'
+		}, function(ret, err) {
+		    api.closeWin();
+		});
+	}
+	
+	/**
+	 *计算缓存
+	 */
+	function cacheSize(){
+		//异步返回结果：
+		api.getCacheSize(function(ret) {
+		    var size = ret.size;
+			$api.html($api.byId('cacheSizeDivIs'), (size/1024/1024).toFixed(2)+'M');
+		    
+		});
+	}
+
+	/**
+	 *清除缓存
+	 */
+	function cleanCache(){
+		
+		var dialogBox = api.require('dialogBox');
+		dialogBox.alert({
+		    texts: {
+		        content: '',
+		        leftBtnTitle: 'Cancel',
+		        rightBtnTitle: 'Confirm'
+		    },
+		    styles: {
+		        bg: '#fff',
+		        corner: 10,
+		        w: 300,
+		        content: {
+		        	marginT: 50, 
+		            color: '#000',
+		            size: 16
+		        },
+		        left: {
+		            marginB: 7,
+		            marginL: 20,
+		            w: 130,
+		            h: 35,
+		            corner: 2,
+		            bg: '#fff',
+		            color: '#fc531f',
+		            size: 14
+		        },
+		        right: {
+		            marginB: 7,
+		            marginL: 10,
+		            w: 130,
+		            h: 35,
+		            corner: 2,
+		            bg: '#fff',
+		            color: '#fc531f',
+		            size: 14
+		        }
+		    }
+		}, function(ret) {
+		    if (ret.eventType == 'right') {
+		    	api.clearCache(function(ret, err) {
+		            api.toast({
+		                    msg : 'Cache cleared',
+		                    location : 'middle'
+		            });
+		            
+	            	$api.html($api.byId('cacheSizeDivIs'), '0.00M');
+		        });
+		    }
+		    dialogBox.close({
+		    	dialogName: 'alert'
+		    });
+		});
+
+	}
+
+	/**
+	 *更改支付密码
+	 */
+	function openPayPasswordModify(){
+		if( global.getAuthStatus() === '0'){//实名认证申请中
+          	api.confirm({
+				//title : '请先实名认证',
+				msg : 'Certification application',
+				buttons : ['Go to see', 'First look around']
+		    },function(ret,err){
+				if (ret.buttonIndex === 1) {
+					// api.openWin({
+			  //          name : 'authSubWin',
+			  //          url : './auth_win.html'
+			  //       });  
+			      auth(); 
+				}
+			});
+
+        }else if(global.getAuthStatus() === '-1'){//请先实名认证
+          	api.confirm({
+				//title : '请先实名认证',
+				msg : 'Real name authentication',
+				buttons : ['Yes', 'No']
+		    },function(ret,err){
+				if (ret.buttonIndex === 1) {
+					api.openWin({
+			           name : 'authSubWin',
+			           url : './auth_win.html'
+			        });  
+				}
+			});
+
+        }else{
+        	api.openWin({
+				name : 'payPasswordWin',
+				url : 'pay_password_modify.html'
+			});
+        }
+
+	}
+	
+	/**
+	 *更改登录密码
+	 */
+	function openPasswordModify(){
+		api.openWin({
+			name : 'passwordWin',
+			url : 'password_modify.html'
+		});
+	}
+	
+	/**
+	 *退出
+	 */
+	function logOut(){
+  //     	api.confirm({
+		// 	msg : 'Confirm Exit',
+		// 	buttons : ['Exit', 'Cancel']
+	 //    },function(ret,err){
+		// 	if (ret.buttonIndex === 1) {
+		// 		api.sendEvent({
+		// 	        name:'logOutEvent'
+		//         });
+		// 	}
+		// });
+
+		api.sendEvent({
+	        name:'logOutEvent'
+        });
+	}
+
+	/**
+	 *联系我们
+	 */
+	function aboutUs(){
+		api.openWin({
+			name : 'aboutUsWin',
+			url : '../statics/aboutUs.html'
+		});
+	}
+
+
+	function versionCheck() {
+		api.ajax({
+			method : 'get',
+			cache : false,
+			dataType : 'json',
+			returnAll : false,
+			url : global.getRequestUri() + '/app-versions/update',
+			data : {
+				values : {
+					'version' : global.getVersion(),
+					'publishPlatform' : api.systemType
+				}
+			},
+			headers : global.getRequestToken()
+		}, function(ret, err) {
+			if (ret) {			
+				if (ret.currentVersion) {
+					downloadUrl = ret.downloadUrl;
+
+					$api.removeCls($api.byId('versionUpdate'), 'aui-hide');
+					$api.removeCls($api.byId('versionUpdateDropDiv'), 'aui-hide');
+					$api.html($api.byId('versionDescription'), ret.description);
+				} else {
+					global.setToast('Latest version');
+				}
+			} else {
+				global.setErrorToast();
+			}
+		});
+	}
+
+	function versionCancel(){
+		$api.addCls($api.byId('versionUpdate'), 'aui-hide');
+		$api.addCls($api.byId('versionUpdateDropDiv'), 'aui-hide');
+	}
+
+	function download(){
+		versionCancel();
+		
+	    api.download({
+		   url: downloadUrl,
+		   report: true,
+		   cache: false,
+		   allowResume: true
+		}, function(ret, err) {
+			if(ret){
+				if(ret.state == 0){
+					api.showProgress({
+						style : 'default',
+						animationType : 'fade',
+						title : 'Download...',
+			            text : ret.percent + "%",
+					    modal: false
+					});
+				}
+
+				if (ret.state == 1) {
+					api.hideProgress();				
+		            var savePath = ret.savePath;
+		            install(savePath);
+				}
+			}else{
+				api.hideProgress();
+				global.setToast('Download failed');
+			} 
+		});
+	}
+
+	function removeApk(savePath){
+		var fs = api.require('fs');
+		fs.remove({
+		    path: savePath
+		}, function(ret, err) {
+		});
+	}
+
+	function install(savePath){
+		api.confirm({
+				title : 'Install the latest version',
+				//msg : '有新版本可以安装了',
+				buttons : ['Close', 'install']
+		    },function(ret,err){
+				if (ret.buttonIndex === 2) {
+					api.installApp({
+		                appUri: savePath
+		            });
+				}
+		});
+	}
+
+	function auth(){
+		api.ajax({
+            method : 'get',
+            cache : false,
+            dataType : 'json',
+            returnAll : false,
+            url : global.getRequestUri() + '/member/info/auth',
+            headers : global.getRequestToken()           
+        }, function(ret, err) {
+            if(ret && ret.code === "403"){
+                api.sendEvent({
+                    name:'tokenExpiredEvent',
+                    extra:{
+                        msg : ret.message
+                    }
+                });
+                
+                return;
+            }
+
+            if (ret) {
+                if (ret.success) {
+                    if(ret.obj){                     
+                        api.openWin({
+                            name : 'authInfoSubWin',
+                            url : './auth_info.html',
+                            pageParam : {
+                                name : ret.obj.firstName,
+                                lastName : ret.obj.lastName,
+                                idCard :ret.obj.idCard,
+                                email : ret.obj.email,
+                                status:ret.obj.status
+                            }
+                        });  
+                    }else{
+						api.openWin({
+							name : 'authSubWin',
+							url : './auth_win.html'
+						});
+                    }
+                } else {
+                    global.setToast(ret.message);
+                }
+            } else {
+                global.setErrorToast();
+            }
+        });
+	}
+	
+	function lanuageSelect(){
+		if($api.hasCls($api.byId('lanuageSelectDiv'), 'aui-hide')){
+			$api.removeCls($api.byId('lanuageSelectDiv'), 'aui-hide');
+		}else{
+			$api.addCls($api.byId('lanuageSelectDiv'), 'aui-hide');
+		}
+	}
+	
+	function lanuageSet(value){
+		api.ajax({
+            method : 'put',
+            cache : false,
+            dataType : 'json',
+            returnAll : false,
+            url : global.getRequestUri() + '/auth/setLang?lang=' + value,
+            headers : global.getRequestToken()
+        }, function(ret, err) {
+			global.setLanuage(value);
+			var url = './set.html';
+			if(value === 'en'){
+				$api.html($api.byId('lanuageDiv'), 'English');
+			}else{
+				$api.html($api.byId('lanuageDiv'), 'Chinese');
+				url = '../../member/set.html';
+			}
+			api.sendEvent({
+	            name:'lanuageSetEvent'
+            });
+            
+			api.openWin({
+				name : 'openMemberSubWin',
+				url : url,
+				reload : true
+			});	
+        });
+	}
+</script>
+</html>

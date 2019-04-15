@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>Add Bank Card</title>
+    <link rel="stylesheet" type="text/css" href="../../../css/aui.css" />
+    <link rel="stylesheet" type="text/css" href="../../../css/common.css" />
+    <link rel="stylesheet" type="text/css" href="../../../css/member.css" />
+</head>
+<header class="aui-bar aui-bar-text  padded-t-25">
+    <a tapmode onclick="api.closeWin();" class="black-return-text">
+        <img src="../../../image/member/black-return.png">Add Bank Card
+    </a>
+</header>
+<body>
+ <div class="bankcard-add-debit">
+     <ul class="aui-list aui-form-list">
+         <li class="aui-list-item">
+             <div class="aui-list-item-inner">
+                 <div class="aui-list-item-input"><input type="text" id="cardName" maxlength="20" placeholder="Name on Card"></div>
+             </div>
+         </li>
+         <li class="aui-list-item">
+             <div class="aui-list-item-inner">
+                 <div class="aui-list-item-input"><input type="tel" id="cardNo" minlength="10" maxlength="20" placeholder="Card No"></div>
+             </div>
+         </li>
+     </ul>
+     <div tapmode onclick="openNextWin();" class="aui-btn-box aui-padded-t-15">
+         <div class="aui-btn aui-btn-login aui-margin-t-13">next</div>
+     </div>
+ </div>
+</body>
+<script type="text/javascript" src="../../../script/api.js"></script>
+<script type="text/javascript" src="../../../script/common/global.js" ></script>
+<script type="text/javascript" src="../../../script/library/base64.js"></script>
+<script type="text/javascript" src="../../../script/common/validate.js" ></script>
+<script type="text/javascript">
+
+	apiready = function(){
+	}
+
+	/**
+	 *下一步 
+	 */
+	function openNextWin(){
+        var name = $api.val($api.byId('cardName'));
+        var no = $api.val($api.byId('cardNo'));
+
+         if (validate.isEmpty(name)) {
+            global.setToast("you can't leave this empty");
+            return;
+        }
+
+        if (validate.isEmpty(no)) {
+            global.setToast("you can't leave this empty");
+            return;
+        }
+
+        if (no.length <10) {
+            global.setToast("Enter at least 10 bits at card number");
+            return;
+        }
+
+         api.ajax({
+            method : 'post',
+            cache : false,
+            dataType : 'json',
+            returnAll : false,
+            url : global.getRequestUri() + '/card/debit/cardNo',
+            headers : global.getRequestToken(),
+            timeout : 100,
+            data : {
+                values :  {
+                    'name' : name,
+                    'no' : no
+                 }
+            }
+        }, function(ret, err) {
+            if(ret && ret.code === "403"){
+                api.sendEvent({
+                    name:'tokenExpiredEvent',
+                    extra:{
+                        msg : ret.message
+                    }
+                });
+                
+                return;
+            }
+            if (ret) {
+                if (ret.success) {
+
+                    api.openWin({
+                        name : 'addBandCardSubWin3',
+                        url : './bankcard_add_debit3.html',
+                        pageParam : {
+                            name : name,
+                            no :no
+                        }
+                    });
+                                
+                } else {
+                    global.setToast(ret.message);
+                }
+            } else {
+                global.setErrorToast();
+            }
+        });
+	}
+</script>
+</html>

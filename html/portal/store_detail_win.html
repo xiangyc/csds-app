@@ -1,0 +1,184 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, initial-scale=1.0, width=device-width"/>
+    <meta name="format-detection" content="telephone=no, email=no, date=no, address=no">
+    <title>门店详情</title>
+  	<link rel="stylesheet" type="text/css" href="../../css/aui.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/common.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/portal.css" />
+    <style>
+    .aui-popup.aui-popup-top-right{ top: 1.7rem; }
+    .aui-list .aui-list-item{ height: 1.2rem; line-height: 1.2rem; }
+    </style>
+</head>
+<body id="bodyHeigthDIV" class="padded-b-50">
+    <div id="top" class="shop-details-top">
+        <header class="aui-bar aui-bar-text aui-border-none">
+            <a tapmode onclick="api.closeWin();" class="black-return-text color-white">
+                <img src="../../image/portal/white-return.png"><span id="nameSpan"></span>
+            </a>
+            <a class="black-return-text-rimg color-white">
+                <img tapmode onclick="openMore();" src="../../image/portal/top-more-icon.png">
+            </a>
+            <ul id="extUl" class="header-gz-box aui-hide">
+            	<li id="interestLi" tapmode onclick="interest();">关注</li>
+            	<li tapmode onclick="openMemberCard();">绑定会员卡</li>
+            </ul>
+        </header>
+        <div class="shop-details-top-img">
+            <div class="shop-details-top-bg"></div>
+            <img id="logoImg" src="../../image/portal/shop-top-img.jpg" onerror="this.src='../../image/portal/shop-top-img.jpg'">
+        </div>
+        <div tapmode onclick="openLocation();" class="shop-details-top-address"><img src="../../image/portal/shop-address-icon.png"><span id="addressSpan"></span></div>
+    </div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/common/global.js"></script>
+<script type="text/javascript" src="../../script/common/calculate.js"></script>
+<script type="text/javascript" src="../../script/library/doT.min.js"></script>
+<script type="text/javascript">	
+	//门店ID
+	var storeId;
+	
+	apiready = function(){
+		$api.fixStatusBar($api.byId('bodyHeigthDIV'));
+		storeId = api.pageParam.storeId;
+		getStoreInfo();
+		hasInterest();
+		
+		var top = $api.byId('top');
+	    var pos = $api.offset(top);
+		
+	    api.openFrame({
+	        name: 'store_detail_frame',
+	        url: './store_detail_frame.html',
+	        rect:{
+	            x: 0,
+	            y: pos.h,
+	            w: 'auto',
+	            h: 'auto'
+	        },
+	        pageParam : api.pageParam,
+	        bounces: false,
+	        vScrollBarEnabled: false
+	    });
+	}
+	
+	/**
+	 *获取门店信息 
+	 */
+	function getStoreInfo(){
+		api.ajax({
+			method : 'get',
+			cache : false,
+			dataType : 'json',
+			returnAll : false,
+			url : global.getRequestUri() + '/supermarket/store?storeId=' + storeId,
+			headers : global.getRequestToken()
+		}, function(ret, err) {
+			if (ret) {
+				$api.attr($api.byId('logoImg'), 'src', global.getImgUri() + '/' + ret.icon);
+				$api.html($api.byId('nameSpan'), ret.name);
+				$api.html($api.byId('addressSpan'), ret.address);
+			}
+		});
+	}
+	
+	/**
+	 *是否已关注 
+	 */
+	function hasInterest(){
+		api.ajax({
+			method : 'get',
+			cache : false,
+			dataType : 'json',
+			returnAll : false,
+			url : global.getRequestUri() + '/interest/has-interest?storeId=' + storeId,
+			headers : global.getRequestToken()
+		}, function(ret, err) {
+			if (ret && ret.success) {
+				$api.html($api.byId('interestLi'), '已关注');
+			}
+		});
+	}
+	
+	/**
+	 *打开功能 
+	 */
+	function openMore(){
+		if($api.hasCls($api.byId('extUl'), 'aui-hide')){
+			$api.removeCls($api.byId('extUl'), 'aui-hide');
+		}else{
+			$api.addCls($api.byId('extUl'), 'aui-hide');
+		}
+	}
+	
+	/**
+	 *关注 
+	 */
+	function interest(){
+		var method = '/interest/add';
+		if($api.html($api.byId('interestLi')) == '已关注'){
+			method = '/interest/del';
+		}
+		
+		api.ajax({
+			method : 'post',
+			cache : false,
+			dataType : 'json',
+			returnAll : false,
+			url : global.getRequestUri() + method,
+			headers : global.getRequestToken(),
+			data : {
+				values : {
+					'id' : storeId
+				}
+			}
+		}, function(ret, err) {
+			if(ret){
+				if(ret.success){
+					$api.addCls($api.byId('extUl'), 'aui-hide');
+					
+					if($api.html($api.byId('interestLi')) == '关注'){
+						$api.html($api.byId('interestLi'), '已关注');
+					}else{
+						$api.html($api.byId('interestLi'), '关注');
+					}
+					
+					api.sendEvent({
+	                    name:'interestEvent'
+                    });
+				}else{
+					global.setToast(ret.message);
+				}
+			}
+		});
+	}
+	
+	/**
+	 *绑定会员卡 
+	 */
+	function openMemberCard(){
+		$api.addCls($api.byId('extUl'), 'aui-hide');
+		api.openWin({
+			name : 'memberCardWin',
+			url : '../member/member_card.html'
+		});
+	}
+	
+	/**
+	 *打开位置 
+	 */
+	function openLocation(){
+		api.openWin({
+			name : 'storeLocationWin',
+			url : './store_location.html',
+			pageParam : {
+				address : $api.html($api.byId('addressSpan'))
+			}
+		});
+	}
+</script>
+</html>

@@ -1,0 +1,39 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, initial-scale=1.0, width=device-width"/>
+	<meta name="format-detection" content="telephone=no, email=no, date=no, address=no">
+	<title>Scan</title>
+	<link rel="stylesheet" type="text/css" href="../../../css/aui.css" />
+	<link rel="stylesheet" type="text/css" href="../../../css/common.css" />
+	<link rel="stylesheet" type="text/css" href="../../../css/member.css" />
+    <style>
+    	html,body {
+			background-color: transparent !important;
+		}
+    </style>
+</head>
+<body>
+<div id="maskDiv" class="aui-mask aui-mask-in"></div>
+<div id="maskAddDiv" class="add-coupon-box" style="height: 5rem;">	
+	<span style="text-align:center; padding: 1.3rem 0; display: block;">no match </span>
+<!-- 	<div tapmode onclick="retry();" id="btnSave" class="aui-btn aui-btn-login">retry</div> -->
+</div>
+</body>
+<script type="text/javascript" src="../../../script/api.js"></script>
+<script type="text/javascript" src="../../../script/common/global.js"></script>
+<script type="text/javascript">
+	apiready = function(){
+		 setTimeout("retry();", 3000);
+	}
+
+	function retry(){
+		api.sendEvent({
+	        name:'openScanitEvent'				        
+        });
+        
+        setTimeout("api.closeFrame();", 200);
+	}
+</script>
+</html>

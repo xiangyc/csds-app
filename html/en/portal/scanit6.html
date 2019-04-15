@@ -1,0 +1,567 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, initial-scale=1.0, width=device-width"/>
+	<meta name="format-detection" content="telephone=no, email=no, date=no, address=no">
+	<title>Proceed to checkout</title>
+	<link rel="stylesheet" type="text/css" href="../../../css/aui.css" />
+	<link rel="stylesheet" type="text/css" href="../../../css/common.css" />
+	<link rel="stylesheet" type="text/css" href="../../../css/portal.css" />
+</head>
+<body id="Body" class="">
+<div class="aui-content padded-b-50">
+    <div class="settlement-shop-top border-b">
+		<h4 id="nameSpan"></h4>
+		<p id="addressSpan"></p>
+	</div>
+	<div class="settlement-pay-select border-b">
+        <div tapmode onclick="switchPay(1);" id="div1" class="settlement-pay-list list-item-arrow aui-clearfix text-blue">
+			<div class="select-shop-radio"><input class="aui-radio-img" type="radio" id="radio1" name="check-box" value="1" checked></div>Payment Balance<em id="balance">(￥0.0)</em>
+		</div>
+		<div tapmode onclick="switchPay(4);" id="div4" class="settlement-pay-list list-item-arrow aui-clearfix">
+			<div class="select-shop-radio"><input class="aui-radio-img" type="radio" id="radio4" name="check-box" value="2"></div>Card
+		</div>
+<!-- 		<div tapmode onclick="switchPay(6);" id="div6" class="settlement-pay-list list-item-arrow aui-clearfix">
+			<div class="select-shop-radio"><input class="aui-radio-img" type="radio" id="radio6" name="check-box" value="3"></div>UnionPay payment
+		</div> -->
+	</div>
+	<div id="couponDiv" tapmode onclick="openCouponWin();" class="settlement-pay-coupon border-b list-item-arrow">
+		<h3>Coupon</h3><span id="couponName"></span>
+	</div>
+
+	<div tapmode onclick="openInvoiceWin();" class="settlement-pay-coupon border-b aui-hide">
+		<h3>invoice</h3><span id="invoiceSpan"></span>
+	</div>
+	
+	<script id="product-template" type="text/x-dot-template">
+      {{ for(var i=0; i< it.length; i++) { }}
+		<div class="select-shop-list shop-car-list">
+			<div class="select-shop-radio">
+				<input class="aui-radio-img" id="chk{{=it[i].id }}" value="{{=it[i].id }}" type="checkbox" name="chkProduct" checked />
+			</div>
+			<div class="cnt">
+				<img class="pic" src="{{=it[i].image}}" onerror="this.src='../../../image/portal/shop-img.jpg'" >
+				<div class="wrap">
+					<div class="select-shop-l">
+						<div id="nameDiv{{=it[i].id }}" class="shopname">{{=it[i].name }}</div>
+						<div class="price">￥<em id="em{{=it[i].id }}">{{=it[i].price }}</em></div>
+					</div>
+					<div class="select-shop-r">
+						<div class="amount">
+							<div tapmode onclick="subCount({{=it[i].id }});" class="aui-bar-btn-item"><img src="../../../image/portal/amount-less.png"/></div>
+							<div class="aui-bar-btn-item" tapmode="" data-item-order="1">
+								<input id="{{=it[i].id }}" name="productNum" type="number" class="aui-input aui-text-center" value="{{=it[i].number }}" oninput="if(value.length>7)value=value.slice(0,7);" >
+							</div>
+							<div tapmode onclick="addCount({{=it[i].id }});" class="aui-bar-btn-item"><img src="../../../image/portal/amount-plus.png"/></div>
+						</div>
+				   </div>
+				</div>
+			</div>
+		</div>
+      {{ } }}
+    </script>
+        
+    <div id="product-content" class=" aui-margin-t-15">
+	</div>
+</div>
+
+<footer id="nextDIV" class="aui-bar aui-bar-tab shop-b-fixed">
+   <div tapmode onclick="next();" class="aui-bar-tab-item bg-blue aui-text-white">next</div>
+</footer>
+
+</body>
+<script type="text/javascript" src="../../../script/api.js"></script>
+<script type="text/javascript" src="../../../script/common/global.js"></script>
+<script type="text/javascript" src="../../../script/common/page.js"></script>
+<script type="text/javascript" src="../../../script/common/calculate.js"></script>
+<script type="text/javascript" src="../../../script/library/doT.min.js"></script>
+<script>
+	//门店ID
+	var storeId;
+	//门店名
+	var storeName;
+	//券
+	var couponId;
+	var couponName = '';
+	//发票
+	var invoice;
+	//支付方式
+	var payWay = 1;
+	//银行卡/信用卡号
+	var payCardNo = '';
+	//卡ID
+	var cardId;
+	//余额
+	var balance =0;
+	//来源：1：购物车
+	var src = 0;
+	
+	apiready = function(){
+		storeId = api.pageParam.storeId;
+		src = api.pageParam.src;
+		if(!src){
+			src = 0;
+		}
+		$api.fixTabBar($api.byId('nextDIV'));
+		checkAuth();
+		getStoreInfo();
+		getProductInfo();
+		getUseableCoupon();
+		getUserInfo();
+		initEvent();
+	}
+	
+	function checkAuth(){
+		if( global.getAuthStatus() == '0'){//实名认证申请中
+          	api.confirm({
+          	    title : 'Information',
+				msg : 'Certification application',
+				buttons : ['Go to see', 'First look around']
+		    },function(ret,err){
+				if (ret.buttonIndex === 1) {
+                    auth();  
+				}
+			});
+
+			return false;
+        }else if( global.getAuthStatus() == '-1'){//请先实名认证
+          	api.confirm({
+          		title : 'Information',
+				msg : 'Real name authentication',
+				buttons : ['Yes', 'No']
+		    },function(ret,err){
+				if (ret.buttonIndex === 1) {
+                    api.openWin({
+                       name : 'authSubWin',
+                       url : '../member/auth_win.html'
+                    });  
+				}
+			});
+			
+			return false;
+        }
+        
+        return true;
+	}
+	
+	/**
+	 *认证信息 
+	 */
+	function auth(){
+		api.ajax({
+            method : 'get',
+            cache : false,
+            dataType : 'json',
+            returnAll : false,
+            url : global.getRequestUri() + '/member/info/auth',
+            headers : global.getRequestToken()           
+        }, function(ret, err) {
+            if(ret && ret.code === "403"){
+                api.sendEvent({
+                    name:'tokenExpiredEvent',
+                    extra:{
+                        msg : ret.message
+                    }
+                });
+                
+                return;
+            }
+
+            if (ret) {
+                if (ret.success) {
+                    if(ret.obj){                     
+                        api.openWin({
+                            name : 'authInfoSubWin',
+                            url : '../member/auth_info.html',
+                            pageParam : {
+                                name : ret.obj.firstName,
+                                lastName : ret.obj.lastName,
+                                idCard :ret.obj.idCard,
+                                email : ret.obj.email,
+                                status:ret.obj.status
+                            }
+                        });  
+                    }else{
+			            api.openWin({
+							name : 'authSubWin',
+							url : '../member/auth_win.html'
+						});
+                    }
+                } else {
+                    global.setToast(ret.message);
+                }
+            } else {
+                global.setErrorToast();
+            }
+        });
+	}
+	
+	/**
+	 *初始化事件 
+	 */
+	function initEvent(){
+		//选择卡
+		api.addEventListener({
+	        name:'cardSelectEvent'
+        },function(ret,err){
+        	api.closeWin({
+        		name : 'bankCardWin'
+            });
+            
+        	if(ret && ret.value){
+        		payWay = ret.value.payWay;
+        		payCardNo = ret.value.cardNo;
+        	}
+        });
+        
+        //选券
+		api.addEventListener({
+	        name:'couponSelectEvent'
+        },function(ret,err){
+        	api.closeWin({
+        		name : 'couponWin'
+            });
+            
+        	if(ret && ret.value){
+        		couponId = ret.value.id;
+        		couponName = ret.value.couponName;
+        		$api.html($api.byId('couponName'), ret.value.couponName);
+        		$api.removeCls($api.byId('couponName'), 'aui-text-pink');
+        	}
+        });
+        
+        //选择发票
+        api.addEventListener({
+	        name:'invoiceSelectEvent'
+        },function(ret,err){
+        	api.closeWin({
+        		name : 'invoiceWin'
+            });
+            
+        	if(ret && ret.value){
+        		$api.html($api.byId('invoiceSpan'), '');
+        		if(ret.value.type){
+        			$api.html($api.byId('invoiceSpan'), ret.value.type);
+        		}
+        		if(ret.value.head){
+        			$api.append($api.byId('invoiceSpan'), '  gain ground：' + ret.value.head);
+        		}
+        		
+        		invoice = $api.html($api.byId('invoiceSpan'));
+        	}
+        });
+	}
+
+	/**
+	 * 查询用户信息
+	 */
+	 function getUserInfo(){
+		api.ajax({
+            method : 'get',
+            cache : false,
+            dataType : 'json',
+            returnAll : false,
+            url : global.getRequestUri() + '/member/info/my',
+            headers : global.getRequestToken()
+        }, function(ret, err) {
+            if (ret) {
+            	balance = ret.balance;
+            	$api.html($api.byId('balance'), '(￥' + global.formatCurrency(ret.balance) + ')');
+            }
+        });
+	 }
+	 
+	/**
+	 *获取门店信息 
+	 */
+	function getStoreInfo(){
+		api.ajax({
+			method : 'get',
+			cache : false,
+			dataType : 'json',
+			returnAll : false,
+			url : global.getRequestUri() + '/supermarket/store?storeId=' + storeId,
+			headers : global.getRequestToken()
+		}, function(ret, err) {
+			if (ret) {
+				storeName = ret.name;
+				$api.html($api.byId('nameSpan'), ret.name);
+				$api.html($api.byId('addressSpan'), ret.address);
+			}
+		});
+	}
+	
+	/**
+	 *获取商品信息 
+	 */
+	function getProductInfo(){
+		var productPay = $api.getStorage("productPay");
+		if(productPay){
+            var template = $api.byId('product-template').text;
+            var tempFun = doT.template(template);
+			$api.html($api.byId('product-content'),  tempFun(productPay));
+		}
+	}
+	
+	/**
+	 *获取可用优惠券张数 
+	 */
+	function getUseableCoupon(){
+		api.ajax({
+			method : 'get',
+			cache : false,
+			dataType : 'json',
+			returnAll : false,
+			url : global.getRequestUri() + '/coupon/useable',
+			headers : global.getRequestToken()
+		}, function(ret, err) {
+			if (ret && ret.success) {
+				$api.html($api.byId('couponName'), 'offers found');
+				$api.addCls($api.byId('couponName'), 'aui-text-pink');
+			}else{
+				$api.html($api.byId('couponName'), 'no offers found');
+				$api.addCls($api.byId('couponName'), 'aui-text-gray3c');
+				$api.addCls($api.byId('couponDiv'), 'no-settlement-coupon');
+			}
+		});
+	}
+	
+	/**
+	 *切换支付 
+	 */
+    function switchPay(index){
+    	payWay = index;
+    	$api.removeCls($api.byId('div1'), 'text-blue');
+    	$api.removeCls($api.byId('div4'), 'text-blue');
+    	$api.removeCls($api.byId('div6'), 'text-blue');
+    	$api.addCls($api.byId('div' + index), 'text-blue');
+    	
+    	document.getElementById('radio' + index).checked = "checked";
+    	
+    	if(payWay === 4){
+    		openBankCardWin();
+    	}
+    }
+    
+    /**
+     *下单，下一步 支付
+     */
+    function next(){
+    	if(!checkAuth()){
+    		return;
+    	}
+    	
+    	var productIds = '';
+    	var numbers = '';
+    	var amounts = '';
+    	var names = '';
+    	var num = 0;
+    	var nameTemp = '';
+		var amountTemp = '';
+    	var productPay = [];    	
+    	var totalPrice = 0;
+    	
+    			
+    	//var pro = $api.domAll($api.byId('product-content'), 'input');
+    	var pro = document.getElementsByName('productNum');
+		for (var j = 0; j < pro.length; j++) {
+			num = $api.val(pro[j]);
+			var id = $api.attr(pro[j], 'id');
+			
+			if(num > 0 && document.getElementById('chk' + id).checked){
+				productIds = productIds + id + ',';
+				numbers = numbers + num + ',';
+				nameTemp = $api.html($api.byId('nameDiv' + id));
+				amountTemp = $api.html($api.byId('em' + id));
+				
+				amounts = amounts + amountTemp + ','
+				names = names + nameTemp + ','
+				
+				var item = {id : id, name : nameTemp, price : amountTemp, number: num };
+				productPay.push(item);
+
+				totalPrice = calculate.add(totalPrice, calculate.mul(amountTemp, num));
+			}
+		}
+		
+		if(pro.length > 0){
+			productIds = productIds.substring(0, productIds.length - 1);
+			numbers = numbers.substring(0, numbers.length - 1);
+			amounts = amounts.substring(0, amounts.length - 1);
+			names = names.substring(0, names.length - 1);
+			
+			$api.setStorage("productPay", productPay);
+		}
+		
+		if(productIds.length < 1 || numbers.length < 1 || amounts.length < 1){
+			global.setToast('Please select at least one item');
+			return;
+		}
+		
+		if(payWay === 4 && payCardNo.length === 0){
+			global.setToast('Please select a bank card');
+			return;
+		}
+		if(payWay === 5 && payCardNo.length === 0){
+			global.setToast('Please select the information card');
+			return;
+		}
+
+		if(payWay === 1){
+			if(calculate.sub(balance, totalPrice) < 0){
+				global.setToast('Insufficient available balance');
+				return;
+			}
+		}
+		
+		//提交订单
+		api.ajax({
+			method : 'post',
+			cache : false,
+			dataType : 'json',
+			returnAll : false,
+			url : global.getRequestUri() + '/order/add',
+			data : {
+				values : {
+					productIds : productIds,
+					numbers : numbers,
+					amounts : amounts,
+					storeId : storeId,
+					couponId : couponId,
+					invoice : invoice,
+					payWay : payWay,
+					payCardNo : payCardNo,
+					src : src
+				}
+			}
+		}, function(ret, err) {
+			if (ret) {
+				if(ret.id){
+					//显示订单,支付
+					api.sendEvent({
+	                    name:'unPaySuccessEvent'
+                    });
+
+					api.sendEvent({
+	                    name:'shopcartEvent'
+                    });
+                    
+					api.openWin({
+						name : 'scanit7',
+						url : './scanit7.html',
+						pageParam : {
+							storeName: storeName,
+							id: ret.id,
+							no: ret.no,
+							qrCode: ret.qrCode,
+							returnCode : ret.returnCode,
+							createTime : ret.createTime,
+							taxAmount: ret.taxAmount,
+							amount: ret.amount,
+							payAmount: ret.payAmount,
+							couponName: couponName
+						}
+					});
+				}else{
+					global.setToast(ret.message);
+				}
+			} else {
+				global.setToast('Order submission failed');
+			}
+		});
+	}
+	
+	/**
+	 *银行卡
+	 */
+	function openBankCardWin(){
+		api.openWin({
+			name : 'bankCardWin',
+			url : '../common/common_win.html',
+			pageParam:{
+				title: 'Card',
+				src: 1,
+				id: cardId,
+				type: payWay,
+				page: '../member/bankcard'
+			}
+		});
+	}
+	
+	/**
+	 *券
+	 */
+	function openCouponWin(){
+		var productIds = '';
+		var numbers = '';
+
+		var pro = document.getElementsByName('productNum');
+		for (var j = 0; j < pro.length; j++) {
+			num = $api.val(pro[j]);
+			var id = $api.attr(pro[j], 'id');
+
+			if(num > 0 && document.getElementById('chk' + id).checked){
+				productIds = productIds + id + ',';
+				numbers = numbers + num + ',';	
+			}
+		}
+		
+		if(pro.length > 0){
+			productIds = productIds.substring(0, productIds.length - 1);
+			numbers = numbers.substring(0, numbers.length - 1);
+
+		}
+		
+		if(productIds.length < 1 || numbers.length < 1 ){
+			global.setToast('Please select at least one item');
+			return;
+		}
+
+		api.openWin({
+			name : 'couponWin',
+			url : '../common/common_win.html',
+			pageParam:{
+				title: 'Coupon',
+				src: 1,
+				id: couponId,
+				productIds : productIds,
+				numbers : numbers,
+				page: '../member/coupon_order_frame'
+			}
+		});
+	}
+	
+	/**
+	 *发票 
+	 */
+	function openInvoiceWin(){
+		api.openWin({
+			name : 'invoiceWin',
+			url : './invoice.html'
+		});
+	}
+	
+	/**
+	 *减少 
+	 */
+	function subCount(id){
+		var count = $api.val($api.byId(id));
+		count = calculate.sub(count, 1);
+		
+		if(count >= 0){
+			$api.val($api.byId(id), count);
+		}
+	}
+	
+	/**
+	 *增加 
+	 */
+	function addCount(id){
+		var count = $api.val($api.byId(id));
+		count = calculate.add(count, 1);
+		
+		$api.val($api.byId(id), count);
+	}
+</script>
+</html>

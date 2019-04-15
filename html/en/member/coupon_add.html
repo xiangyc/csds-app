@@ -1,0 +1,139 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, initial-scale=1.0, width=device-width"/>
+	<meta name="format-detection" content="telephone=no, email=no, date=no, address=no">
+	<title>Coupon</title>
+	<link rel="stylesheet" type="text/css" href="../../../css/aui.css" />
+	<link rel="stylesheet" type="text/css" href="../../../css/common.css" />
+	<link rel="stylesheet" type="text/css" href="../../../css/member.css" />
+    <style>
+    	html,body {
+			background-color: transparent !important;
+		}
+    </style>
+</head>
+<body>
+<div id="maskDiv" class="aui-mask aui-mask-in"></div>
+<div id="maskAddDiv" class="add-coupon-box">
+	<div class="add-coupon-t">Add coupon<i tapmode onclick="closeFrame();"></i></div>
+	<div class="add-coupon-c coupon-box">
+
+        <div style="font-size: 0.7rem; padding-bottom: 0.5rem; color: #666; ">Enter code</div>
+		<div class="coupon-list coupon-gray">
+			<div class="add-coupon-c-input">
+				<!-- <span>Enter code:</span> -->
+				<input id="no" maxlength="20" type="text" style="width: 100%;">
+			</div>
+		</div>
+	   <div tapmode onclick="saveData();" id="btnSave" class="aui-btn aui-btn-login">add</div>
+	</div>
+	<div tapmode onclick="scan();" class="add-coupon-b" style="width:200px;"><i><img id="icon" src="../../../image/member/scan-icon.png"></i>Scan code</div>
+</div>
+</body>
+<script type="text/javascript" src="../../../script/api.js"></script>
+<script type="text/javascript" src="../../../script/common/global.js"></script>
+<script type="text/javascript">
+	apiready = function(){
+		initEvent();
+
+		if(api.pageParam.no){
+			$api.val($api.byId('no'), api.pageParam.no);
+		}
+	}
+	
+	/**
+	 *初始化事件
+	 */
+	function initEvent(){
+		//监听扫描成功事件
+		api.addEventListener({
+	        name:'scanCouponEvnet'
+        },function(ret,err){
+        	api.closeWin({
+        		name : 'scanitWin'
+            });
+            api.closeWin({
+        		name : 'scanit2'
+            });
+            
+        	if(ret && ret.value && ret.value.no){
+        		$api.val($api.byId('no'), ret.value.no);
+        	}
+        });
+	}
+	
+	/**
+	 *添加券 
+	 */
+	function saveData(){
+	var no = $api.val($api.byId('no'));
+		if(no.length < 1){
+			global.setToast('Please enter membership card number');
+			return;
+		}
+		
+		$api.removeAttr($api.byId('btnSave'), 'onclick');
+		api.ajax({
+			method : 'post',
+			cache : false,
+			dataType : 'json',
+			returnAll : false,
+			url : global.getRequestUri() + '/coupon/add',
+			headers : global.getRequestToken(),
+			data : {
+				values : {
+					no : no
+				}
+			}
+		}, function(ret, err) {
+			if (ret) {
+				if(ret.success){
+			      
+			        api.sendEvent({
+	                    name:'addCouponEvent'
+                    });
+                    
+                    api.closeWin({
+					  name : 'scanitWin'
+					});			
+
+			        setTimeout("api.closeFrame();", 2000);
+				}else{
+					global.setToast(ret.message);
+				}
+			} else {
+				global.setToast('Add Failed');
+			}
+
+			$api.attr($api.byId('btnSave'), 'onclick', 'saveData();');
+		});
+	}
+	
+		
+	/**
+	 *扫一扫 
+	 */
+	function scan(){
+		api.openWin({
+		 	name : 'scanitWin',
+		 	url : '../portal/scanit1.html'
+		 });
+
+		api.sendEvent({
+	        name:'openScanitEvent'				        
+        });
+        
+        setTimeout("api.closeFrame();", 200);
+	}
+
+	function closeFrame(){
+		api.sendEvent({
+	        name:'openScanitEvent'				        
+        });
+        
+        setTimeout("api.closeFrame();", 200);
+	}
+</script>
+</html>

@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>验证邮箱</title>
+    <link rel="stylesheet" type="text/css" href="../../../css/aui.css" />
+    <link rel="stylesheet" type="text/css" href="../../../css/common.css" />
+    <link rel="stylesheet" type="text/css" href="../../../css/member.css" />
+</head>
+<body>
+<header class="aui-bar aui-bar-text  padded-t-25">
+    <a tapmode onclick="api.closeWin();" class="black-return-text">
+        <img src="../../../image/member/black-return.png">Check Email
+    </a>
+</header>
+ <div class="aui-content">
+     <div class="verification-title" id="titleId"></div>
+     <ul class="aui-list aui-form-list">
+         <li class="aui-list-item">
+             <div class="aui-list-item-inner aui-padded-b-0">
+                 <div class="aui-list-item-input"><input type="text" id="codeId" onkeyup="codeUp();" maxlength="6" placeholder="Please enter verification code">
+                     <i tapmode onclick="clearCode();" class="input-delete-icon"><img id="imgId" class="aui-hide" src="../../../image/member/input-delete-icon.png"></i>
+                 </div>
+                 <input type="button"  id="sendButton" onclick="sendSmsCode();" class="aui-btn-obtain" value="Send">
+               <!--   <input type="button" class="aui-btn-obtain aui-hide" disabled="disabled" value="120's> -->
+             </div>
+         </li>
+     </ul>
+     <div class="user-contract"><i id="argeeId" onclick="agreement();" class="agree-icon"></i>Accept《<em onclick="userAgreement();">User Agreement</em>》</div>
+     <div class="aui-btn-box">
+         <div tapmode onclick="openNextWin();" class="aui-btn aui-btn-login">next</div>
+     </div>
+ </div>
+</body>
+<script type="text/javascript" src="../../../script/api.js"></script>
+<script type="text/javascript" src="../../../script/common/global.js" ></script>
+<script type="text/javascript" src="../../../script/common/validate.js" ></script>
+<script type="text/javascript" src="../../../script/common/sms_en.js" ></script>
+<script type="text/javascript">
+    var agreementFlag = true;
+    var email ;
+    var obj;
+	apiready = function(){
+       obj =$api.getStorage("addCreditCardInfo");
+       email = global.getRealNameEmail();
+       if(email && email.length >2){
+            email = global.getRealNameEmail();
+       }else{
+            email = global.getUserEmail();
+       }
+
+       var pos = email.indexOf('@');
+       var perStr = email.substring(0,pos);
+       var firstEmailChar;
+       var endEmailChar = email.substring(pos,email.length);
+       var str_email ='';
+  
+        if(perStr.length >6){
+            firstEmailChar =perStr.substring(0,3); 
+
+            for(var i=0;i<perStr.length -3;i++){ 
+                str_email +='*';
+            } 
+
+            $api.html($api.byId('titleId'), 'Email confirm，check code has send your email：'+firstEmailChar+str_email+endEmailChar+',Please operator。');
+        }else{
+            $api.html($api.byId('titleId'), 'Email confirm，check code has send your email：'+perStr.substring(0,2) +'***' + endEmailChar+',Please operator。');
+        }   
+
+    }
+
+    function sendSmsCode() {        
+        $api.attr($api.byId('sendButton'), 'disabled', 'disabled');
+        sms.sendSms(email,'','email/creditcard','101','sendButton');
+    }
+
+    /**
+     *清除验证码
+     */
+    function clearCode(){
+        $api.val($api.byId('codeId'), '');
+        $api.addCls($api.byId('imgId'), 'aui-hide');
+    }
+    
+    /**
+     *验证码输入 
+     */
+    function codeUp(){
+      var code =$api.val($api.byId('codeId'));
+        if (code && !validate.isEmpty(code)) {     
+           $api.removeCls($api.byId('imgId'), 'aui-hide');        
+        }else{
+           $api.addCls($api.byId('imgId'), 'aui-hide');
+        }
+    }
+
+	/**
+	 *下一步 
+	 */
+	function openNextWin(){
+		var code = $api.val($api.byId('codeId'));
+        if (validate.isEmpty(code)) {
+            global.setToast("you can't leave this empty");
+            return;
+        }
+
+        if(!agreementFlag){
+             global.setToast('Please Accept《User Agreement》');
+            return;
+        }
+
+        var name = obj.name;
+        var no = obj.no;
+        var cardType = obj.cardType;
+        var validateDate = obj.validateDate;
+        var safeCode = obj.safeCode;
+        var obligateMobile = obj.mobile;
+
+        api.ajax({
+            method : 'post',
+            cache : false,
+            dataType : 'json',
+            returnAll : false,
+            url : global.getRequestUri() + '/card/credit/add',
+            headers : global.getRequestToken(),
+            timeout : 100,
+            data : {
+                values :  {
+                    'name' : name,
+                    'no' : no,
+                    'cardType' :cardType,
+                    'validateDate' :validateDate,
+                    'safeCode' :safeCode,
+                    'obligateMobile' :obligateMobile,
+                    'checkType' :2,
+                    'code' : code
+                 }
+            }
+
+        }, function(ret, err) {
+            if(ret && ret.code === "403"){
+                api.sendEvent({
+                    name:'tokenExpiredEvent',
+                    extra:{
+                        msg : ret.message
+                    }
+                });
+                
+                return;
+            }
+            if (ret) {
+                if (ret.success) {
+
+//                  api.openWin({
+//                      name : 'bindResultWin',
+//                      url : './bind_result.html',
+//                      pageParam : {
+//                          flag : 2
+//                      }
+//                  });
+	        
+		            api.sendEvent({
+		                 name:'addCreditCardEndEvent'
+	                });
+	
+	                global.setBindBankCard(1);
+	                global.setBindCreditCard(1);
+	                
+	                api.closeWin({
+		        		name : 'addCreditCardSubWin'
+		            });
+	            	api.closeWin({
+		        		name : 'addCreditCardSubWin2'
+		            });
+		            api.closeWin({
+		        		name : 'addCreditCardSubWin3'
+		            });
+		            api.closeWin({
+		        		name : 'addCreditCardSubWin4'
+		            });
+                } else {
+                    global.setToast(ret.message);
+                }
+            } else {
+                global.setErrorToast();
+            }
+        });
+	}
+
+    /**
+     *合约
+     */
+    function agreement(){
+        var agree = $api.byId('argeeId');
+        if(agreementFlag){
+            $api.removeCls($api.byId('argeeId'), 'agree-icon');
+            agreementFlag = false;
+
+        }else{
+            $api.addCls($api.byId('argeeId'), 'agree-icon');
+            agreementFlag = true;
+        }
+    }
+
+    function userAgreement(){
+        api.openWin({
+            name : 'userAgreement',
+            url : 'user_agreement.html'
+        });
+    }
+</script>
+</html>

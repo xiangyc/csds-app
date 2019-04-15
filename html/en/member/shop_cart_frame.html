@@ -1,0 +1,131 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, initial-scale=1.0, width=device-width"/>
+	<meta name="format-detection" content="telephone=no, email=no, date=no, address=no">
+	<title>购物车</title>
+	<link rel="stylesheet" type="text/css" href="../../../css/aui.css" />
+	<link rel="stylesheet" type="text/css" href="../../../css/common.css" />
+	<link rel="stylesheet" type="text/css" href="../../../css/portal.css" />
+</head>
+<body>
+	<footer class="aui-bar aui-bar-tab">
+		<div class="aui-bar-tab-item aui-border-r" tapmode="" style="width: 3.65rem;">
+			<div class="aui-bar-tab-label"><input class="aui-radio-img" type="checkbox" id="chkFlag" tapmode onchange="selectAll();" name="check-box"><em>All</em></div>
+		</div>
+		<div class="aui-bar-tab-item" tapmode="" style="width: 7.2rem;">
+			<div id="priceDiv" class="aui-bar-tab-label">Subtotal<em id="priceEm" class="text-blue">￥0.0</em></div>
+			<div id="countDiv" class="aui-bar-tab-label aui-hide">Items(0)</div>
+		</div>
+		<div tapmode id="payDiv" class="aui-bar-tab-item bg-blue aui-text-white bc-drak" tapmode style="width: auto;">Proceed to checkout(<em id="countEm">0</em>)</div>
+		<div tapmode onclick="delProduct();" id="delDiv" class="aui-bar-tab-item bg-blue aui-text-white aui-hide" tapmode="" style="width: auto;">Delete</div>
+	</footer>
+</body>
+<script type="text/javascript" src="../../../script/api.js"></script>
+<script type="text/javascript" src="../../../script/common/global.js"></script>
+<script type="text/javascript">
+	apiready = function(){		
+		initEvent();
+	}
+	
+	/**
+	 *初始化事件
+	 */
+	function initEvent() {
+		api.addEventListener({
+	        name:'shopCartRefreshEvent'
+        },function(ret,err){
+        	$api.html($api.byId('priceEm'), '￥0.00');
+			$api.html($api.byId('countEm'), '0');
+			$api.html($api.byId('countDiv'), 'Items(0)');
+			document.getElementById('chkFlag').checked = false;
+        });
+        
+        api.addEventListener({
+	        name:'shopCartSelectEvent'
+        },function(ret,err){
+        	if(ret && ret.value){
+        		document.getElementById('chkFlag').checked = ret.value.checked;
+        	}
+        });
+        
+        api.addEventListener({
+	        name:'shopCartSetCountEvent'
+        },function(ret,err){
+        	if(ret && ret.value){
+        		var productCount = ret.value.productCount;
+        		var totalPrice = ret.value.totalPrice;
+        		
+				$api.html($api.byId('countEm'), productCount);
+				$api.html($api.byId('countDiv'), 'Items(' + productCount + ')');
+				$api.html($api.byId('priceEm'), '￥' + global.formatCurrency(totalPrice));
+				
+				if(productCount > 0){
+					$api.removeCls($api.byId('payDiv'), 'bc-drak');
+					$api.attr($api.byId('payDiv'), 'onclick', 'next();');
+				}else{
+					$api.addCls($api.byId('payDiv'), 'bc-drak');
+					$api.removeAttr($api.byId('payDiv'), 'onclick');
+				}
+        	}
+        });
+
+	    api.addEventListener({
+	        name:'loginSuccessEvent'
+        },function(ret,err){
+			$api.html($api.byId('priceEm'), '￥0.00');
+			$api.html($api.byId('countEm'), '0');
+			$api.html($api.byId('countDiv'), 'Items(0)');
+			document.getElementById('chkFlag').checked = false;
+        });
+	}
+	
+	/**
+	 *切换状态 
+	 */
+	function switchStatus(text){
+		if(text === 'Edit'){
+			$api.addCls($api.byId('payDiv'), 'aui-hide');
+			$api.removeCls($api.byId('delDiv'), 'aui-hide');
+			$api.addCls($api.byId('priceDiv'), 'aui-hide');
+			$api.removeCls($api.byId('countDiv'), 'aui-hide');
+		}else{
+			$api.removeCls($api.byId('payDiv'), 'aui-hide');
+			$api.addCls($api.byId('delDiv'), 'aui-hide');
+			$api.removeCls($api.byId('priceDiv'), 'aui-hide');
+			$api.addCls($api.byId('countDiv'), 'aui-hide');
+		}
+	}
+	
+	/**
+	 *结算 
+	 */
+	function next(){
+		api.execScript({
+			frameName: 'shop_cart',
+	        script: 'next();'
+        });
+	}
+	
+	/**
+	 *全选全消息 
+	 */
+	function selectAll(checked){
+		api.execScript({
+			frameName: 'shop_cart',
+	        script: 'selectAll(' + chkFlag.checked + ');'
+        });
+	}
+	
+	/**
+	 *从购物车中移除商品
+	 */
+	function delProduct(){
+		api.execScript({
+			frameName: 'shop_cart',
+	        script: 'delProduct();'
+        });
+	}
+</script>
+</html>

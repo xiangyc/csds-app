@@ -1,0 +1,128 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, initial-scale=1.0, width=device-width"/>
+	<meta name="format-detection" content="telephone=no, email=no, date=no, address=no">
+	<title>支付结果</title>
+	<link rel="stylesheet" type="text/css" href="../../css/aui.css" />
+	<link rel="stylesheet" type="text/css" href="../../css/common.css" />
+	<link rel="stylesheet" type="text/css" href="../../css/portal.css" />
+</head>
+<body>
+<header class="aui-bar" style="padding-top: 25px;">
+	<a tapmode onclick="closeAll();" class="black-return-text-rclose">
+		<img src="../../image/portal/close-icon.png"/>
+	</a>
+</header>
+<div id="div1" class="aui-content aui-hide">
+     <div class="pay-result pay-result2">
+		 <div class="pay-result-icon"><img src="../../image/portal/pay-success.png"/></div>
+		 <h3>支付成功</h3>
+		 <p id="totalPriceP"></p>
+	 </div>
+     <ul id="listUl" class="pay-shop-list">
+	 </ul>
+	<ul class="pay-coupon-coupon">
+		<li><em>获得赠品优惠券满20-5</em><span>X1</span></li>
+	</ul>
+	<div class="pay-btn">
+		<div tapmode onclick="openCouponWin();" class="aui-btn aui-btn-login aui-btn-first">分享得优惠券</div> <div tapmode onclick="openElectronlistWin();" class="aui-btn aui-btn-login">查看电子订单</div>
+	</div>
+</div>
+<div id="div0" class="aui-content aui-hide">
+	<div class="pay-result pay-result2">
+		<div class="pay-result-icon"><img src="../../image/portal/pay-failure.png"/></div>
+		<h3 id="failStr" class="pay-failure-h3">失败</h3>
+	</div>
+	<div tapmode onclick="api.closeWin();" class="aui-btn aui-btn-login aui-btn-reappear">返回重新支付</div>
+</div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/common/global.js"></script>
+<script type="text/javascript" src="../../script/common/calculate.js"></script>
+<script type="text/javascript">
+	//支付结果(1:成功,0:失败);
+	var resultPay = 1;
+	
+	apiready = function(){
+		resultPay = api.pageParam.resultPay;
+		if(resultPay === 1){
+			$api.removeCls($api.byId('div1'), 'aui-hide');
+			loadOrderInfo();
+		}else{
+			$api.removeCls($api.byId('div0'), 'aui-hide');
+			$api.html($api.byId('failStr'), api.pageParam.failStr);
+		}
+		
+		initEvent();
+	}
+	
+	/**
+	 *初始化事件 
+	 */
+	function initEvent(){
+		api.addEventListener({
+	        name:'viewappear'
+        },function(ret,err){
+        	api.closeWin({
+        		name : 'scanit6'
+            });
+            
+            api.closeWin({
+        		name : 'scanit7'
+            });
+        });
+	}
+	
+	/**
+	 *支付结果 
+	 */
+	function loadOrderInfo(){
+		var productPay = $api.getStorage("productPay");
+		if(productPay){
+			var price = 0;
+			var contentTemp = [];
+			for(var i=0; i< productPay.length; i++) {
+				price = calculate.add(price, calculate.mul(productPay[i].price, productPay[i].number));
+				contentTemp.push('<li><em>' + productPay[i].name + '</em><span>X' + productPay[i].number + '</span></li>'); 
+			}
+			
+			$api.append($api.byId('listUl'), contentTemp.join(''));
+			price = global.formatCurrency(price);
+			$api.html($api.byId('totalPriceEm'), '￥' + price);
+		}
+	}
+	
+	/**
+	 *分享 
+	 */
+	function openCouponWin(){
+		api.openWin({
+			name : 'shareWin',
+			url : '../member/share.html'
+		});
+	}
+	
+	/**
+	 *电子订单 
+	 */
+	function openElectronlistWin(){
+		api.openWin({
+			name : 'electronlistWin',
+			url : '../common/common_win.html',
+			pageParam : {
+				page : '../member/electronlist_frame',
+				title : '电子清单',
+				orderInfo : api.pageParam
+			}
+		});
+	}
+	
+	function closeAll(){
+		api.closeToWin({
+	        name: 'root'
+        });
+	}
+</script>
+</html>

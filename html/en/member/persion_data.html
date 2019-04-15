@@ -1,0 +1,211 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, initial-scale=1.0, width=device-width"/>
+	<meta name="format-detection" content="telephone=no, email=no, date=no, address=no">
+	<title>Persional Information</title>
+	<link rel="stylesheet" type="text/css" href="../../../css/aui.css" />
+	<link rel="stylesheet" type="text/css" href="../../../css/common.css" />
+	<link rel="stylesheet" type="text/css" href="../../../css/member.css" />
+</head>
+<body>
+<div id="header" class="aui-bar aui-bar-text padded-t-25">
+	<a tapmode onclick="api.closeWin();" class="black-return-text">
+		<img src="../../../image/member/black-return.png">Personal Information
+	</a>
+</div>
+<div class="position-r">
+	<ul class="persion-data-list">
+		<li tapmode onclick="iconSelect();" class="auth-info auth-my-avatar list-item-arrow"><div class="item-title">Profile Picture</div><div class="item-right"><img id='headIconId' src="../../../image/member/shop-top-img.jpg" class="my-avatar"/></div></li>
+		<li tapmode onclick="nameSelect();" class="auth-info list-item-arrow"><div class="item-title">Username</div><div class="item-right" id="nickNameId"></div></li>
+		<li tapmode onclick="sexSelect();" class="auth-info list-item-arrow list-item-arrow-down"><div class="item-title">Sex</div><div id="sexDiv" class="item-right"></div>
+			<div id="sexSelectDiv" class="gender-box aui-hide"><span tapmode onclick="setSet(1);">male</span><span tapmode onclick="setSet(0);">female</span></div>
+		</li>
+	</ul>
+</div>
+</body>
+<script type="text/javascript" src="../../../script/api.js"></script>
+<script type="text/javascript" src="../../../script/common/global.js" ></script>
+<script type="text/javascript">
+	apiready = function(){
+		initEvent();
+
+		if(global.getHeadIcon()){
+			$api.attr($api.byId('headIconId'), 'src', global.getImgUri()+'/'+global.getHeadIcon());
+		}
+
+		$api.html($api.byId('nickNameId'), global.getUserName());
+
+		var sex = global.getUserSex();
+		if(sex){
+			if(sex == 1){
+				$api.html($api.byId('sexDiv'), 'male');
+			}else{
+				$api.html($api.byId('sexDiv'), 'female');
+			}
+		}else{
+			$api.html($api.byId('sexDiv'), 'no');
+		}
+
+	};
+	
+	function initEvent(){
+	    api.addEventListener({
+	        name: 'nickNameSuccessEvent'
+	    }, function(ret, err) {
+	        if (ret && ret.value) {
+	           var nickName = ret.value.nickName;
+	           $api.html($api.byId('nickNameId'), nickName);
+		    }
+
+	    });
+	}
+
+	function iconSelect(){
+		api.actionSheet({
+        	cancelTitle : 'Cancel',
+            style:{
+                fontNormalColor:'#333333',
+                titleFontColor:'#ececec'
+            },
+            buttons : ['Camera','Choose from Album']
+        }, function(ret, err) {
+            if (ret) {
+                var sourceType ='library';
+                if (ret.buttonIndex === 1) {
+                   sourceType ='camera';
+                }else if (ret.buttonIndex === 2) {
+                   sourceType ='library';
+                }
+
+				if(ret.buttonIndex === 1 || ret.buttonIndex === 2){
+	                api.getPicture({
+						sourceType : sourceType,
+						encodingType : 'jpg',
+						mediaValue : 'pic',
+						destinationType : 'url',
+						allowEdit : true,
+						quality : 90
+					}, function(ret, err) {
+						if (ret) {
+							if (ret.data) {
+								var headIconPath = ret.data;
+	
+								api.showProgress({
+									title: 'Avatar save...',
+									modal: false
+							    });
+	
+								api.ajax({
+									method : 'post',
+									cache : false,
+									dataType : 'json',
+									returnAll : false,
+									url : global.getRequestUri() + '/member/info/update/headIcon',
+									headers : global.getRequestToken(),
+									timeout : 100,
+									data : {
+										files : {
+												file : headIconPath
+											}
+									}
+								}, function(ret, err) {
+									api.hideProgress();
+									if (ret) {
+										if (ret.success) {
+											global.setToast('Avatar saved successfully');
+											$api.attr($api.byId('headIconId'), 'src', headIconPath);
+	
+											if(ret.obj){
+												global.setHeadIcon(ret.obj);
+											}
+
+								            api.sendEvent({
+								                 name:'modifyHeadIconEvent',
+								                 extra:{
+								                    headIcon : ret.obj
+								                 }
+							                });
+										} else {
+											global.setToast(ret.message);
+										}
+									} else {
+										global.setErrorToast();
+									}
+								});
+							}
+						}
+					});
+				}
+            }
+        });
+	}
+	
+	function nameSelect(){
+		api.openWin({
+			name : 'nickWin',
+			url : './nickname_modify.html'
+		});
+	}
+	
+	function sexSelect(){
+		if($api.hasCls($api.byId('sexSelectDiv'), 'aui-hide')){
+			$api.removeCls($api.byId('sexSelectDiv'), 'aui-hide');
+		}else{
+			$api.addCls($api.byId('sexSelectDiv'), 'aui-hide');
+		}
+	}
+	
+	function setSet(sex){
+
+		api.ajax({
+            method : 'post',
+            cache : false,
+            dataType : 'json',
+            returnAll : false,
+            url : global.getRequestUri() + '/member/info/update/sex',
+            headers : global.getRequestToken(),
+            data : {
+                values :  {
+                    'sex' : sex
+                }
+            }
+        }, function(ret, err) {
+            if(ret && ret.code === "403"){
+                api.sendEvent({
+                    name:'tokenExpiredEvent',
+                    extra:{
+                        msg : ret.message
+                    }
+                });
+                
+                return;
+            }        
+            if (ret) {
+                if (ret.success) {
+                    global.setToast('Save successfully');
+
+					global.setUserSex(sex);
+
+					if(sex === 1){
+						$api.html($api.byId('sexDiv'), 'male');
+					}else{
+						$api.html($api.byId('sexDiv'), 'female');
+					}
+					
+				    api.sendEvent({
+		                 name:'modifySexEvent'
+	                });
+
+                } else {
+                    global.setToast(ret.message);
+                }
+            } else {
+                global.setErrorToast();
+            }
+
+        });
+	}
+</script>
+</html>

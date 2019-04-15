@@ -1,0 +1,126 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, initial-scale=1.0, width=device-width"/>
+    <meta name="format-detection" content="telephone=no, email=no, date=no, address=no">
+    <title>Add</title>
+    <link rel="stylesheet" type="text/css" href="../../../css/aui.css" />
+    <link rel="stylesheet" type="text/css" href="../../../css/common.css" />
+    <link rel="stylesheet" type="text/css" href="../../../css/portal.css" />
+</head>
+<body>
+<header class="aui-bar  padded-t-25">
+    <a tapmode onclick="closeScanit();" class="black-return">
+        <img src="../../../image/member/black-return.png">
+    </a>
+</header>
+    <div class="aui-content">
+        <h3 class="register-h3">Add</h3>
+        <div class="member-card-box">
+            <div class="bind-member-card">
+                <div class="card-top"></div>
+                <div class="card-number"><span>Card No</span><input id="no" type="text" placeholder="Please enter membership card" style="width:200px;" maxlength="20"></div>
+            </div>
+        </div>
+
+        <div class="aui-btn-box aui-padded-t-15">
+            <div tapmode id="btnSave" onclick="bindMemberCard();" class="aui-btn aui-btn-login aui-margin-t-10 ">add</div>
+        </div>
+
+    </div>
+</body>
+<script type="text/javascript" src="../../../script/api.js"></script>
+<script type="text/javascript" src="../../../script/common/global.js"></script>
+<script type="text/javascript">
+    apiready = function(){
+    	if(api.pageParam.no){
+    		$api.val($api.byId('no'), api.pageParam.no);
+    	}
+    	
+    	initEvent();
+    };
+    
+   	/**
+	 *初始化事件
+	 */
+	function initEvent(){
+		//监听扫描成功事件
+		api.addEventListener({
+	        name:'viewappear'
+        },function(ret,err){
+        	api.closeWin({
+        		name : 'scanit2'
+            });
+            
+            api.closeWin({
+        		name : 'memberCardScanWin'
+            });
+        });
+	    
+	    api.addEventListener({
+		    name: 'keyback'
+		}, function(ret, err) {
+		    api.sendEvent({
+	        	name:'openScanitEvent'				        
+       		 });
+       		 setTimeout("api.closeWin();", 200);
+		});
+	}
+
+	function closeScanit(){
+		api.sendEvent({
+	        name:'openScanitEvent'			        
+        });
+        setTimeout("api.closeWin();", 200);
+	}
+    /**
+	 *绑定会员卡 
+	 */
+	function bindMemberCard(){
+		var no = $api.val($api.byId('no'));
+		if(no.length < 1){
+			global.setToast('Please enter membership card');
+			return;
+		}
+		
+		$api.removeAttr($api.byId('btnSave'), 'onclick');
+		api.ajax({
+			method : 'post',
+			cache : false,
+			dataType : 'json',
+			returnAll : false,
+			url : global.getRequestUri() + '/card/associator/add',
+			headers : global.getRequestToken(),
+			data : {
+				values : {
+					no : no
+				}
+			}
+		}, function(ret, err) {
+			if (ret) {
+				if(ret.success){
+				 /*   api.sendEvent({
+				        name:'loginSuccessEvent',
+				        extra: {
+				        	isRegister : api.pageParam.isRegister
+				        }
+			        });*/
+			        global.setToast('add membership card Successfully');
+			        api.sendEvent({
+				        name:'addMemberCardSuccessEvent'				        
+			        });
+
+			        setTimeout("api.closeWin();", 1000);
+				}else{
+					global.setToast(ret.message);
+				}
+			} else {
+				global.setToast('add fail');
+			}
+
+			$api.attr($api.byId('btnSave'), 'onclick', 'bindMemberCard();');
+		});
+	}
+</script>
+</html>

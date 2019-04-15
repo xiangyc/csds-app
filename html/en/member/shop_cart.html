@@ -1,0 +1,504 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, initial-scale=1.0, width=device-width"/>
+	<meta name="format-detection" content="telephone=no, email=no, date=no, address=no">
+	<title>Card</title>
+	<link rel="stylesheet" type="text/css" href="../../../css/aui.css" />
+	<link rel="stylesheet" type="text/css" href="../../../css/common.css" />
+	<link rel="stylesheet" type="text/css" href="../../../css/portal.css" />
+</head>
+<body>
+<div class="aui-content aui-margin-t-15 padded-b-50">
+    <script id="shopcart-template" type="text/x-dot-template">
+      {{ for(var i=0; i< it.length; i++) { }}
+       <div class="select-shop-list shop-car-list">
+		    <div class="select-shop-radio">
+		  		<input class="aui-radio-img" id="chk{{=it[i].id }}" onchange="selectItem({{=it[i].id }});" value="{{=it[i].id }}" type="checkbox" name="chkProduct" />
+		    </div>
+			<div class="cnt">
+				<img class="pic" id="img{{=it[i].id }}" src="{{=global.getImgUri() + '/' + it[i].image}}" onerror="this.src='../../../image/portal/shop-img.jpg'">
+				<div class="wrap">
+					<div tapmode onclick="openDetail({{=it[i].productId }}, '{{=it[i].productName }}', {{=it[i].storeId }});" class="select-shop-l">
+						<div id="div{{=it[i].id }}" class="shopname">{{=it[i].productName }}</div>
+						<div class="price">￥<em>{{=global.formatCurrency(it[i].amount) }}</em></div>
+						<em id="em{{=it[i].id }}" class="aui-hide">{{=it[i].amount }}</em>
+						<em id="emId{{=it[i].id }}" class="aui-hide">{{=it[i].productId }}</em>
+						<em id="emStoreId{{=it[i].id }}" class="aui-hide">{{=it[i].storeId }}</em>
+					</div>
+					<div class="select-shop-r">
+						<div class="amount">
+							<div tapmode onclick="subCount({{=it[i].id }});" class="aui-bar-btn-item"><img src="../../../image/portal/amount-less.png"/></div>
+							<div class="aui-bar-btn-item" tapmode="" data-item-order="1">
+								<input id="{{=it[i].id }}" type="number" onkeyup="setCount({{=it[i].id }});" class="aui-input aui-text-center" value="{{=it[i].number}}" oninput="if(value.length>7)value=value.slice(0,7);" >
+							</div>
+							<div tapmode onclick="addCount({{=it[i].id }});" class="aui-bar-btn-item"><img src="../../../image/portal/amount-plus.png"/></div>
+						</div>
+				   </div>
+				</div>
+			</div>
+		</div>
+      {{ } }}
+    </script>
+    <div id="shopcart-content"></div>
+
+
+    <div class="no-data aui-hide" id="nonDataId">
+         <i></i>
+        	 no data
+     </div>
+
+</div>
+
+<!--	<footer class="aui-bar aui-bar-tab shop-b-fixed">
+		<div class="aui-bar-tab-item aui-border-r" tapmode="" style="width: 3.65rem;">
+			<div class="aui-bar-tab-label"><input class="aui-radio-img" type="checkbox" id="chkFlag" tapmode onchange="selectAll();" name="check-box"><em>All</em></div>
+		</div>
+		<div class="aui-bar-tab-item" tapmode="" style="width: 7.2rem;">
+			<div id="priceDiv" class="aui-bar-tab-label">Total<em id="priceEm" class="text-blue">￥0.0</em></div>
+			<div id="countDiv" class="aui-bar-tab-label aui-hide"></div>
+		</div>
+		<div tapmode onclick="next();" id="payDiv" class="aui-bar-tab-item bg-blue aui-text-white" tapmode style="width: auto;">Place(<em id="countEm">0</em>)</div>
+		<div tapmode onclick="delProduct();" id="delDiv" class="aui-bar-tab-item bg-blue aui-text-white aui-hide" tapmode="" style="width: auto;">Delete</div>
+	</footer>-->
+</body>
+<script type="text/javascript" src="../../../script/api.js"></script>
+<script type="text/javascript" src="../../../script/common/global.js"></script>
+<script type="text/javascript" src="../../../script/common/page.js"></script>
+<script type="text/javascript" src="../../../script/common/calculate.js"></script>
+<script type="text/javascript" src="../../../script/library/doT.min.js"></script>
+<script type="text/javascript">
+	//产品件数
+	var productCount = 0;
+	//结算商品
+	var productPay = [];
+	//超市门店
+	var storeId = '';
+	var sysH = 0;
+	var	posH = 0;
+	
+	apiready = function(){
+		posH = api.winHeight - 100;
+		if(api.pageParam.footer){
+			posH = api.winHeight - 48;
+		}
+		
+		posH = posH - api.pageParam.safeAreaTop;
+		
+		if (api.systemType == 'android'){
+			sysH = 108;
+		}else{
+			sysH = 52;
+		}
+
+		if(!api.pageParam.footer){
+			var flag = $api.getStorage("currentIndex");
+			if(flag == 2){
+				api.openFrame({
+				    name: 'shopCartFrame',
+				    url: './shop_cart_frame.html',
+				    rect: {
+						x:0,
+				        y:0,
+				        w:'auto',
+				        h:sysH,
+				        marginLeft:0,
+					    marginTop: posH,
+					    marginBottom:48,
+					    marginRight:0
+			        }
+				});
+	        }else{
+	        	api.openFrame({
+			        name: 'shopCartFrame',
+			        url: './shop_cart_frame.html',
+			        rect: {
+						x:0,
+				        y:0,
+				        w:1,
+				        h:1
+			        },
+			        hidden: true
+		        });
+	        }
+        }else{
+            api.openFrame({
+		        name: 'shopCartFrame2',
+		        url: './shop_cart_frame.html',
+		        rect: {
+					x:0,
+			        y:0,
+			        w:'auto',
+			        h:sysH,
+			        marginLeft:0,
+				    marginTop: posH,
+				    marginBottom:0,
+				    marginRight:0
+			    }
+		    });
+        }
+	        
+		queryShopCart();
+		initEvent();
+				
+//		if(!api.pageParam.footer){
+//			setTimeout(function(){
+//				api.sendEvent({
+//			        name:'openCartFrameEvent'
+//		        });
+//	        }, 200);
+//		}
+	}
+	
+	/**
+	 *初始化事件
+	 */
+	function initEvent() {
+		api.setCustomRefreshHeaderInfo({
+			bgColor : '#fdf7e7',
+			image : {
+				pull : global.pullImage(),
+				load : global.pushImage()
+			}
+		}, function(ret, err) {
+			refreshData();
+			api.refreshHeaderLoadDone();
+		});
+	
+		api.addEventListener({
+			name : 'scrolltobottom',
+			extra : {
+				threshold : 0
+			}
+		}, function(ret, err) {
+			page.scrollRefresh();
+		});
+		
+		api.addEventListener({
+	        name:'shopcartEvent'
+        },function(ret,err){
+        	refreshData();
+        });
+        
+	    api.addEventListener({
+	        name:'loginSuccessEvent'
+        },function(ret,err){
+			queryShopCart();
+        });
+        
+        api.addEventListener({
+	        name:'switchShopCartFrameEvent'
+        },function(ret,err){
+			if(ret && ret.value){
+				api.setFrameAttr({
+				    name: 'shopCartFrame',
+				    rect: {
+						x:0,
+				        y:0,
+				        w:'auto',
+				        h:sysH,
+				        marginLeft:0,
+					    marginTop: posH,
+					    marginBottom:48,
+					    marginRight:0
+			        },
+				    hidden: ret.value.hidden
+				});
+			}
+        });
+	}
+	
+	/**
+	 *刷新数据 
+	 */
+	function refreshData(){
+		queryShopCart();
+		
+		//$api.html($api.byId('priceEm'), '￥0.00');
+		//$api.html($api.byId('countEm'), '0');
+		//$api.html($api.byId('countDiv'), 'Items(0)');
+		//document.getElementById('chkFlag').checked = false;
+		
+		api.sendEvent({
+	        name:'shopCartRefreshEvent'
+        });
+		productCount = 0;
+	}
+	
+	/**
+	 *切换状态 
+	 */
+	function switchStatus(text){
+		/*if(text === 'Edit'){
+			$api.addCls($api.byId('payDiv'), 'aui-hide');
+			$api.removeCls($api.byId('delDiv'), 'aui-hide');
+			$api.addCls($api.byId('priceDiv'), 'aui-hide');
+			$api.removeCls($api.byId('countDiv'), 'aui-hide');
+		}else{
+			$api.removeCls($api.byId('payDiv'), 'aui-hide');
+			$api.addCls($api.byId('delDiv'), 'aui-hide');
+			$api.removeCls($api.byId('priceDiv'), 'aui-hide');
+			$api.addCls($api.byId('countDiv'), 'aui-hide');
+		}*/
+		
+		api.execScript({
+			frameName: 'shopCartFrame',
+	        script: 'switchStatus("' + text + '");'
+        });
+	}
+	
+	/**
+	 *查询购物车
+	 */
+	function queryShopCart(){
+	  	var params = '?start=0&maxResult=20';
+	  	var url = global.getRequestUri() + '/shopcart/list';
+  		page.init(20, 'shopcart-content', 'shopcart-template', url, params, true, 'nonDataId');
+	}
+	
+	/**
+	 *获取选择商品 
+	 */
+	function getSelectProduct(){
+		var num = 0;
+		var id = 0;
+		var nameTemp = '';
+		var imgTemp = '';
+		var amountTemp = '';
+		var chkItems = document.getElementsByName('chkProduct');
+		productPay = [];
+		storeId = '';
+		for (var i = 0; i < chkItems.length; i++) {
+			if(chkItems[i].checked){
+				id = $api.val(chkItems[i]);
+				num = $api.val($api.byId(id));
+
+				//判断是否同一超市商品
+				if(storeId != '' && storeId != $api.html($api.byId('emStoreId' + id))){
+					productPay = [];
+					global.setToast('You must choose the same supermarket goods to settle accounts');
+					return false;
+				}
+				
+				storeId = $api.html($api.byId('emStoreId' + id));
+				if(num > 0){
+					amountTemp = $api.html($api.byId('em' + id));
+					imgTemp = $api.attr($api.byId('img' + id), 'src');
+					nameTemp = $api.html($api.byId('div' + id));
+					
+					var item = {id : $api.html($api.byId('emId' + id)), name : nameTemp, image : imgTemp, price : amountTemp, number: num };
+					productPay.push(item);
+				}
+			}
+		}
+		
+		$api.setStorage("productPay", "");
+		if(chkItems.length > 0){
+			$api.setStorage("productPay", productPay);
+		}
+
+		return true;
+	}
+	
+	/**
+	 *结算 
+	 */
+	function next(){
+		if(getSelectProduct()){
+		
+			if(productPay.length < 1){
+				global.setToast('Please select at least one item');
+				return;
+			}
+
+			api.openWin({
+				name : 'scanit6',
+				url : '../common/common_win.html',
+				pageParam : {
+					title : 'Proceed to checkout',
+					page : '../portal/scanit6',
+					storeId : storeId,
+					src : 1
+				}
+			});
+	 }
+	}
+		
+	/**
+	 *减少 
+	 */
+	function subCount(id){
+		var count = $api.val($api.byId(id));
+		count = calculate.sub(count, 1);
+		
+		//$api.attr($api.byId('chk' + id), 'checked', 'checked');
+		if(count >= 0){
+			$api.val($api.byId(id), count);
+			productCount = calculate.sub(productCount, 1);
+			//$api.html($api.byId('countDiv'), 'Selected' + productCount + 'Items');
+			//$api.html($api.byId('countEm'), productCount);
+			setCount(id);
+		}
+	}
+	
+	/**
+	 *增加 
+	 */
+	function addCount(id){
+		var count = $api.val($api.byId(id));
+		count = calculate.add(count, 1);
+		
+		//$api.attr($api.byId('chk' + id), 'checked', 'checked');
+		$api.val($api.byId(id), count);
+		productCount = calculate.add(productCount, 1);
+		setCount(id);
+	}
+	
+	/**
+	 *设置数量 
+	 */
+	function setCount(id){
+		if(id>0){
+			//$api.attr($api.byId('chk' + id), 'checked', 'checked');
+			document.getElementById('chk' + id).checked = true;
+		}
+		
+		productCount = 0;
+		var price = 0;
+		var totalPrice = 0;
+		var chkItems = document.getElementsByName('chkProduct');
+		for (var i = 0; i < chkItems.length; i++) {
+			if(chkItems[i].checked){
+				num = $api.val($api.byId($api.val(chkItems[i])));
+				price = $api.html($api.byId('em' + $api.val(chkItems[i])));
+				
+				if(num > 0){
+					productCount = calculate.add(productCount, num);
+					totalPrice =  calculate.add(totalPrice, calculate.mul(price, num));
+				}
+			}
+		}
+		
+		api.sendEvent({
+	        name:'shopCartSetCountEvent',
+	        extra:{
+	        	productCount : productCount,
+	        	totalPrice : totalPrice
+	        }
+        });
+	}
+	
+	/**
+	 *选择商品 
+	 */
+	function selectItem(id){
+		var chk = document.getElementById('chk' + id).checked;
+		if(chk){
+			//选中
+			setCount(id);
+			
+			var selectFlag = true;
+			var chkItems = document.getElementsByName('chkProduct');
+			for (var i = 0; i < chkItems.length; i++) {
+				if(chkItems[i].checked){
+					selectFlag = true;
+				}else{
+					selectFlag = false;
+					break;
+				}
+			}
+
+			//document.getElementById('chkFlag').checked = selectFlag;
+			api.sendEvent({
+	            name:'shopCartSelectEvent',
+	            extra: {
+	            	checked : selectFlag
+	            }
+            });
+		}else{
+			//取消
+			setCount(0);
+			//document.getElementById('chkFlag').checked = false;
+			api.sendEvent({
+	            name:'shopCartSelectEvent',
+	            extra: {
+	            	checked : false
+	            }
+            });
+		}
+	}
+	
+	/**
+	 *全选全消息 
+	 */
+	function selectAll(checked){
+		var chkItems = document.getElementsByName('chkProduct');
+		//var chkFlag = $api.byId('chkFlag');
+		for (var i = 0; i < chkItems.length; i++) {
+			if(checked){
+				chkItems[i].checked = true;
+			}else{
+				chkItems[i].checked = false;
+			}
+		}
+		
+		setCount(0);
+	}
+	
+	/**
+	 *详情 
+	 */
+	function openDetail(id, name, supmarkstoreId){
+		api.openWin({
+			name : 'scanit4',
+			url : '../portal/scanit4.html',
+			pageParam : {
+				productId : id,
+				name : name,
+				storeId : supmarkstoreId
+			}
+		});
+	}
+	
+	/**
+	 *从购物车中移除商品
+	 */
+	function delProduct(){
+		var ids = '';
+		var chkItems = document.getElementsByName('chkProduct');
+		for (var i = 0; i < chkItems.length; i++) {
+			if(chkItems[i].checked){
+				 ids = ids + $api.val(chkItems[i]) + ',';
+			}
+		}
+		
+		if(ids.length < 1){
+			global.setToast('Please select at least one item');
+			return;
+		}
+		
+		ids = ids.substring(0, ids.length - 1);
+		api.ajax({
+			method : 'delete',
+			cache : false,
+			dataType : 'json',
+			returnAll : false,
+			url : global.getRequestUri() + '/shopcart/batch-remove?ids=' + ids,
+			headers : global.getRequestToken()
+		}, function(ret, err) {
+			if (ret) {
+				if(ret.success){
+			        refreshData();
+				}else{
+					global.setToast(ret.message);
+				}
+			} else {
+				global.setToast('Delete failed');
+			}
+
+			$api.attr($api.byId('btnSave'), 'onclick', 'saveData();');
+		});
+	}
+</script>
+</html>

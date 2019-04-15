@@ -1,0 +1,359 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, initial-scale=1.0, width=device-width"/>
+	<meta name="format-detection" content="telephone=no, email=no, date=no, address=no">
+	<title>My Order</title>
+	<link rel="stylesheet" type="text/css" href="../../../css/aui.css" />
+	<link rel="stylesheet" type="text/css" href="../../../css/common.css" />
+	<link rel="stylesheet" type="text/css" href="../../../css/member.css" />
+	<link rel="stylesheet" type="text/css" href="../../../css/portal.css" />
+</head>
+<body>
+<div class="order-box" style="padding-top: 0rem;">
+	<!-- 全部-->
+	<script id="order1-template" type="text/x-dot-template">
+	{{ for(var i=0; i< it.length; i++) { }}
+	<div id="allDiv{{=it[i].id }}" class="order-list">
+		<h3><span>{{=it[i].storeName }}</span><em>{{=tranStatusName(it[i].status,1) }}</em></h3>
+		<div class="order-list-shop" style="padding: 0.4rem 1.215rem 0 0.6rem;">
+			{{ for(var j=0; j< it[i].details.length; j++) { }}
+			<div tapmode onclick="openElectronlistWin({{=it[i].id }});" class="order-list-c">
+				<img class="pic" src="{{=global.getImgUri() + '/' + it[i].details[j].image}}" onerror="this.src='../../../image/portal/shop-img.jpg'">
+				<div class="select-shop-l">
+					<div class="shopname">{{=it[i].details[j].productName }}</div>
+					<div class="price">￥<em>{{=global.formatCurrency(it[i].details[j].payAmount) }}</em><span>X{{=it[i].details[j].number }}</span></div>
+				</div>
+			</div>
+			{{ } }}
+		</div>
+
+		<div class="order-list-operate">
+			{{if(it[i].status !== 0){ }}
+			<div tapmode onclick="openElectronlistWin({{=it[i].id }});" class="order-l"><span class="order-btn-bg">Receipt</span></div>
+			{{ } }}
+			<div class="order-r">
+			<span tapmode onclick="deleteOrder('allDiv', {{=it[i].id }});">Delete</span>
+			{{if(it[i].hasEvaluate !== 1 &&  it[i].status !== 0){ }}
+			<span tapmode onclick="openEvaluationWin({{=it[i].id }});">Evaluate</span>
+			{{ } }}
+			</div>
+		</div>
+	</div>
+	{{ } }}
+	</script>
+	<div id="order1-content">
+    </div>
+    
+	<!-- 待付款-->
+	<script id="order2-template" type="text/x-dot-template">
+	{{ for(var i=0; i< it.length; i++) { }}
+	<div id="payDiv{{=it[i].id }}" class="order-list">
+		<h3><span>{{=it[i].storeName }}</span><em>{{=tranStatusName(it[i].status,2) }}</em></h3>
+		<div class="order-list-shop" style="padding: 0.4rem 1.215rem 0 0.6rem;">
+			{{ for(var j=0; j< it[i].details.length; j++) { }}
+			<div class="order-list-c">
+				<img class="pic" src="{{=global.getImgUri() + '/' + it[i].details[j].image}}" onerror="this.src='../../../image/portal/shop-img.jpg'">
+				<div class="select-shop-l">
+					<div class="shopname">{{=it[i].details[j].productName }}</div>
+					<div class="price">￥<em>{{=global.formatCurrency(it[i].details[j].payAmount) }}</em><span>X{{=it[i].details[j].number }}</span></div>
+				</div>
+			</div>
+			{{ } }}
+		</div>
+
+		<div class="order-list-operate">
+<!--			<div tapmode onclick="openElectronlistWin({{=it[i].id }});" class="order-l"><span class="order-btn-bg">Receipt</span></div>-->
+			<div class="order-r">
+			<span tapmode onclick="pay({{=it[i].id }});">Payment</span>
+			</div>
+		</div>
+	</div>
+	{{ } }}
+	</script>
+	<div id="order2-content" class="aui-hide">
+    </div>
+    
+	<!-- 待评价-->
+	<script id="order3-template" type="text/x-dot-template">
+	{{ for(var i=0; i< it.length; i++) { }}
+	<div id="evaluationDiv{{=it[i].id }}" class="order-list">
+		<h3><span>{{=it[i].storeName }}</span><em>{{=tranStatusName(it[i].status,3) }}</em></h3>
+		<div class="order-list-shop" style="padding: 0.4rem 1.215rem 0 0.6rem;">
+			{{ for(var j=0; j< it[i].details.length; j++) { }}
+			<div class="order-list-c">
+				<img class="pic" src="{{=global.getImgUri() + '/' + it[i].details[j].image}}" onerror="this.src='../../../image/portal/shop-img.jpg'">
+				<div class="select-shop-l">
+					<div class="shopname">{{=it[i].details[j].productName }}</div>
+					<div class="price">￥<em>{{=global.formatCurrency(it[i].details[j].payAmount) }}</em><span>X{{=it[i].details[j].number }}</span></div>
+				</div>
+			</div>
+			{{ } }}
+		</div>
+		
+		<div class="order-list-operate">
+			{{if(it[i].status !== 0){ }}
+			<div tapmode onclick="openElectronlistWin({{=it[i].id }});" class="order-l"><span class="order-btn-bg">Receipt</span></div>
+			{{ } }}
+			<div class="order-r">
+			<span tapmode onclick="deleteOrder('evaluationDiv', {{=it[i].id }});">Delete</span>
+			<span tapmode onclick="openEvaluationWin({{=it[i].id }});">Evaluate</span>
+			</div>
+		</div>
+	</div>
+	{{ } }}
+	</script>
+	<div id="order3-content" class="aui-hide">
+    </div>
+    
+    <div class="no-data aui-hide" id="nonDataId">
+         <i></i>
+        	 no data
+     </div>
+</div>
+</body>
+<script type="text/javascript" src="../../../script/api.js"></script>
+<script type="text/javascript" src="../../../script/common/global.js"></script>
+<script type="text/javascript" src="../../../script/common/page.js"></script>
+<script type="text/javascript" src="../../../script/library/doT.min.js"></script>
+<script type="text/javascript" src="../../../script/library/zepto.min.js"></script>
+<script type="text/javascript">
+	//type 1=全部 2=待付款 3=待评论
+    var type = 1;
+
+    apiready = function(){
+		switchType(api.pageParam.type);
+		initEvent();
+    }
+
+    /**
+    *初始化事件
+    */
+	function initEvent() {
+		api.setCustomRefreshHeaderInfo({
+	      	bgColor : '#fdf7e7',
+	      	image : {
+	        pull : global.pullImage(),
+	        load : global.pushImage()
+	      }
+	    }, function(ret, err) {
+			queryList();
+			api.refreshHeaderLoadDone();
+	    });
+	  
+	    api.addEventListener({
+			name : 'scrolltobottom',
+			extra : {
+	        	threshold : 0
+	      	}
+	    }, function(ret, err) {
+			page.scrollRefresh();
+	    });
+	    
+	    //评价事件
+	    api.addEventListener({
+		    name:'orderEvaluationEvent'
+	    },function(ret,err){
+	    	api.closeWin({name : 'evaluationWin'});
+	    	queryList();
+	    });
+	    
+	    //付款成功
+	    api.addEventListener({
+		    name:'paySuccessEvent'
+	    },function(ret,err){
+	    	queryList();
+	    });
+	}
+  
+    /**
+     *查询 
+     */
+    function queryList(){
+        var params = '?start=0&maxResult=20&type=' + type;
+        var url = global.getRequestUri() + '/order/list';
+        page.init(20, 'order' + type + '-content', 'order' + type + '-template', url, params, true, 'nonDataId');  
+    }
+    
+	/**
+	 *打开电子清单
+	 */
+	function openElectronlistWin(id){
+		//读取订单信息
+		api.ajax({
+            method : 'get',
+            cache : false,
+            dataType : 'json',
+            returnAll : false,
+            url : global.getRequestUri() + '/order/detail?orderId=' + id,
+            headers : global.getRequestToken()
+        }, function(ret, err) {
+            if (ret) {
+                getSelectProduct(ret.details);
+                console.log(JSON.stringify(ret));
+                var orderInfo = { storeName: ret.storeName,id: ret.id, no: ret.no,qrCode: ret.qrCode,returnCode : ret.returnCode, createTime : ret.createTime,
+                	taxAmount: ret.taxAmount,amount: ret.amount,payAmount: ret.payAmount,couponName: ret.couponName };
+                api.openWin({
+					name : 'electronlistWin',
+					url : '../common/common_win.html',
+					pageParam : {
+						page : '../member/electronlist_frame',
+						title : 'Receipt',
+						orderInfo : orderInfo
+					}
+				});
+            }
+        });
+	}
+	
+	/**
+	 *付款 
+	 */
+	function pay(id){
+		//读取订单信息
+		api.ajax({
+            method : 'get',
+            cache : false,
+            dataType : 'json',
+            returnAll : false,
+            url : global.getRequestUri() + '/order/detail?orderId=' + id,
+            headers : global.getRequestToken()
+        }, function(ret, err) {
+            if (ret) {
+                getSelectProduct(ret.details);
+                api.openWin({
+					name : 'payResultWin',
+					url : '../portal/scanit7.html',
+					pageParam : {
+						storeName: ret.storeName,
+						id: ret.id,
+						no: ret.no,
+						qrCode: ret.qrCode,
+						returnCode : ret.returnCode,
+						createTime : ret.createTime,
+						taxAmount: ret.taxAmount,
+						amount: ret.amount,
+						payAmount: ret.payAmount
+					}
+				});
+            }
+        });
+    }
+    
+    /**
+     *删除订单 
+     */
+    function deleteOrder(name, id){
+    	api.confirm({
+			title : 'delete Order',
+			msg : 'Delete Order',
+			buttons : ['Yes', 'No']
+   		},function(ret,err){
+			if (ret.buttonIndex === 1) {
+				  api.ajax({
+		            method : 'post',
+		            cache : false,
+		            dataType : 'json',
+		            returnAll : false,
+		            url : global.getRequestUri() + '/order/delete',
+		            headers : global.getRequestToken(),
+		            data : {
+		                values :  {
+		                	'id' : id
+		                }
+		            }
+		        }, function(ret, err) {
+		            if (ret) {
+		                if (ret.success) {
+		                    $api.remove($api.byId(name + id));
+
+		                      api.sendEvent({
+		    	                    name:'orderEvaluationEvent'
+		                      });
+		                } else {
+		                    global.setToast(ret.message);
+		                }
+		            } else {
+		                global.setErrorToast();
+		            }
+		        });
+			}
+		});
+    	
+    }
+    
+    
+	/**
+	 *打开评价 
+	 */
+	function openEvaluationWin(id){
+		api.openWin({
+			name : 'evaluationWin',
+			url : './evaluation_frame.html',
+			pageParam : {
+				orderId : id
+			}
+		});
+	}
+	
+	/**
+	 *切换类型 
+	 */
+	function switchType(item){
+        type = item;
+
+		$api.addCls($api.byId('order1-content'), 'aui-hide');
+		$api.addCls($api.byId('order2-content'), 'aui-hide');
+		$api.addCls($api.byId('order3-content'), 'aui-hide');
+
+		$api.removeCls($api.byId('order' + item + '-content'), 'aui-hide');
+		queryList();
+	}
+	
+	/**
+	 *获取选择商品 
+	 */
+	function getSelectProduct(detail){
+		var productPay = [];
+		for (var j = 0; j < detail.length; j++) {
+			var item = {id : detail[j].productId, name : detail[j].productName, image : detail[j].image, price : detail[j].payAmount, number: detail[j].number };
+			productPay.push(item);
+		}
+		
+		if(productPay.length > 0){
+			$api.setStorage("productPay", productPay);
+		}
+	}
+	
+	/**
+	 *转换状态 
+	 */
+	function tranStatusName(status,type){
+		//NON_PAYMENT("未支付", 0), SUCCESS("已支付", 1), SEND_OUT_GOODS("已发货", 2), RETURN_OF_GOODS("退货", 3), EXCHANGE_OF_GOODS("换货", 4), CHECK_OF_GOODS("验货", 5);
+		var statusName = status
+		switch(status){
+			case 0:
+				statusName = (type ==1)?'Pending': '';
+				break;
+			case 1:
+				statusName = '';//Paymented
+				break;
+			case 2:
+				statusName = 'Shipped';
+				break;
+			case 3:
+				statusName = 'Return goods';
+				break;
+			case 4:
+				statusName = 'Exchange goods';
+				break;	
+			case 5:
+				statusName = 'Inspection';
+				break;	
+		}
+		
+		return statusName;
+	}
+</script>
+</html>

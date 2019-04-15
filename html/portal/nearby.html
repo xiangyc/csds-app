@@ -1,0 +1,310 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, initial-scale=1.0, width=device-width"/>
+	<meta name="format-detection" content="telephone=no, email=no, date=no, address=no">
+	<title>附近的人都在买</title>
+	<link rel="stylesheet" type="text/css" href="../../css/aui.css" />
+	<link rel="stylesheet" type="text/css" href="../../css/common.css" />
+	<link rel="stylesheet" type="text/css" href="../../css/portal.css" />
+</head>
+<body>
+<div class="aui-content">
+	<div class="select-shop-list p-3">
+		<script id="product-template" type="text/x-dot-template">
+          {{ for(var i=0; i< it.length; i++) { }}
+			<a class="item">
+				<div class="cnt">
+					<img tapmode onclick="openDetail({{=it[i].id }}, '{{=it[i].name }}');" id="img{{=it[i].id }}" class="pic" src="{{=global.getImgUri() + '/' + it[i].image}}" onerror="this.src='../../image/portal/shop-img.jpg'" >
+					<div class="wrap">
+						<div class="wrap2">
+							<div tapmode onclick="openDetail({{=it[i].id }}, '{{=it[i].name }}');" class="select-shop-l">
+								<div class="shopname" id="div{{=it[i].id }}" >{{=it[i].name }}</div>
+								<div class="sales">销量：<em>{{=it[i].salesVolume }}</em></div>
+								<div class="introduction">{{=it[i].summary }}</div>
+							</div>
+							<div class="select-shop-r">
+								<div class="price">￥<em id="em{{=it[i].id }}">{{=it[i].price }}</em></div>
+								<div class="amount">
+									<div tapmode onclick="subCount({{=it[i].id }});" class="aui-bar-btn-item"><img src="../../image/portal/amount-less.png"/></div>
+									<div class="aui-bar-btn-item" tapmode="" data-item-order="1">
+										<input id="{{=it[i].id }}" type="number" onkeyup="setCount({{=it[i].id }});" class="aui-input aui-text-center" value="0" oninput="if(value.length>7)value=value.slice(0,7);" >
+									</div>
+									<div tapmode onclick="addCount({{=it[i].id }});" class="aui-bar-btn-item"><img src="../../image/portal/amount-plus.png"/></div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</a>
+          {{ } }}
+        </script>
+        <div id="product-content"></div>
+        
+	</div>
+	
+    <div class="no-data aui-hide" id="nonDataId">
+     <i></i>
+		暂无数据
+ 	</div>
+</div>
+<!--<footer class="aui-bar aui-bar-tab shop-b-fixed">
+	<div class="aui-bar-tab-item aui-border-r" tapmode="" style="width: 3.65rem;">
+		<div id="countDiv" class="aui-bar-tab-label text-blue">0件商品</div>
+	</div>
+	<div class="aui-bar-tab-item" tapmode="" style="width: 7.2rem;">
+		<div tapmode onclick="openShopcatWin();" class="aui-bar-tab-label">加入购物车</div>
+	</div>
+	<div tapmode onclick="next();" class="aui-bar-tab-item bg-blue aui-text-white" tapmode="" style="width: auto;">结算</div>
+</footer>-->
+</body>
+
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/common/global.js"></script>
+<script type="text/javascript" src="../../script/common/page.js"></script>
+<script type="text/javascript" src="../../script/common/calculate.js"></script>
+<script type="text/javascript" src="../../script/library/doT.min.js"></script>
+<script type="text/javascript">
+	//门店ID
+	var storeId;
+	//产品类型ID
+	var productTypeId;
+	//产品件数
+	var productCount = 0;
+	//选择商品信息
+	var productIds = '';
+	var numbers = '';
+	var amounts = '';
+	var imgs = '';
+	var names = '';
+	
+	apiready = function(){
+		storeId = api.pageParam.storeId;
+		productTypeId = api.pageParam.productTypeId;
+
+		queryProduct();
+		initEvent();
+	}
+	
+	/**
+	 *初始化事件
+	 */
+	function initEvent() {
+		api.setCustomRefreshHeaderInfo({
+			bgColor : '#fdf7e7',
+			image : {
+				pull : global.pullImage(),
+				load : global.pushImage()
+			}
+		}, function(ret, err) {
+			queryProduct();
+			api.refreshHeaderLoadDone();
+		});
+	
+		api.addEventListener({
+			name : 'scrolltobottom',
+			extra : {
+				threshold : 0
+			}
+		}, function(ret, err) {
+			page.scrollRefresh();
+		});
+	}
+	
+	/**
+	 *查询门店 
+	 */
+	function queryProduct(){
+	  	var params = '?start=0&maxResult=20&productTypeId=' + productTypeId + '&storeId=' + storeId;
+	  	var url = global.getRequestUri() + '/product/list';
+  		page.init(20, 'product-content', 'product-template', url, params, true, 'nonDataId');
+
+  		productCount = 0;
+		//$api.html($api.byId('countDiv'), productCount + '件商品');
+		sendSelectEvent();
+	}
+	
+	/**
+	 *详情 
+	 */
+	function openDetail(id, name){
+		api.openWin({
+			name : 'scanit4',
+			url : './scanit4.html',
+			pageParam : {
+				storeId : storeId,
+				productId : id,
+				name : name
+			}
+		});
+	}
+	
+	/**
+	 *获取选择商品 
+	 */
+	function getSelectProduct(){
+		productIds = '';
+		numbers = '';
+		amounts = '';
+		imgs = '';
+		names = '';
+	
+		var num = 0;
+		var id = 0;
+		var nameTemp = '';
+		var imgTemp = '';
+		var amountTemp = '';
+		var productPay = [];
+		var pro = $api.domAll($api.byId('product-content'), 'input');
+		for (var j = 0; j < pro.length; j++) {
+			num = $api.val(pro[j]);
+			
+			if(num > 0){
+				id = $api.attr(pro[j], 'id');
+				productIds = productIds + id + ',';
+				numbers = numbers + num + ',';
+				
+				amountTemp = $api.html($api.byId('em' + id));
+				imgTemp = $api.attr($api.byId('img' + id), 'src');
+				nameTemp = $api.html($api.byId('div' + id));
+				amounts = amounts + amountTemp + ','
+				imgs = imgs + imgTemp + ','
+				names = names + nameTemp + ','
+				
+				var item = {id : id, name : nameTemp, image : imgTemp, price : amountTemp, number: num };
+				productPay.push(item);
+			}
+		}
+		
+		if(pro.length > 0){
+			productIds = productIds.substring(0, productIds.length - 1);
+			numbers = numbers.substring(0, numbers.length - 1);
+			amounts = amounts.substring(0, amounts.length - 1);
+			
+			$api.setStorage("productPay", productPay);
+		}
+	}
+	
+	/**
+	 *购物车 
+	 */
+	function openShopcatWin(){
+		getSelectProduct();
+		
+		if(productIds.length < 1 || numbers.length < 1 || amounts.length < 1){
+			global.setToast('请至少选中一件商品');
+			return;
+		}
+		
+		api.ajax({
+			method : 'post',
+			cache : false,
+			dataType : 'json',
+			returnAll : false,
+			url : global.getRequestUri() + '/shopcart/batch-add',
+			headers : global.getRequestToken(),
+			data : {
+				values : {
+					productIds : productIds,
+					numbers : numbers,
+					amounts : amounts
+				}
+			}
+		}, function(ret, err) {
+			if (ret) {
+				if(ret.success){
+					api.sendEvent({
+	                    name:'shopcartEvent'
+                    });
+					api.openWin({
+						name : 'shop_cart_win',
+						url : '../member/shop_cart_win.html'
+					});
+				}else{
+					global.setToast(ret.message);
+				}
+			} else {
+				global.setToast('添加失败');
+			}
+		});
+	}
+	
+	/**
+	 *结算 
+	 */
+	function next(){
+		getSelectProduct();
+		
+		if(productIds.length < 1 || numbers.length < 1 || amounts.length < 1){
+			global.setToast('请至少选中一件商品');
+			return;
+		}
+
+		api.openWin({
+			name : 'scanit6',
+			url : '../common/common_win.html',
+			pageParam : {
+				title : '结算',
+				page : '../portal/scanit6',
+				storeId : storeId
+			}
+		});
+	}
+	
+	/**
+	 *减少 
+	 */
+	function subCount(id){
+		var count = $api.val($api.byId(id));
+		count = calculate.sub(count, 1);
+		
+		if(count >= 0){
+			$api.val($api.byId(id), count);
+			productCount = calculate.sub(productCount, 1);
+			//$api.html($api.byId('countDiv'), productCount + '件商品');
+			sendSelectEvent();
+		}
+	}
+	
+	/**
+	 *增加 
+	 */
+	function addCount(id){
+		var count = $api.val($api.byId(id));
+		count = calculate.add(count, 1);
+		
+		$api.val($api.byId(id), count);
+		productCount = calculate.add(productCount, 1);
+		//$api.html($api.byId('countDiv'), productCount + '件商品');
+		sendSelectEvent();
+	}
+	
+	/**
+	 *设置数量 
+	 */
+	function setCount(id){
+		var pro = $api.domAll($api.byId('product-content'), 'input');
+		productCount = 0;
+		for (var j = 0; j < pro.length; j++) {
+			num = $api.val(pro[j]);
+			
+			if(num > 0){
+				productCount = calculate.add(productCount, num);
+			}
+		}
+		
+		//$api.html($api.byId('countDiv'), productCount + '件商品');
+		sendSelectEvent();
+	}
+	
+	function sendSelectEvent(){
+		api.sendEvent({
+	        name:'productSelectEvent',
+	        extra:{
+	        	productCount : productCount
+	        }
+        });
+	}
+</script>
+</html>

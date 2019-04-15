@@ -1,0 +1,119 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,initial-scale=1.0,width=device-width"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>超市电商</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/aui.css" />
+	<link rel="stylesheet" type="text/css" href="../../css/common.css" />
+	<link rel="stylesheet" type="text/css" href="../../css/portal.css" />
+    <style>
+		html,body{
+			height: 100%;
+			width:100%;
+		}
+		#wrap{
+		    height: 100%;
+		    display: -webkit-box;
+		    display: -webkit-flex;
+		    display: flex;
+		    -webkit-box-orient: vertical;
+		    -webkit-flex-flow: column;
+		           flex-flow: column;
+		}
+		#header{
+		    text-align: center;
+		   	background-color: #fff;
+			color: #3B5999;
+		    width: 100%;
+		    position:relative;
+		    padding-top: 25px;
+		}
+		</style>
+</head>
+<body>
+	<div id="wrap">
+		<div id="header" class="aui-bar aui-bar-nav aui-bar-white">
+			<div id="cart" class="topbar">
+				<div class="aui-bar aui-bar-nav aui-bar-white border-b-f0">
+				    <a tapmode onclick="openLocationWin();" class="aui-pull-left index-location-icon">
+			            <img src="../../image/portal/location-icon.png"/><span id="cityName">北京</span>
+			        </a>
+					<a id="statusA" tapmode onclick="editShopCart();" class="black-return-text-r aui-font-size-12">编辑</a>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/common/global.js"></script>
+<script type="text/javascript">
+	apiready = function(){
+		var header = $api.byId('header');
+		$api.fixStatusBar(header);
+		var pos = $api.offset(header);
+		
+	    api.openFrame({
+	        name: 'shop_cart',
+	        url: './shop_cart.html',
+	        rect:{
+	            x: 0,
+	            y: pos.h,
+	            w: 'auto',
+	            h: 'auto'
+	        },
+	        pageParam : {
+	        	footer : true,
+				safeAreaTop : api.safeArea.bottom
+	        },
+	        bounces: false,
+	        vScrollBarEnabled: false
+	    });
+	    
+	    initEvent();
+	}
+	
+	/**
+	 *初始化页面事件
+	 */
+    function initEvent(){        
+    	api.addEventListener({
+            name:'citySelectorEvent'
+        },function(ret,err){
+        	if(ret && ret.value){
+        		$api.html($api.byId('cityName'), ret.value.cityName);
+        	}
+        });
+    }
+    
+	/**
+	 *编辑购物车 
+	 */
+	function editShopCart(){
+		var text = $api.html($api.byId('statusA'));
+		
+		api.execScript({
+			frameName: 'shop_cart',
+	        script: "switchStatus('" + text + "');"
+        });
+        
+		if(text === '编辑'){
+			$api.html($api.byId('statusA'), '完成');
+		}else{
+			$api.html($api.byId('statusA'), '编辑');
+		}
+	}
+
+	/**
+	 *定位 
+	 */
+	function openLocationWin(){
+		api.openWin({
+			name : 'locationWin',
+			url : '../portal/location.html'
+		});
+	}
+</script>
+</html>

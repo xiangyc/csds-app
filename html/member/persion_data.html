@@ -1,0 +1,211 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, initial-scale=1.0, width=device-width"/>
+	<meta name="format-detection" content="telephone=no, email=no, date=no, address=no">
+	<title>个人资料</title>
+	<link rel="stylesheet" type="text/css" href="../../css/aui.css" />
+	<link rel="stylesheet" type="text/css" href="../../css/common.css" />
+	<link rel="stylesheet" type="text/css" href="../../css/member.css" />
+</head>
+<body>
+<div id="header" class="aui-bar aui-bar-text padded-t-25">
+	<a tapmode onclick="api.closeWin();" class="black-return-text">
+		<img src="../../image/member/black-return.png">个人资料
+	</a>
+</div>
+<div class="position-r">
+	<ul class="persion-data-list">
+		<li tapmode onclick="iconSelect();" class="auth-info auth-my-avatar list-item-arrow"><div class="item-title">头像</div><div class="item-right"><img id='headIconId' src="../../image/member/shop-top-img.jpg" class="my-avatar"/></div></li>
+		<li tapmode onclick="nameSelect();" class="auth-info list-item-arrow"><div class="item-title">昵称</div><div class="item-right" id="nickNameId"></div></li>
+		<li tapmode onclick="sexSelect();" class="auth-info list-item-arrow list-item-arrow-down"><div class="item-title">性别</div><div id="sexDiv" class="item-right"></div>
+			<div id="sexSelectDiv" class="gender-box aui-hide"><span tapmode onclick="setSet(1);">男</span><span tapmode onclick="setSet(0);">女</span></div>
+		</li>
+	</ul>
+</div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/common/global.js" ></script>
+<script type="text/javascript">
+	apiready = function(){
+		initEvent();
+
+		if(global.getHeadIcon()){
+			$api.attr($api.byId('headIconId'), 'src', global.getImgUri()+'/'+global.getHeadIcon());
+		}
+
+		$api.html($api.byId('nickNameId'), global.getUserName());
+
+		var sex = global.getUserSex();
+		if(sex){
+			if(sex == 1){
+				$api.html($api.byId('sexDiv'), '男');
+			}else{
+				$api.html($api.byId('sexDiv'), '女');
+			}
+		}else{
+			$api.html($api.byId('sexDiv'), '无');
+		}
+
+	};
+	
+	function initEvent(){
+	    api.addEventListener({
+	        name: 'nickNameSuccessEvent'
+	    }, function(ret, err) {
+	        if (ret && ret.value) {
+	           var nickName = ret.value.nickName;
+	           $api.html($api.byId('nickNameId'), nickName);
+		    }
+
+	    });
+	}
+
+	function iconSelect(){
+		api.actionSheet({
+        	cancelTitle : '取 消',
+            style:{
+                fontNormalColor:'#333333',
+                titleFontColor:'#ececec'
+            },
+            buttons : ['拍照','从相册中选择']
+        }, function(ret, err) {
+            if (ret) {
+                var sourceType ='library';
+                if (ret.buttonIndex === 1) {
+                   sourceType ='camera';
+                }else if (ret.buttonIndex === 2) {
+                   sourceType ='library';
+                }
+
+				if(ret.buttonIndex === 1 || ret.buttonIndex === 2){
+	                api.getPicture({
+						sourceType : sourceType,
+						encodingType : 'jpg',
+						mediaValue : 'pic',
+						destinationType : 'url',
+						allowEdit : true,
+						quality : 90
+					}, function(ret, err) {
+						if (ret) {
+							if (ret.data) {
+								var headIconPath = ret.data;
+	
+								api.showProgress({
+									title: '头像保存中...',
+									modal: false
+							    });
+	
+								api.ajax({
+									method : 'post',
+									cache : false,
+									dataType : 'json',
+									returnAll : false,
+									url : global.getRequestUri() + '/member/info/update/headIcon',
+									headers : global.getRequestToken(),
+									timeout : 100,
+									data : {
+										files : {
+												file : headIconPath
+											}
+									}
+								}, function(ret, err) {
+									api.hideProgress();
+									if (ret) {
+										if (ret.success) {
+											global.setToast('头像保存成功');
+											$api.attr($api.byId('headIconId'), 'src', headIconPath);
+	
+											if(ret.obj){
+												global.setHeadIcon(ret.obj);
+											}
+
+								            api.sendEvent({
+								                 name:'modifyHeadIconEvent',
+								                 extra:{
+								                    headIcon : ret.obj
+								                 }
+							                });
+										} else {
+											global.setToast(ret.message);
+										}
+									} else {
+										global.setErrorToast();
+									}
+								});
+							}
+						}
+					});
+				}
+            }
+        });
+	}
+	
+	function nameSelect(){
+		api.openWin({
+			name : 'nickWin',
+			url : './nickname_modify.html'
+		});
+	}
+	
+	function sexSelect(){
+		if($api.hasCls($api.byId('sexSelectDiv'), 'aui-hide')){
+			$api.removeCls($api.byId('sexSelectDiv'), 'aui-hide');
+		}else{
+			$api.addCls($api.byId('sexSelectDiv'), 'aui-hide');
+		}
+	}
+	
+	function setSet(sex){
+
+		api.ajax({
+            method : 'post',
+            cache : false,
+            dataType : 'json',
+            returnAll : false,
+            url : global.getRequestUri() + '/member/info/update/sex',
+            headers : global.getRequestToken(),
+            data : {
+                values :  {
+                    'sex' : sex
+                }
+            }
+        }, function(ret, err) {
+            if(ret && ret.code === "403"){
+                api.sendEvent({
+                    name:'tokenExpiredEvent',
+                    extra:{
+                        msg : ret.message
+                    }
+                });
+                
+                return;
+            }        
+            if (ret) {
+                if (ret.success) {
+                    global.setToast('保存成功');
+
+					global.setUserSex(sex);
+
+					if(sex === 1){
+						$api.html($api.byId('sexDiv'), '男');
+					}else{
+						$api.html($api.byId('sexDiv'), '女');
+					}
+					
+				    api.sendEvent({
+		                 name:'modifySexEvent'
+	                });
+
+                } else {
+                    global.setToast(ret.message);
+                }
+            } else {
+                global.setErrorToast();
+            }
+
+        });
+	}
+</script>
+</html>

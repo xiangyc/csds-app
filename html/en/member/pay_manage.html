@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>Setting</title>
+    <link rel="stylesheet" type="text/css" href="../../../css/aui.css" />
+    <link rel="stylesheet" type="text/css" href="../../../css/common.css" />
+    <link rel="stylesheet" type="text/css" href="../../../css/member.css" />
+</head>
+<header class="aui-bar aui-bar-text  padded-t-25">
+    <a tapmode onclick="api.closeWin();" class="black-return-text">
+        <img src="../../../image/member/black-return.png">Setting
+    </a>
+</header>
+<body>
+ <div class="aui-content">
+         <ul class="pay-manage-list">
+             <li tapmode onclick="doSubWin(1);" class="pay-manage-list-item shop-border-bottom">Edit payment password</li>
+             <li tapmode onclick="doSubWin(2);" class="pay-manage-list-item shop-border-bottom">Forget Payment Password</li>
+             <li tapmode onclick="auth();" class="pay-manage-list-item shop-border-bottom">Real-Name Authentication</li>
+         </ul>
+ </div>
+</body>
+<script type="text/javascript" src="../../../script/api.js"></script>
+<script type="text/javascript" src="../../../script/common/global.js" ></script>
+<script type="text/javascript">
+
+    /**
+     *修改密码 忘记密码
+     */
+    function doSubWin(item){
+        if( global.getAuthStatus() == '0'){//实名认证申请中
+            api.confirm({
+               // title : '请先实名认证',
+                msg : 'Certification application',
+                buttons : ['Go to see', 'First look around']
+            },function(ret,err){
+                if (ret.buttonIndex === 1) {
+                    // api.openWin({
+                    //    name : 'authSubWin',
+                    //    url : 'auth_win.html'
+                    // });  
+                    auth();  
+                }
+            });
+
+            return;
+        }
+
+         if( global.getAuthStatus() == '-1'){//请先实名认证
+            api.confirm({
+               // title : '请先实名认证',
+				msg : 'Real name authentication',
+				buttons : ['Yes', 'No']
+            },function(ret,err){
+                if (ret.buttonIndex === 1) {
+                    api.openWin({
+                       name : 'authSubWin',
+                       url : 'auth_win.html'
+                    });  
+                }
+            });
+
+            return;
+        }
+
+        if( global.getBindCreditCard() == '0'){//请先绑定信用卡
+            api.confirm({
+               // title : '请先绑定银行卡',
+                msg : 'Please bind the credit card first',
+                buttons : ['Yes', 'No']
+            },function(ret,err){
+                if (ret.buttonIndex === 1) {
+                    api.openWin({
+                        name : 'openWalletSubWin2',
+                        url : '../common/common_win.html',
+                        pageParam:{
+                            title: 'Credit Card',
+                            page: '../member/bankcard'
+                        }
+                    });
+                }
+            });
+
+            return;
+
+        }
+
+        var url = "";
+        var winName = 'openPaySubWin';
+        switch(item) {
+            case 1:
+                url = './pay_password_modify.html';
+                break;
+            case 2:
+                winName = 'openPayFindSubWin';
+                url = './pay_password_find.html';
+                break;
+        }
+
+        api.openWin({
+            name : winName,
+            url : url
+        });
+    }
+
+    /**
+     *实名认证
+     */
+	function auth(){
+		api.ajax({
+            method : 'get',
+            cache : false,
+            dataType : 'json',
+            returnAll : false,
+            url : global.getRequestUri() + '/member/info/auth',
+            headers : global.getRequestToken()           
+        }, function(ret, err) {
+            if(ret && ret.code === "403"){
+                api.sendEvent({
+                    name:'tokenExpiredEvent',
+                    extra:{
+                        msg : ret.message
+                    }
+                });
+                
+                return;
+            }
+
+            if (ret) {
+                if (ret.success) {
+                    if(ret.obj){                     
+                        api.openWin({
+                            name : 'authInfoSubWin',
+                            url : './auth_info.html',
+                            reload : true,
+                            pageParam : {
+                                name : ret.obj.firstName,
+                                lastName : ret.obj.lastName,
+                                idCard :ret.obj.idCard,
+                                email : ret.obj.email,
+                                status:ret.obj.status
+                            }
+                        });  
+                    }else{
+			            api.openWin({
+                            name : 'authSubWin',
+                            url : './auth_win.html',
+                            reload : true
+                        });
+                    }
+                } else {
+                    global.setToast(ret.message);
+                }
+            } else {
+                global.setErrorToast();
+            }
+        });
+	}
+</script>
+</html>

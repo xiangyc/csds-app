@@ -1,0 +1,168 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, initial-scale=1.0, width=device-width"/>
+	<meta name="format-detection" content="telephone=no, email=no, date=no, address=no">
+	<title>Coupon</title>
+	<link rel="stylesheet" type="text/css" href="../../../css/aui.css" />
+	<link rel="stylesheet" type="text/css" href="../../../css/common.css" />
+	<link rel="stylesheet" type="text/css" href="../../../css/member.css" />
+</head>
+<body>
+<div class="aui-content">
+	<div class="coupon-box coupon-box-index">
+	    <script id="coupon-template" type="text/x-dot-template">
+          {{ for(var i=0; i< it.length; i++) { }}
+          	{{if(it[i].status === -1 || it[i].status === 0){}}
+    		<div class="coupon-list">
+    		{{ }else{ }}
+    		<div class="coupon-list coupon-gray">
+    		{{ } }}
+				<div class="coupon-l"><div>
+				 <sub>{{=it[i].couponTypeUnit}}</sub><em style="font-size: 1.45rem">{{=it[i].couponValue}}</em> 
+				</div><span>
+				<i style="font-size: 0.6rem"> 
+					{{ if(it[i].couponTypeName == '满减券'){}}  
+					 	Full cut coupons
+					{{ }else{ }}
+						Discount coupons
+					{{ } }}
+				</i>
+
+				<em>
+					{{ if(it[i].couponName.indexOf('优惠券') >0){}}  
+					 	{{=tranCouponTypeName(it[i].couponValue)}}
+					{{ }else{ }}
+						{{=tranCouponName(it[i].couponName)}}
+					{{ } }}
+				</em>
+
+				</span></div>
+				<div class="coupon-r">
+					<div tapmode onclick="useCoupon({{=it[i].id}}, '{{=it[i].couponName }}', {{=it[i].status }},{{=it[i].couponValue}});" class="coupon-r-btn">
+						{{if(it[i].status === -1){}}
+							Receive
+						{{ }else if(it[i].status === 0){ }}
+						Use
+						{{ }else if(it[i].status === 1){ }}
+						Used
+						{{ }else{ }}
+						Expired
+						{{ } }}
+					</div>
+				</div>
+			</div>
+          {{ } }}
+        </script>
+
+        <div id="coupon-content"></div>
+		<div tapmode onclick="addCoupon();" class="bank-card-add aui-clearfix">
+			<i><img id="icon" src="../../../image/member/bank-icon-add.png"></i>
+			Add coupon
+		</div>
+	</div>
+</div>
+</body>
+<script type="text/javascript" src="../../../script/api.js"></script>
+<script type="text/javascript" src="../../../script/common/global.js"></script>
+<script type="text/javascript" src="../../../script/common/page.js"></script>
+<script type="text/javascript" src="../../../script/library/doT.min.js"></script>
+<script type="text/javascript">
+	//券ID
+	var id;
+	//券名称
+	var couponName;
+	//来源(1：下单选择,2:其它);
+	var src = 2;
+	
+	apiready = function(){
+		src = api.pageParam.src;
+		queryCoupon();
+		initEvent();
+	}
+	
+	/**
+	 *初始化事件
+	 */
+	function initEvent() {
+		api.setCustomRefreshHeaderInfo({
+			bgColor : '#fdf7e7',
+			image : {
+				pull : global.pullImage(),
+				load : global.pushImage()
+			}
+		}, function(ret, err) {
+			queryCoupon();
+			api.refreshHeaderLoadDone();
+		});
+	
+		api.addEventListener({
+			name : 'scrolltobottom',
+			extra : {
+				threshold : 0
+			}
+		}, function(ret, err) {
+			page.scrollRefresh();
+		});
+		
+		api.addEventListener({
+	        name:'addCouponEvent'
+        },function(ret,err){
+        	global.setToast('Add Successfully');
+        	
+        	queryCoupon();
+        });
+	}
+	
+	/**
+	 *使用券 
+	 */
+	function useCoupon(id, couponName, status, couponValue){
+		if(src === 1 && status === 0){
+			var str ;
+
+			 if(couponName.indexOf('优惠券') >0){
+			 	str = tranCouponTypeName(couponValue)
+			 }else{ 
+				str = tranCouponName(couponName)
+			 }
+
+			api.sendEvent({
+	            name:'couponSelectEvent',
+	            extra: {
+	            	id: id,
+	            	couponName: str
+	            }
+            });
+		}
+	}
+		
+	/**
+	 *查询券
+	 */
+	function queryCoupon(){
+	  	var params = '?start=0&maxResult=20';
+	  	var url = global.getRequestUri() + '/coupon/list';
+  		page.init(20, 'coupon-content', 'coupon-template', url, params, true, '');
+	}
+	
+	/**
+	 *关闭遮罩 
+	 */
+	function addCoupon(){
+    	api.openFrame({
+	        name: 'couponAddFrm',
+	        url: 'coupon_add.html',
+        });
+	}
+
+	function tranCouponTypeName(couponValue){
+		return 'discount of '+(parseFloat(10) - parseFloat(couponValue)) *10+'%';
+	}
+
+	function tranCouponName(couponName){
+		return couponName.replace('满', 'Full ').replace('减', ' Cut ') ;
+	}
+</script>
+</html>

@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>Bank Card</title>
+    <link rel="stylesheet" type="text/css" href="../../../css/aui.css" />
+    <link rel="stylesheet" type="text/css" href="../../../css/common.css" />
+    <link rel="stylesheet" type="text/css" href="../../../css/member.css" />
+</head>
+<body>
+<header class="aui-bar aui-bar-text  padded-t-25">
+    <a tapmode onclick="api.closeWin();" class="black-return-text">
+        <img src="../../../image/member/black-return.png"><span id="bankType"></span>
+    </a>
+    <a tapmode onclick="showCancel();" class="black-return-text-rimg color-white">
+        <img src="../../../image/member/top-more-h-icon.png">
+    </a>
+    <ul id="cancelUl" class="header-box aui-hide"><li tapmode onclick="cancel();">Remove</li></ul>
+</header>
+ <div class="bank-quota">
+     <div class="card-logo"><img id="icon" src="../../../image/member/bank-logo-ny.png"></div>
+     <div id="accountId" class="card-name"></div>
+     <div id="cardNoId" class="card-number"></div>
+     <div class="title">Spending Limits</div>
+     <div class="bank-quota-info bank-quota-info-xyk">
+         <div class="quota-info-list">Single limit<em>¥1,000</em></div>
+         <div class="quota-info-list">Daily Limits<em>¥10,000</em></div>
+     </div>
+ </div>
+
+ <div id="maskDiv" class="aui-mask aui-mask-in aui-hide"></div>
+ <div id="promptDiv" class="prompt-mask aui-hide">
+     <div class="text-title">Remove</div>
+     <div class="prompt-mask-btn"><div tapmode onclick="saveData();" class="aui-btn">Confirm</div></div>
+ </div>
+
+</body>
+
+<script type="text/javascript" src="../../../script/api.js"></script>
+<script type="text/javascript" src="../../../script/common/global.js" ></script>
+<script type="text/javascript">
+	var id;
+	var type;
+	apiready = function(){
+		id = api.pageParam.id;
+		type = api.pageParam.type;
+		var cardNo = api.pageParam.cardNo;
+		var account = api.pageParam.account;
+
+		if(type ==4){
+			$api.html($api.byId('bankType'), 'Bank Card');
+		}else{
+			$api.html($api.byId('bankType'), 'Credit Card');
+		}
+		
+		$api.html($api.byId('accountId'), account);
+		$api.html($api.byId('cardNoId'), subStringNO(cardNo));
+
+		initEvent();
+	}
+	
+	/**
+	 *注册事件 
+	 */
+	function initEvent(){
+		api.addEventListener({
+	        name:'unBindCreditcardEvent'
+        },function(ret,err){
+        	api.closeWin({
+        		name : 'unBindBandCardWin'
+            });
+			$api.addCls($api.byId('cancelUl'), 'aui-hide');
+			if($api.hasCls($api.byId('maskDiv'), 'aui-hide')){
+				$api.removeCls($api.byId('maskDiv'), 'aui-hide');
+				$api.removeCls($api.byId('promptDiv'), 'aui-hide');
+			}else{
+				$api.addCls($api.byId('maskDiv'), 'aui-hide');
+				$api.addCls($api.byId('promptDiv'), 'aui-hide');
+			}
+        });
+		
+	}
+	
+	/**
+	 *显示功能按钮 
+	 */
+	function showCancel(){
+		if($api.hasCls($api.byId('cancelUl'), 'aui-hide')){
+			$api.removeCls($api.byId('cancelUl'), 'aui-hide');
+		}else{
+			$api.addCls($api.byId('cancelUl'), 'aui-hide');
+		}
+	}
+	
+	/**
+	 *解绑 
+	 */
+	function cancel(){
+		api.openWin({
+			name : 'unBindBandCardWin',
+			url : './bankcard_add_debit1.html',
+			pageParam : {
+				type : 3,
+				title : 'Tying bank cards'
+			}
+		});
+	}
+	
+	/**
+	 *保存数据 
+	 */
+	function saveData(){
+		$api.addCls($api.byId('maskDiv'), 'aui-hide');
+		$api.addCls($api.byId('promptDiv'), 'aui-hide');
+
+		var url =  global.getRequestUri() + '/creditcard/del';
+		if(type ==4){
+			url =  global.getRequestUri() + '/bankcard/del';
+		}
+		 api.ajax({
+	            method : 'put',
+	            cache : false,
+	            dataType : 'json',
+	            returnAll : false,
+	            url : url,
+	            headers : global.getRequestToken(),
+	            timeout : 100,
+	            data : {
+	                values :  {
+	                    'id' : id
+	                 }
+	            }
+
+	        }, function(ret, err) {
+	            if(ret && ret.code === "403"){
+	                api.sendEvent({
+	                    name:'tokenExpiredEvent',
+	                    extra:{
+	                        msg : ret.message
+	                    }
+	                });
+	                
+	                return;
+	            }
+	            if (ret) {
+	                if (ret.success) {
+	                    global.setToast('Successful tying');
+                   		setTimeout("api.closeWin();", 1000);      
+	                    
+	                    api.sendEvent({
+                        	name:'unBindBandCardEvent',
+	                        extra:{
+	                            type : type
+	                        }
+	                    });
+	                } else {
+	                    global.setToast(ret.message);
+	                }
+	            } else {
+	                global.setErrorToast();
+	            }
+	        });
+	}
+
+	function subStringNO(no){
+		var len = no.length;
+		
+		var str = '';
+		for(var i=0;i<len;i++){
+			str +='*';
+		}
+
+		return str + no.substring(len -4 , len);
+	}
+</script>
+</html>

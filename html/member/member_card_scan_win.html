@@ -1,0 +1,101 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, initial-scale=1.0, width=device-width"/>
+	<meta name="format-detection" content="telephone=no, email=no, date=no, address=no">
+	<title>扫一扫</title>
+	<link rel="stylesheet" type="text/css" href="../../css/aui.css" />
+	<link rel="stylesheet" type="text/css" href="../../css/common.css" />
+	<link rel="stylesheet" type="text/css" href="../../css/portal.css" />
+</head>
+<body>
+<div id="header" class="aui-bar aui-bar-text padded-t-25">
+	<a tapmode onclick="api.closeWin();" class="black-return-text">
+		<img src="../../image/member/black-return.png"/>扫一扫
+	</a>
+	<a tapmode onclick="inputScan();" class="black-return-text-r">手动输入号码</a>
+</div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/common/global.js"></script>
+<script type="text/javascript">
+	apiready = function(){
+		var header = $api.byId('header');
+		var pos = $api.offset(header);
+		var FNScanner = api.require('FNScanner');
+		FNScanner.openView({
+            rect:{
+                x: 0,
+                y: pos.h,
+                w: 'auto',
+                h: 'auto'
+            },
+            autorotation: true,
+        },function( ret, err ){  
+	    	if(ret && ret.content){
+				var param = ret.content;
+				if(param.length > 0){
+					bindMemberCard(param);
+				}
+	    	}
+        });
+        
+        api.openFrame({
+            name: 'member_card_scan_frame',
+            url: './member_card_scan_frame.html',
+            rect: {
+   				x: api.winWidth/2-100,
+                y: api.winHeight/2-100,
+                w: 200,
+                h: 200
+            }
+        });
+	}
+	
+	/**
+	 *绑定会员卡 
+	 */
+	function bindMemberCard(no){
+		api.ajax({
+			method : 'post',
+			cache : false,
+			dataType : 'json',
+			returnAll : false,
+			url : global.getRequestUri() + '/card/associator/add',
+			headers : global.getRequestToken(),
+			data : {
+				values : {
+					no : no
+				}
+			}
+		}, function(ret, err) {
+			if (ret) {
+				if(ret.success){
+				    api.sendEvent({
+				        name:'loginSuccessEvent',
+				        extra: {
+				        	isRegister : api.pageParam.isRegister
+				        }
+			        });
+				}else{
+					global.setToast(ret.message);
+				}
+			} else {
+				global.setToast('绑定失败');
+			}
+		});
+	}
+	
+	/**
+	 *手动输入 
+	 */
+	function inputScan(){
+		api.openWin({
+			name : 'memberCardInputWin',
+			url : './member_card.html',
+			pageParam : api.pageParam
+		});
+	}
+</script>
+</html>

@@ -1,0 +1,292 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, initial-scale=1.0, width=device-width"/>
+	<meta name="format-detection" content="telephone=no, email=no, date=no, address=no">
+	<title>Product Information</title>
+	<link rel="stylesheet" type="text/css" href="../../../css/aui.css" />
+	<link rel="stylesheet" type="text/css" href="../../../css/common.css" />
+	<link rel="stylesheet" type="text/css" href="../../../css/portal.css" />
+</head>
+<body id="bodyHeigthDIV" class="padded-b-50">
+<div class="shop-details-top">
+	<header class="aui-bar aui-bar-text aui-border-none">
+		<a tapmode onclick="closeScanit();" class="black-return-text color-white">
+			<img src="../../../image/portal/white-return2.png" style="width: 2.2rem; padding: 0.7rem 0.6rem 0.75rem 0.65rem;"><span id="nameSpan"></span>
+		</a>
+	</header>
+	<div class="shop-details-top-img"><img id="logoImg" onerror="this.src='../../../image/portal/shop-top-img.jpg'" /></div> 
+	<!-- <div class="shop-details-top-img"><img id="logoImg" src='../../../image/portal/shop-top-img.jpg'/></div> -->
+</div>
+
+<div class="aui-content">
+  <div class="shop-details-c">
+	  <div class="shop-details-t">
+		  <div id="nameDiv" class="shopname"></div>
+		  <div class="sales">Sales：<em id="salesVolumeEm"></em></div>
+	  </div>
+	  <div class="select-shop-r">
+		  <div class="price">￥<em id="priceEm"></em></div>
+			<div class="amount">
+				<div tapmode onclick="subCount();" class="aui-bar-btn-item"><img src="../../../image/portal/amount-less.png"/></div>
+				<div class="aui-bar-btn-item" tapmode="" data-item-order="1">
+					<input id="number" type="number" class="aui-input aui-text-center" value="1" oninput="if(value.length>7)value=value.slice(0,7);" >
+				</div>
+				<div tapmode onclick="addCount();" class="aui-bar-btn-item"><img src="../../../image/portal/amount-plus.png"/></div>
+			</div>
+	  </div>
+	  <div id="summaryDiv" class="introduction"></div>
+  </div>
+  
+	
+</div>
+
+<footer id="footer" class="aui-bar aui-bar-tab shop-b-fixed">
+		<div class="aui-bar-tab-item aui-border-r" tapmode="" style="width: 3.65rem;">
+			<div id="collectDiv" tapmode onclick="collect();" class="aui-bar-tab-label text-blue"></div>
+		</div>
+		<div tapmode onclick="add();" class="aui-bar-tab-item" tapmode="" style="width: 7.2rem;">
+			<div class="aui-bar-tab-label">Add to cart</div>
+		</div>
+		<div tapmode onclick="buy();" class="aui-bar-tab-item bg-blue aui-text-white" tapmode="" style="width: auto;">Buy now</div>
+	</footer>
+</body>
+<script type="text/javascript" src="../../../script/api.js"></script>
+<script type="text/javascript" src="../../../script/common/global.js"></script>
+<script type="text/javascript" src="../../../script/common/calculate.js"></script>
+<script type="text/javascript">
+	//门店ID
+	var storeId;
+	//产品ID
+	var productId;
+	//产品名
+	var productName;
+	//产品件数
+	var productCount = 0;
+	//产品价格
+	var productPrice = 0;
+	//产品图
+	var image;
+
+	apiready = function(){
+		$api.fixStatusBar($api.byId('bodyHeigthDIV'));
+		$api.fixTabBar($api.byId('footer'));
+
+		productId = api.pageParam.productId;
+		productName = api.pageParam.name,
+		storeId  = api.pageParam.storeId;
+		
+		$api.html($api.byId('nameSpan'), productName);
+		queryProduct();
+		hasCollect();
+
+		initEvent();
+	}
+
+	function initEvent(){
+		api.addEventListener({
+		    name: 'keyback'
+		}, function(ret, err) {
+		    api.sendEvent({
+	        	name:'openScanitEvent'				        
+       		 });
+       		 
+       		 setTimeout("api.closeWin();", 200);
+		});
+
+	}
+
+	function closeScanit(){
+		api.sendEvent({
+	        name:'openScanitEvent'			        
+        });
+        
+        setTimeout("api.closeWin();", 200);
+	}
+	
+	/**
+	 *查询产品 
+	 */
+	function queryProduct(){
+		api.ajax({
+			method : 'get',
+			cache : false,
+			dataType : 'json',
+			returnAll : false,
+			url : global.getRequestUri() + '/product?id=' + productId,
+			headers : global.getRequestToken()
+		}, function(ret, err) {
+			if (ret) {
+				$api.attr($api.byId('logoImg'), 'src', global.getImgUri() + '/' + ret.image);
+				$api.html($api.byId('salesVolumeEm'), ret.salesVolume);
+				$api.html($api.byId('priceEm'), global.formatCurrency(ret.price));
+				$api.html($api.byId('summaryDiv'), ret.summary);
+				productPrice = ret.price;
+				image = $api.attr($api.byId('logoImg'), 'src');
+			}
+		});
+	}
+	
+	/**
+	 *加入购物车 
+	 */
+	function add(){
+		var num = $api.val($api.byId('number'));
+		if(num < 1){
+			global.setToast('Please select at least one item');
+			return;
+		}
+		
+		api.ajax({
+			method : 'post',
+			cache : false,
+			dataType : 'json',
+			returnAll : false,
+			url : global.getRequestUri() + '/shopcart/add',
+			headers : global.getRequestToken(),
+			data : {
+				values : {
+					productId : productId,
+					number : num,
+					amount : productPrice
+				}
+			}
+		}, function(ret, err) {
+			if (ret) {
+				if(ret.success){
+					api.sendEvent({
+	                    name:'shopcartEvent'
+                    });
+                    
+					api.openWin({
+						name : 'shopCartWin',
+						url : '../member/shop_cart_win.html'
+					});
+				}else{
+					global.setToast(ret.message);
+				}
+			} else {
+				global.setToast('add failed');
+			}
+		});
+	}
+	
+	/**
+	 *获取选择商品 
+	 */
+	function getSelectProduct(){
+		var productPay = [];
+		var num = $api.val($api.byId('number'));
+		var item = {id : productId, name : productName, image : image, price : productPrice, number: num };
+		productPay.push(item);
+		$api.setStorage("productPay", productPay);
+	}
+	
+	/**
+	 *购买 
+	 */
+	function buy(){
+		var num = $api.val($api.byId('number'));
+		if(num < 1){
+			global.setToast('Please select at least one item');
+			return;
+		}
+		
+		getSelectProduct();
+				
+		api.openWin({
+			name : 'scanit6',
+			url : '../common/common_win.html',
+			pageParam : {
+				title : 'Proceed to checkout',
+				page : '../portal/scanit6',
+				storeId : storeId
+			}
+		});
+	}
+	
+	/**
+	 *减少 
+	 */
+	function subCount(){
+		var count = $api.val($api.byId('number'));
+		count = calculate.sub(count, 1);
+		
+		if(count >= 0){
+			$api.val($api.byId('number'), count);
+		}
+	}
+	
+	/**
+	 *增加 
+	 */
+	function addCount(){
+		var count = $api.val($api.byId('number'));
+		count = calculate.add(count, 1);
+		
+		$api.val($api.byId('number'), count);
+	}
+	
+	
+	/**
+	 *是否已收藏
+	 */
+	function hasCollect(){
+		api.ajax({
+			method : 'get',
+			cache : false,
+			dataType : 'json',
+			returnAll : false,
+			url : global.getRequestUri() + '/collect/has-collect?objId=' + productId,
+			headers : global.getRequestToken()
+		}, function(ret, err) {
+			if (ret && ret.success) {
+				$api.html($api.byId('collectDiv'), 'Followed');
+			}else{
+				$api.html($api.byId('collectDiv'), 'Follow');
+			}
+		});
+	}
+	
+	/**
+	 *收藏
+	 */
+	function collect(){
+		var method = '/collect/add';
+		if($api.html($api.byId('collectDiv')) == 'Followed'){
+			method = '/collect/remove';
+		}
+		
+		api.ajax({
+			method : 'post',
+			cache : false,
+			dataType : 'json',
+			returnAll : false,
+			url : global.getRequestUri() + method,
+			headers : global.getRequestToken(),
+			data : {
+				values : {
+					'ids' : productId
+				}
+			}
+		}, function(ret, err) {
+			if(ret){
+				if(ret.success){
+					if($api.html($api.byId('collectDiv')) == 'Follow'){
+						$api.html($api.byId('collectDiv'), 'Followed');
+					}else{
+						$api.html($api.byId('collectDiv'), 'Follow');
+					}
+					
+					api.sendEvent({
+	                    name:'collectEvent'
+                    });
+				}else{
+					global.setToast(ret.message);
+				}
+			}
+		});
+	}
+</script>
+</html>

@@ -1,0 +1,100 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, initial-scale=1.0, width=device-width"/>
+	<meta name="format-detection" content="telephone=no, email=no, date=no, address=no">
+	<title>免费注册</title>
+	<link rel="stylesheet" type="text/css" href="../../css/aui.css" />
+	<link rel="stylesheet" type="text/css" href="../../css/common.css" />
+	<link rel="stylesheet" type="text/css" href="../../css/member.css" />
+</head>
+<body>
+<div class="aui-content">
+	<header class="aui-bar" style="padding-top: 25px;">
+		<a tapmode onclick="api.closeWin();" class="black-return">
+			<img src="../../image/member/black-return.png"/>
+		</a>
+	</header>
+
+	<!--注册成功-->
+	<div id="successDiv" class="aui-hide">
+	<div class="register-result-icon">
+		<img src="../../image/member/register-success.png"/>
+	    <P>恭喜您注册成功</P>
+	</div>
+	<div class="aui-btn-box aui-padded-t-15">
+		<div tapmode onclick="bindMemberCard();" class="aui-btn aui-btn-login">扫描绑定会员卡</div>
+	</div>
+
+	<div class="aui-btn-box">
+		<div tapmode onclick="doLogin();" class="aui-btn aui-btn-directlogin">直接登录</div>
+	</div>
+	</div>
+	
+	<!--注册成功-->
+	<div id="failDiv" class="aui-hide">
+	<div class="register-result-icon">
+		<img src="../../image/member/register-failure.png"/>
+		<P>注册失败</P>
+	</div>
+	<div class="aui-btn-box aui-padded-t-15">
+		<div tapmode onclick="api.closeWin();" class="aui-btn aui-btn-login">重试</div>
+	</div>
+	</div>
+
+</div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript">
+	var success;
+    apiready = function(){
+		success = api.pageParam.success;
+		
+		if(success){
+			$api.removeCls($api.byId('successDiv'), 'aui-hide');
+		}else{
+			$api.removeCls($api.byId('failDiv'), 'aui-hide');
+		}
+		
+    	initEvent();
+    };
+    
+    function initEvent(){
+    	api.addEventListener({
+	        name:'viewappear'
+        },function(ret,err){
+        	if(success){
+	        	api.closeWin({
+	        		name : 'loginWin'
+	            });
+	            api.closeWin({
+	        		name : 'bindMobileWin'
+	            });
+	            api.closeWin({
+	        		name : 'registerEmailWin'
+	            });
+            }
+        });
+    }
+    
+    /**
+     *登录 
+     */
+    function doLogin(){
+		api.sendEvent({
+	        name:'loginSuccessEvent'
+        });
+    }
+    
+    /**
+     *绑定会员卡 
+     */
+    function bindMemberCard(){
+		api.openWin({
+			name : 'memberCardScanWin',
+			url : '../portal/scanit1.html'
+		});
+    }
+</script>
+</html>

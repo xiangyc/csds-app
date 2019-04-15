@@ -1,0 +1,99 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, initial-scale=1.0, width=device-width"/>
+	<meta name="format-detection" content="telephone=no, email=no, date=no, address=no">
+	<title>评价</title>
+	<link rel="stylesheet" type="text/css" href="../../css/aui.css" />
+	<link rel="stylesheet" type="text/css" href="../../css/common.css" />
+	<link rel="stylesheet" type="text/css" href="../../css/member.css" />
+</head>
+<body>
+<div id="header" class="aui-bar  padded-t-25">
+    <a tapmode onclick="api.closeWin();" class="black-return-text">
+        <img src="../../image/member/black-return.png">评价
+    </a>
+</div>
+<div class="evaluation">
+	<div class="comment-switch aui-clearfix"><div class="aui-active" id="div1" tapmode onclick="selectLevel(1);">好评</div><div id="div2" tapmode onclick="selectLevel(2);">中评</div><div id="div3" tapmode onclick="selectLevel(3);">差评</div></div>
+	<textarea id="content" placeholder="说说您的观点~（50字已内）" maxlength="50"></textarea>
+	<div id="btnSave" tapmode onclick="save();" class="aui-btn aui-btn-login">评价</div>
+</div>
+</body>
+
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/common/global.js" ></script>
+<script type="text/javascript" src="../../script/common/validate.js" ></script>
+<script type="text/javascript">
+	//level 1=好 2=中 3=差
+    var level = 1;
+    //订单ID
+	var orderId;
+	
+    apiready = function(){
+		orderId = api.pageParam.orderId;
+    }
+
+    /**
+     *选择级别 
+     */
+	function selectLevel(index){
+		$api.removeCls($api.byId('div1'), 'aui-active');
+		$api.removeCls($api.byId('div2'), 'aui-active');
+		$api.removeCls($api.byId('div3'), 'aui-active');
+		
+		$api.addCls($api.byId('div' + index), 'aui-active');
+		level = index;
+	}
+	
+    /**
+     *保存 
+     */
+    function save(){
+        var content = $api.val($api.byId('content'));
+
+        if (validate.isEmpty(content)) {
+            global.setToast('评论内容不能为空');
+            return;
+        }
+
+        if (content.length > 50) {
+            global.setToast('评论内容过长');
+            return;
+        }
+        
+        $api.removeAttr($api.byId('btnSave'), 'onclick');
+        api.ajax({
+            method : 'post',
+            cache : false,
+            dataType : 'json',
+            returnAll : false,
+            url : global.getRequestUri() + '/order/evaluate',
+            headers : global.getRequestToken(),
+            data : {
+                values :  {
+                	'id' : orderId,
+                	'type' : level,
+                    'content' : content
+                }
+            }
+        }, function(ret, err) {
+            if (ret) {
+                if (ret.success) {
+                    global.setToast('评价成功');
+                    api.sendEvent({
+	                    name:'orderEvaluationEvent'
+                    });
+                } else {
+                    global.setToast(ret.message);
+                }
+            } else {
+                global.setErrorToast();
+            }
+
+            $api.attr($api.byId('btnSave'), 'onclick', 'save();');
+        });
+    }
+ </script>   
+</html>

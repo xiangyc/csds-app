@@ -1,0 +1,251 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, initial-scale=1.0, width=device-width"/>
+	<meta name="format-detection" content="telephone=no, email=no, date=no, address=no">
+	<title>你的订单</title>
+	<link rel="stylesheet" type="text/css" href="../../css/aui.css" />
+	<link rel="stylesheet" type="text/css" href="../../css/common.css" />
+	<link rel="stylesheet" type="text/css" href="../../css/portal.css" />
+</head>
+<body id="Body" class="">
+<header class="aui-bar aui-bar-text padded-t-25">
+	<a tapmode onclick="api.closeWin();" class="black-return-text">
+		<img src="../../image/member/black-return.png"/>你的订单
+	</a>
+</header>
+<div class="aui-content padded-b-50">
+	<div class="yourorder">
+		<p>通过您的订单，您同意<span>隐私通知</span>和<span>使用条件</span></p>
+		<h3 class="border-b">订单汇总</h3>
+		<div class="yourorder-time border-b aui-hide">
+			<span>估计交货：</span>
+			<em id="sendEm"></em>
+		</div>
+		<ul>
+			<li>物品:<em id="totalPriceEm"></em></li>
+			<li id="couponLi" class="aui-hide">优惠券:<em id="coupunEm"></em></li>
+			<li>税前总价:<em id="preTaxEm"></em></li>
+			<li>预计总价:<em id="estEm"></em></li>
+			<li>总价:<em id="totaleEm"></em></li>
+		</ul>
+	</div>
+
+
+</div>
+
+	<footer id="footer" class="aui-bar aui-bar-tab <!-- shop-b-fixed -->">
+			<div tapmode onclick="showPayPassword();" class="aui-bar-tab-item bg-blue aui-text-white">支付</div>
+	</footer>
+
+<div id="maskDiv" class="aui-mask aui-mask-in aui-hide"></div>
+<div id="payDiv" class="pay-password-mask aui-hide">
+	<div tapmode onclick="showPayPassword();" class="close-icon"><img src="../../image/portal/close-icon.png"></div>
+	<div class="text-title">请输入支付密码</div>
+	<div class="password-input">
+		<div id="virbox1" class="virbox">
+			<span></span>
+			<span></span>
+			<span></span>
+			<span></span>
+			<span></span>
+			<span></span>
+		</div>
+		<input id="realbox1" type="password" class="realbox" maxlength="6">
+	</div>
+
+    <div class="btn-define"><div tapmode onclick="payResult();" class="aui-btn aui-btn-login">确认</div></div>
+</div> 
+
+
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/common/global.js"></script>
+<script type="text/javascript" src="../../script/common/calculate.js"></script>
+<script type="text/javascript" src="../../script/library/zepto.min.js"></script>
+<script type="text/javascript" src="../../script/library/base64.js"></script>
+<script type="text/javascript">
+	//门店
+	var storeName;
+	//订单ID
+	var id;
+	//订单号
+	var no;
+	//订单二维码
+	var qrCode;
+	//订单退货码
+	var returnCode;
+	//订单时间
+	var createTime;
+	//税费
+	var taxAmount;
+	//应付
+	var amount;
+	//实付
+	var payAmount;	
+	//券名
+	var couponName;
+	//键盘
+	var softInput;
+	//密码
+	var payPwd;
+	
+	apiready = function(){
+		storeName = api.pageParam.storeName;
+		id = api.pageParam.id;
+		no = api.pageParam.no;
+		qrCode = api.pageParam.qrCode;
+		returnCode = api.pageParam.returnCode;
+		createTime = api.pageParam.createTime;
+		taxAmount = api.pageParam.taxAmount;
+		amount = api.pageParam.amount;
+		payAmount = api.pageParam.payAmount;
+		couponName = api.pageParam.couponName;
+				
+		getProductInfo();
+		softInput = api.require('softInputMgr');
+		$api.fixTabBar($api.byId('footer'));
+	}
+	
+	/**
+	 *获取商品信息 
+	 */
+	function getProductInfo(){
+		$api.html($api.byId('sendEm'), global.formatDate(new Date().getTime(), 'yyyy.MM.dd') + '-' + global.formatDate((new Date().getTime() + 1000*60*60*24*7) , 'yyyy.MM.dd'));
+		
+		var productPay = $api.getStorage("productPay");
+		if(productPay){
+			var price = 0;
+			var productTotal = 0;
+			for(var i=0; i< productPay.length; i++) {
+				price = calculate.add(price, calculate.mul(productPay[i].price, productPay[i].number));
+
+				productTotal = calculate.add(productTotal, productPay[i].number);
+			}
+			
+			price = global.formatCurrency(price);
+			//$api.html($api.byId('totalPriceEm'), '￥' + price);
+			$api.html($api.byId('totalPriceEm'), productTotal);
+			$api.html($api.byId('preTaxEm'), price);
+			$api.html($api.byId('estEm'), global.formatCurrency(payAmount));
+			$api.html($api.byId('totaleEm'), global.formatCurrency(payAmount));
+		}
+		
+		if(couponName){
+			$api.removeCls($api.byId('couponLi'), 'aui-hide');
+			$api.html($api.byId('coupunEm'), couponName);
+		}
+	}
+	
+	/**
+	 *输入支付密码 
+	 */
+	function showPayPassword(){		
+    	if($api.hasCls($api.byId('maskDiv'), 'aui-hide')){
+            $api.addCls($api.byId('Body'), 'y-hidden');
+    		$api.removeCls($api.byId('maskDiv'), 'aui-hide');
+			$api.removeCls($api.byId('payDiv'), 'aui-hide');
+
+			//document.getElementById("realbox1").focus();
+			//softInput.toggleKeyboard();
+			payPwd = '';
+			$api.val($api.byId('realbox1'), '');
+			$('#virbox1 span').html('');
+			$('#virbox1 span').css('background','#d8dfec');
+    	}else{
+            $api.removeCls($api.byId('Body'), 'y-hidden');
+            $api.addCls($api.byId('maskDiv'), 'aui-hide');
+			$api.addCls($api.byId('payDiv'), 'aui-hide');
+    	}
+    }
+    
+    $('#virbox1').click(function(){
+        $('#realbox1').focus();
+        $('#virbox1 span').css('background','#d8dfec');
+    });
+    $('#realbox1').blur(function(){
+        $('#virbox1 span').css('background','#d8dfec');
+    });
+
+    $('#realbox1').keyup(function(){
+        $('#virbox1 span').html('');
+        var realboxLength = Number($('#realbox1').val().length);
+
+        for(var i=0;i<realboxLength;i++){
+            
+            $('#virbox1 span').eq(i).html('·');
+            if(i == 5) {
+                payPwd = $('#realbox1').val();//payResult();
+                payPwd = payPwd.substring(0,6);
+            }
+        }
+    });
+    
+    /**
+     *支付结果 
+     */
+	function payResult(){    	
+    	if(payPwd.length === 0 || payPwd.length !== 6){
+    		global.setToast('请先输入支付密码');
+    		return;
+    	}
+    	
+    	showPayPassword();
+    	    	
+    	var enPayPwd = new Base64().encode(payPwd);
+    	//验证支付密码
+		api.ajax({
+			method : 'post',
+			cache : false,
+			dataType : 'json',
+			returnAll : false,
+			url : global.getRequestUri() + '/order/pay',
+			data : {
+				values : {
+					id : id,
+					payPwd : enPayPwd
+				}
+			}
+		}, function(ret, err) {
+			if (ret) {
+				if(ret.success){
+					api.sendEvent({
+	                    name:'paySuccessEvent'
+                    });
+                    
+					//打开支付结果页
+			    	api.openWin({
+						name : 'scanit8',
+						url : './scanit8.html',
+						pageParam : {
+							resultPay : 1,
+							id: id,
+							no: no,
+							qrCode: qrCode,
+							returnCode : returnCode,
+							createTime : createTime,
+							taxAmount: taxAmount,
+							amount: amount,
+							payAmount: payAmount,
+							storeName : storeName,
+							couponName : couponName
+						}
+					});
+				}else{
+			    	api.openWin({
+						name : 'scanit8',
+						url : './scanit8.html',
+						pageParam : {
+							resultPay : 0,
+							failStr : ret.message
+						}
+					});
+				}
+			} else {
+				global.setToast('支付失败');
+			}
+		});
+    }
+</script>
+</html>

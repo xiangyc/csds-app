@@ -1,0 +1,223 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, initial-scale=1.0, width=device-width"/>
+    <meta name="format-detection" content="telephone=no, email=no, date=no, address=no">
+    <title>定位</title>
+    <link rel="stylesheet" type="text/css" href="../../css/aui.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/common.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/portal.css" />
+</head>
+<body>
+<div id="header" class="aui-bar padded-t-25">
+    <a tapmode onclick="api.closeWin();" class="black-return-text">
+        <img src="../../image/member/black-return.png">定位
+    </a>
+</div>
+<div id="top" class="location-bar">
+    <a tapmode onclick="currentFrame();" class="aui-pull-left location-icon">
+        <img src="../../image/portal/location-icon.png">当前位置<span id="cityName">北京</span>
+    </a>
+    <a tapmode onclick="selectCity();" class="location-text-r">选择城市</a>
+</div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/common/global.js"></script>
+<script type="text/javascript">
+	//地图对象
+	var aMap;
+	//经度
+	var longitude;
+	//纬度
+	var latitude;
+	//城市名
+	var cityName;
+	
+    apiready = function(){
+    	aMap = api.require('aMap');
+    	openMap();   
+    	
+		initEvent();
+    };
+
+	/**
+	 *初始化页面事件
+	 */
+    function initEvent(){
+    	api.addEventListener({
+            name:'citySelectorEvent'
+        },function(ret,err){
+        	api.closeFrame({
+        		name : 'currentLocationFrame'
+            });
+            api.closeWin({
+            	name : 'cityWin'
+            });
+        	if(ret && ret.value){
+        		$api.html($api.byId('cityName'), ret.value.cityName);
+        		coordsFromName(ret.value.cityName);
+        	}
+        });
+        
+        api.addEventListener({
+	        name:'setLocationEvent'
+        },function(ret,err){
+        	setTimeout(function(){
+            api.closeFrame({
+        		name : 'currentLocationFrame'
+            });
+            },300);
+        	if(ret && ret.value){
+        		$api.html($api.byId('cityName'), ret.value.cityName);
+        		setCenterLocation(ret.value.lon, ret.value.lat);
+        	}
+        });
+    }
+
+    /**
+    根据地址查找经纬度
+    */
+    function coordsFromName(cityName){
+		aMap.getCoordsFromName({
+			    city: cityName,
+			    address: cityName
+			}, function(ret, err) {
+			    if (ret.status) {
+			        setCenterLocation(ret.lon, ret.lat);
+			    }
+			});
+    }
+    
+    /**
+     *打开地图 
+     */
+    function openMap(){    
+	    var header = $api.byId('header');
+	    var top = $api.byId('top');
+	    if(header){
+	        $api.fixIos7Bar(header);
+	    }
+	    var pos = $api.offset(header);
+	    var topBar = $api.offset(top);
+		var h = pos.h + topBar.h;
+		
+    	aMap.open({
+		    rect: {
+		        x: 0,
+		        y: h
+		    },
+		    showUserLocation: true,
+		    zoomLevel: 16,
+		    center: {
+		        lon: 116.4021310000,
+		        lat: 39.9994480000
+		    },
+		    fixedOn: api.frameName,
+		    fixed: true
+		}, function(ret, err) {
+			if (ret.status) {
+				currentFrame();
+				var city = global.getCityName();
+				if(city){
+					aMap.getCoordsFromName({
+						city: city,
+					    address: city
+					}, function(ret, err) {
+					    if (ret.status) {				     
+				    		longitude = ret.lon;
+							latitude = ret.lat;		
+							
+							setCenterLocation(longitude, latitude);
+					    }
+					});
+				}/*else{
+					aMap.getLocation(function(ret, err) {
+				    	if (ret.status) {		
+				    		longitude = ret.lon;
+							latitude = ret.lat;		
+							
+							setCenterLocation(longitude, latitude);
+				    	}
+					});
+				}*/
+			}
+		});
+    }
+	
+	/**
+	 *设置中心点 
+	 */
+	function setCenterLocation(lon, lat){
+	   aMap.setCenter({
+		    coords: {
+		        lon: lon,
+		        lat: lat
+		    }
+		});
+		
+		aMap.getNameFromCoords({
+	    	lon: lon,
+		    lat: lat
+		}, function(ret, err) {
+		    if (ret.status) {
+		    	if(ret.city){
+		        	$api.html($api.byId('cityName'), ret.city);
+		        }else{
+		        	$api.html($api.byId('cityName'), ret.state);
+		        }
+		    }
+		});
+	}
+	
+	/**
+	 *当前城市 
+	 */
+	function currentFrame(){
+		aMap.getLocation(function(ret, err) {
+	    	if (ret.status) {		
+	    		var lon = ret.lon;
+				var lat = ret.lat;
+				
+				aMap.getNameFromCoords({
+			    	lon: lon,
+				    lat: lat
+				}, function(ret, err) {
+				    if (ret.status) {
+				    	if(ret.city){
+				    		cityName = ret.city;
+				    	}else{
+				    		cityName = ret.state;
+				    	}
+    					api.openFrame({
+					        name: 'currentLocationFrame',
+					        url: './location_current.html', 
+					        rect: {
+							    x:0,
+							    y:0,
+							    w:api.winWidth,
+							    h:api.winHeight
+						    },
+					        pageParam: {
+					        	lon : lon,
+					        	lat : lat,
+					        	cityName : cityName
+					        }
+				        });
+				    }
+				});
+	    	}
+		});
+	}
+	
+	/**
+	 *选择城市 
+	 */
+	function selectCity(){
+		api.openWin({
+			name : 'cityWin',
+			url : './city_win.html'
+		});
+	}
+</script>
+</html>

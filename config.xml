@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<widget id="A6055133275047" version="0.0.1"> 
+  <name>超市电商</name>  
+  <description>Example For APICloud.</description>  
+  <author email="developer@apicloud.com" href="http://www.apicloud.com">Developer</author>  
+  <content src="index.html"/>  
+  <preference name="pageBounce" value="false"/>  
+  <preference name="appBackground" value="rgba(0,0,0,0.0)"/>  
+  <preference name="windowBackground" value="rgba(0,0,0,0.0)"/>  
+  <preference name="frameBackgroundColor" value="rgba(0,0,0,0.0)"/>  
+  <preference name="hScrollBarEnabled" value="true"/>  
+  <preference name="vScrollBarEnabled" value="true"/>  
+  <preference name="autoLaunch" value="true"/>  
+  <preference name="fullScreen" value="false"/>  
+  <preference name="autoUpdate" value="true"/>  
+  <preference name="smartUpdate" value="true"/>  
+  <preference name="debug" value="false"/>  
+  <preference name="statusBarAppearance" value="true"/>  
+  <preference name="customRefreshHeader" value="UIPullRefreshFlash"/>  
+  <meta-data name="com.google.android.geo.API_KEY" value="AIzaSyCHhXkLUWqcTHB-4hpmS7bZ4f4AU8Orht8"/>  
+  <permission name="readPhoneState"/>  
+  <permission name="camera"/>  
+  <permission name="record"/>  
+  <permission name="location"/>  
+  <permission name="fileSystem"/>  
+  <permission name="internet"/>  
+  <permission name="bootCompleted"/>  
+  <permission name="hardware"/>  
+  <access origin="*"/>  
+  <feature name="googleMap"> 
+    <param name="ios_api_key" value="AIzaSyAZd_DvaGTWBLdQZgkBEK6jd5JvHRYZo4E"/> 
+  </feature>  
+  <feature name="aMap"> 
+    <param name="android_api_key" value="8f26f675eaa93499d87d18a534ab1f9e"/>  
+    <param name="ios_api_key" value="18a51356ced06bf297bbdfad4b2da599"/> 
+  </feature>  
+  <feature name="qq"> 
+    <param name="urlScheme" value="tencent1106450284"/>  
+    <param name="apiKey" value="1106450284"/> 
+  </feature>  
+  <feature name="wx"> 
+    <param name="urlScheme" value="wxaa1f31c4e9c9963f"/>  
+    <param name="apiKey" value="wxaa1f31c4e9c9963f"/>  
+    <param name="apiSecret" value="165e73f0cb0d38ad67f29c6d3dec72dc"/> 
+  </feature>  
+  <feature name="ajpush"> 
+    <param name="app_key" value="ac40310d68d8503e6b3668e6"/>  
+    <param name="channel" value="supermarketEB"/> 
+  </feature>  
+  <feature name="BugId"> 
+    <param name="android_id" value="057fc5da-6f64-4485-899c-51262c077637"/>  
+    <param name="ios_id" value="41d3b140-2106-45d1-9460-29991a4db704"/> 
+  </feature> 
+</widget>

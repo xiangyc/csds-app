@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>消费记录已支付</title>
+    <link rel="stylesheet" type="text/css" href="../../../css/aui.css" />
+    <link rel="stylesheet" type="text/css" href="../../../css/common.css" />
+    <link rel="stylesheet" type="text/css" href="../../../css/member.css" />
+</head>
+<body>
+<header class="aui-bar  padded-t-25">
+    <a tapmode onclick="api.closeWin();" class="black-return-text">
+        <img src="../../../image/member/black-return.png">
+    </a>
+</header>
+ <div class="consume-frame-s">
+     <div class="pay-result">
+         <div class="pay-result-icon"><img src="../../../image/portal/pay-success.png"></div>
+         <h3>Order Placed Successfully</h3>
+         <p>￥2200.60</p>
+     </div>
+
+     <ul class="pay-shop-list">
+         <li><em>北京大剧院演出</em><span>X1</span></li>
+         <div class="pay-shop-span">Order Time：<em>10-25 8:10</em></div>
+         <div class="pay-shop-span">place：<em>北京大剧院演出</em></div>
+     </ul>
+
+ </div>
+</body>
+
+<script type="text/javascript" src="../../../script/api.js"></script>
+<script type="text/javascript">
+	apiready = function(){
+		initEvent();
+	}
+	
+	/**
+	 *初始化事件 
+	 */
+	function initEvent(){
+		api.addEventListener({
+	        name:'viewappear'
+        },function(ret,err){
+        	api.closeWin({
+        		name : 'consumePayWin'
+            });
+            api.closeWin({
+        		name : 'consumePayWin2'
+            });
+        });
+	}
+</script>
+</html>

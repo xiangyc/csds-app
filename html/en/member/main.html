@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>Me</title>
+    <link rel="stylesheet" type="text/css" href="../../../css/aui.css" />
+    <link rel="stylesheet" type="text/css" href="../../../css/common.css" />
+    <link rel="stylesheet" type="text/css" href="../../../css/member.css" />
+</head>
+<body>
+<div class="aui-content">
+    <div class="my-top">
+        <div tapmode onclick="doSubWin(0);" class="my-avatar-box">
+            <img  id='headIconId' src="../../../image/member/shop-top-img.jpg" onerror="this.src='../../../image/portal/shop-img.jpg'" class="my-avatar"/>
+            <i><img id='manId' class="aui-hide" src="../../../image/member/man-icon.png"/><img id='womanId' class="aui-hide" src="../../../image/member/woman-icon.png"/></i>
+        </div>
+        <h3 tapmode onclick="doSubWin(0);" id="nickNameId"></h3>
+        <p tapmode onclick="doSubWin(1);"><span id="levelName"></span><em id="integral"></em> Points</p>
+    </div>
+
+    <div class="my-c-order">
+        <div class="my-order-title">My Order<span tapmode onclick="doSubWin(2);">All</span></div>
+        <ul>
+            <li tapmode onclick="doSubWin(3);">Pending<em id="unPayNum">(0)</em></li>
+            <!--<li tapmode onclick="doSubWin(4);">待收货</li>
+            <li tapmode onclick="doSubWin(5);">待发货</li>-->
+            <li tapmode onclick="doSubWin(6);">Review<em id="unEvaluate">(0)</em></li>
+        </ul>
+    </div>
+
+    <div class="my-c-finance">
+        <P>Balance</p>
+        <div><span id="balance"></span><i tapmode onclick="showEye();" id="balanceI" class=""></i><span class="blue" tapmode onclick="doSubWin(7);">Wallet Management</span></div>
+    </div>
+
+    <div class="aui-grid grid-box">
+        <div class="aui-row">
+            <div tapmode onclick="doSubWin(8);" class="aui-col-xs-4">
+                <i><img src="../../../image/member/my-coupon-icon.png"></i>
+                <p>Coupon</p>
+            </div>
+            <div tapmode onclick="doSubWin(9);" class="aui-col-xs-4">
+                <i><img src="../../../image/member/my-card-icon.png"></i>
+                <p>Membership</p>
+            </div>
+            <div tapmode onclick="doSubWin(10);" class="aui-col-xs-4">
+                <i><img src="../../../image/member/my-collect-icon.png"></i>
+                <p>Follow</p>
+            </div>
+            <div tapmode onclick="doSubWin(11);" class="aui-col-xs-4">
+                <i><img src="../../../image/member/my-feedback-icon.png"></i>
+                <p>Customer</p>
+            </div>
+            <div tapmode onclick="doSubWin(12);" class="aui-col-xs-4">
+                <i><img src="../../../image/member/my-share-icon.png"></i>
+                <p>Gift</p>
+            </div>
+            <div tapmode onclick="doSubWin(13);" class="aui-col-xs-4">
+                <i><img src="../../../image/member/my-set-icon.png"></i>
+                <p>Setting</p>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<script type="text/javascript" src="../../../script/api.js"></script>
+<script type="text/javascript" src="../../../script/common/global.js" ></script>
+<script type="text/javascript">
+	var balance = 0.00;
+	var integral = 1;
+	apiready = function(){
+		initEvent();
+		queryInfo();
+		
+		sex();
+	};
+
+	function sex(){
+		var sex = global.getUserSex();
+		if(sex){
+			if(sex == 1){				
+				$api.addCls($api.byId('womanId'), 'aui-hide');
+				$api.removeCls($api.byId('manId'), 'aui-hide');
+			}else{
+				$api.addCls($api.byId('manId'), 'aui-hide');
+				$api.removeCls($api.byId('womanId'), 'aui-hide');
+			}
+		}
+	}
+	
+	function initEvent(){
+		api.setCustomRefreshHeaderInfo({
+	      	bgColor : '#fdf7e7',
+	      	image : {
+	        pull : global.pullImage(),
+	        load : global.pushImage()
+	      }
+	    }, function(ret, err) {
+			queryInfo();
+			api.refreshHeaderLoadDone();
+	    });
+	    
+	    api.addEventListener({
+	        name: 'nickNameSuccessEvent'
+	    }, function(ret, err) {
+	        if (ret && ret.value) {
+	           var nickName = ret.value.nickName;
+	           $api.html($api.byId('nickNameId'), nickName);
+		    }
+	    });
+
+	    api.addEventListener({
+	        name: 'modifyHeadIconEvent'
+	    }, function(ret, err) {
+	        if (ret && ret.value) {
+	           $api.attr($api.byId('headIconId'), 'src', global.getImgUri() +'/'+ global.getHeadIcon());
+		    }
+	    });
+	    
+	    api.addEventListener({
+	        name: 'modifySexEvent'
+	    }, function(ret, err) {
+	        if (ret) {
+	           sex();
+		    }
+	    });
+	    
+	    api.addEventListener({
+	        name:'loginSuccessEvent'
+        },function(ret,err){
+			queryInfo();
+			sex();
+        });
+
+        api.addEventListener({
+	        name:'orderEvaluationEvent'
+        },function(ret,err){
+			queryInfo();
+        });
+        
+        api.addEventListener({
+	        name:'paySuccessEvent'
+        },function(ret,err){
+			queryInfo();
+        });
+
+        api.addEventListener({
+	        name:'unPaySuccessEvent'
+        },function(ret,err){
+			queryInfo();
+        });
+	}
+
+	/**
+	 * 查询用户信息
+	 */
+	 function queryInfo(){
+		api.ajax({
+            method : 'get',
+            cache : false,
+            dataType : 'json',
+            returnAll : false,
+            url : global.getRequestUri() + '/member/info/my',
+            headers : global.getRequestToken()
+        }, function(ret, err) {
+            if (ret) {
+
+ 				if(ret.code){
+                     global.setToast(ret.message);
+                    
+                    return;
+                }
+
+            	balance = global.formatCurrency(ret.balance);
+            	integral = ret.integral;
+            	if(ret.headIcon){
+            	   $api.attr($api.byId('headIconId'), 'src', global.getImgUri() +'/'+ ret.headIcon);
+            	}
+   				
+   				var levelName = ret.levelName;
+   				if(levelName){
+   					if(levelName =='普通会员LV1'){
+   						levelName ='Bregular member LV1';
+   					}else if(levelName =='青铜会员LV2'){
+   						levelName ='Bronze member LV2';
+   					}else if(levelName =='白银会员LV3'){
+   						levelName ='Silver member LV3';
+   					}else if(levelName =='黄金会员LV4'){
+						levelName ='Gold member LV4';
+   					}else if(levelName =='钻石会员LV5'){
+   						levelName ='Diamond member LV5'; 
+   					}else if(levelName =='超级会员LV6'){
+   						levelName ='Super member LV6'; 
+   					}
+   				}
+
+            	$api.html($api.byId('levelName'), levelName);
+
+            	$api.html($api.byId('integral'), integral);
+            	global.setUnReadMessNum(ret.unReadNum);
+            	$api.html($api.byId('unPayNum'), '('+ret.unPayNum+')');
+				$api.html($api.byId('unEvaluate'), '('+ret.unEvaluate+')');            	
+            	$api.html($api.byId('balance'), '<em>￥</em>'+global.formatCurrency(ret.balance));
+				global.setAuthStatus(ret.authStatus);
+				global.setBindBankCard(ret.hasBindBankCard);
+				global.setBindCreditCard(ret.hasBindCreditCard);
+
+            } else {
+                global.setErrorToast();
+            }
+        });
+	 }
+
+	/**
+	 *打开子窗体 
+	 */
+	function doSubWin(item){
+		var url = "";
+		var winName = 'openMemberSubWin';
+		var pageParam = {};
+		switch(item) {
+			case 0:
+				//个人信息
+				url = './persion_data.html';
+				break;
+			case 1:
+				//积分
+				url = '../common/common_win.html';
+				pageParam = { title : 'My points', page : '../member/integral',integral:integral };
+				break;
+			case 2:
+				//查看全部订单
+				url = './order_win.html';
+				pageParam = { title : 'My Order', page : './order_frame', type : 1 };
+				break;
+			case 3:
+				//待付款
+				url = './order_win.html';
+				pageParam = { title : 'My Order', page : './order_frame', type : 2 };
+				break;
+			case 6:
+				//待评价
+				url = './order_win.html';
+				pageParam = { title : 'My Order', page : './order_frame', type : 3 };
+				break;
+			case 7:
+				//钱包管理
+				url = './mywallet.html';
+				pageParam = { title : 'Wallet Manage', balance : balance };				
+				break;
+			case 8:
+				//优惠券
+				url = '../common/common_win.html';
+				pageParam = { title : 'Coupon', page : '../member/coupon_frame' };
+				break;
+			case 9:
+				//我的会员卡
+				url = './member_win.html';
+				break;
+			case 10:
+				//收藏
+				url = '../common/common_win.html';
+				pageParam = { title : 'Follow', page : '../member/collect_frame' };
+				break;
+			case 11:
+				//客服与反馈
+				url = './feedback.html';
+				break;
+			case 12:
+				//分享有礼
+				url = './share.html';
+				break;
+			case 13:
+				//设置
+				url = './set.html';
+				break;
+		}
+		
+		api.openWin({
+			name : winName,
+			url : url,
+			pageParam : pageParam,
+			reload : true
+		});
+	}
+	
+	function showEye(){
+		if($api.hasCls($api.byId('balanceI'), 'eyes-closed')){
+			$api.removeCls($api.byId('balanceI'), 'eyes-closed')
+			$api.html($api.byId('balance'), '<em>￥</em>'+balance);
+		}else{
+			$api.addCls($api.byId('balanceI'), 'eyes-closed')
+			$api.html($api.byId('balance'), '****');
+		}
+	}
+</script>
+</html>

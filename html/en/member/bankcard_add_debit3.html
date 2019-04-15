@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>填写银行卡信息</title>
+    <link rel="stylesheet" type="text/css" href="../../../css/aui.css" />
+    <link rel="stylesheet" type="text/css" href="../../../css/common.css" />
+    <link rel="stylesheet" type="text/css" href="../../../css/member.css" />
+</head>
+<header class="aui-bar aui-bar-text  padded-t-25">
+    <a tapmode onclick="api.closeWin();" class="black-return-text">
+        <img src="../../../image/member/black-return.png">填写银行卡信息
+    </a>
+</header>
+<body>
+ <div class="bankcard-add-debit">
+     <ul class="aui-list aui-form-list">
+         <li class="aui-list-item">
+             <div class="aui-list-item-inner">
+                 <div class="aui-list-item-input"><input type="text" id="cardType" maxlength="20" placeholder="Card Type"></div>
+             </div>
+         </li>
+         <li class="aui-list-item">
+             <div class="aui-list-item-inner">
+                 <div class="aui-list-item-input"><input type="tel" id="obligateMobile" maxlength="11" placeholder="phone"></div>
+   <!--               <input type="button" class="aui-btn-obtain" value="Send">
+                 <input type="button" class="aui-btn-obtain aui-hide" disabled="disabled" value="120's"> -->
+             </div>
+         </li>
+     </ul>
+     <div tapmode onclick="openNextWin();" class="aui-btn-box aui-padded-t-15">
+         <div class="aui-btn aui-btn-login aui-margin-t-13">next</div>
+     </div>
+
+ </div>
+</body>
+<script type="text/javascript" src="../../../script/api.js"></script>
+<script type="text/javascript" src="../../../script/common/global.js" ></script>
+<script type="text/javascript" src="../../../script/common/validate.js" ></script>
+<script type="text/javascript">
+    var name;//姓名
+    var no;//卡号
+
+	apiready = function(){
+        name = api.pageParam.name;
+        no = api.pageParam.no;
+	}
+
+	/**
+	 *下一步 
+	 */
+	function openNextWin(){
+
+        var cardType = $api.val($api.byId('cardType'));
+        var mobile = $api.val($api.byId('obligateMobile'));
+
+         if (validate.isEmpty(cardType)) {
+            global.setToast("you can't leave this empty");
+            return;
+        }
+
+        if (validate.isEmpty(mobile)) {
+            global.setToast("you can't leave this empty");
+            return;
+        }
+
+        if(mobile.length == 11){
+            if (!validate.mobile(mobile)) {
+                global.setToast("Please enter valid mobile");
+                return;
+            }
+        }
+
+		api.openWin({
+			name : 'addBandCardSubWin4',
+			url : './bankcard_add_debit4.html',
+            pageParam : {
+                name : name,
+                no :no,
+                cardType :cardType,
+                obligateMobile :mobile
+            }
+		});
+	}
+</script>
+</html>

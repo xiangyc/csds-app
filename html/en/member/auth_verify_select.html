@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>验证方式</title>
+    <link rel="stylesheet" type="text/css" href="../../../css/aui.css" />
+    <link rel="stylesheet" type="text/css" href="../../../css/common.css" />
+    <link rel="stylesheet" type="text/css" href="../../../css/member.css" />
+</head>
+<body>
+<header class="aui-bar aui-bar-text  padded-t-25">
+    <a tapmode onclick="api.closeWin();" class="black-return-text">
+        <img src="../../../image/member/black-return.png">Verification
+    </a>
+</header>
+ <div class="aui-content">
+     <div class="verification-way-box">
+         <div class="verification-way-list aui-clearfix">
+             Phone number<div class="verification-radio"><input class="aui-radio-img" type="radio" value="1" name="authChk" checked=""></div>
+         </div>
+         <div class="verification-way-list aui-clearfix">
+             E-mail<div class="verification-radio"><input class="aui-radio-img" type="radio" value="2" name="authChk"></div>
+         </div>
+     </div>
+
+     <div class="aui-btn-box">
+         <div tapmode onclick="openNextWin();" class="aui-btn aui-btn-login">next</div>
+     </div>
+ </div>
+</body>
+<script type="text/javascript" src="../../../script/api.js"></script>
+<script type="text/javascript">
+	var type;
+	
+	apiready = function(){
+		type = api.pageParam.type;
+	}
+
+	/**
+	 *下一步 
+	 */
+	function openNextWin(){
+		var authType = $api.val($api.dom("input[name='authChk']:checked"));
+		if(type === 3){
+			var url = './creditcard_add_debit2.html'
+			if(authType == 2){
+				url = './creditcard_add_debit3.html'
+			}
+			
+			api.openWin({
+				name : 'addCreditCardSubWin4',
+				url : url
+			});
+		}else{
+			var url = './auth_verify_mobile.html'
+			if(authType == 2){
+				url = './auth_verify_email.html'
+			}
+			
+			api.openWin({
+				name : 'authSubWin4',
+				url : url
+			});
+		}
+	}
+</script>
+</html>

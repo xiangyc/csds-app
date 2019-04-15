@@ -1,0 +1,116 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, initial-scale=1.0, width=device-width"/>
+    <meta name="format-detection" content="telephone=no, email=no, date=no, address=no">
+    <title>Message(s)</title>
+    <link rel="stylesheet" type="text/css" href="../../../css/aui.css" />
+    <link rel="stylesheet" type="text/css" href="../../../css/common.css" />
+    <link rel="stylesheet" type="text/css" href="../../../css/portal.css" />
+</head>
+<body>
+    <div class="aui-content">
+
+            <script id="message-template" type="text/x-dot-template">
+                {{ for(var i=0; i< it.length; i++) { }}
+
+                  {{ if(it[i].hasReadStatus ==0){ }}
+                     <li class="not-read" id="{{=it[i].id}}" onclick="read({{=it[i].id}});"><i></i><span>{{=it[i].content}}</span><em>{{=global.formatDate(it[i].createTime, 'yyyy-MM-dd') }}</em> </li> 
+                    
+                  {{ }else{ }}
+                       <li><i></i><span>{{=it[i].content}}</span><em>{{=global.formatDate(it[i].createTime, 'yyyy-MM-dd') }}</em> </li> 
+
+                  {{ } }}
+
+                {{ } }}
+            </script>   
+
+       <ul id="message-content" class="message"></ul>
+      <div class="no-data aui-hide" id="nonDataId">
+         <i></i>
+           no data
+      </div>
+    </div>
+</body>
+<script type="text/javascript" src="../../../script/api.js"></script>
+<script type="text/javascript" src="../../../script/common/global.js"></script>
+<script type="text/javascript" src="../../../script/common/page.js"></script>
+<script type="text/javascript" src="../../../script/library/doT.min.js"></script>
+<script type="text/javascript">
+ apiready = function(){
+      initEvent();
+      queryList();
+  }
+
+    /**
+     *查询 
+     */
+    function queryList(){
+        var params = '?start=0&maxResult=20';
+        var url = global.getRequestUri() + '/message/list';
+        page.init(20, 'message-content', 'message-template', url, params, true, 'nonDataId');
+      
+    }
+
+    /**
+   *初始化事件
+   */
+  function initEvent() {
+    api.setCustomRefreshHeaderInfo({
+      bgColor : '#fdf7e7',
+      image : {
+        pull : global.pullImage(),
+        load : global.pushImage()
+      }
+    }, function(ret, err) {
+      queryList();
+      api.refreshHeaderLoadDone();
+    });
+  
+    api.addEventListener({
+      name : 'scrolltobottom',
+      extra : {
+        threshold : 0
+      }
+    }, function(ret, err) {
+      page.scrollRefresh();
+    });
+  }
+
+  function read(id){
+    if($api.hasCls($api.byId(id), 'not-read')){
+
+      $api.removeCls($api.byId(id), 'not-read');
+
+      api.ajax({
+            method : 'put',
+            cache : false,
+            dataType : 'json',
+            returnAll : false,
+            url : global.getRequestUri() + '/message/'+id,
+            headers : global.getRequestToken(),
+            data : {
+                values :  {
+                    'id' : id,
+                    'status':1
+                }
+            }
+        }, function(ret, err) {
+            if (ret) {
+               
+                api.sendEvent({
+                  name:'readMessageEvent'                
+                });                  
+
+            } else {
+                global.setErrorToast();
+            }
+
+            $api.attr($api.byId('btnSave'), 'onclick', 'save();');
+        });
+    }
+
+  }
+  </script>
+</html>

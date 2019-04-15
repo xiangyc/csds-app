@@ -1,0 +1,99 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, initial-scale=1.0, width=device-width"/>
+    <meta name="format-detection" content="telephone=no, email=no, date=no, address=no">
+    <title>定位</title>
+    <link rel="stylesheet" type="text/css" href="../../../css/aui.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/common.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/portal.css" />
+</head>
+<body>
+<div id="header" class="aui-bar padded-t-25">
+    <a tapmode onclick="api.closeWin();" class="black-return-text">
+        <img src="../../image/member/black-return.png">Location
+    </a>
+</div>
+</body>
+<script type="text/javascript" src="../../../script/api.js"></script>
+<script type="text/javascript" src="../../../script/common/global.js"></script>
+<script type="text/javascript">
+	//地图对象
+	var googleMap;
+	//经度
+	var longitude;
+	//纬度
+	var latitude;
+	//地址
+	var address;
+	
+    apiready = function(){
+    	googleMap = api.require('googleMap');
+    	address = api.pageParam.address;
+    	
+    	openMap();   
+    };
+    
+    /**
+     *打开地图 
+     */
+    function openMap(){    
+	    var header = $api.byId('header');
+	    if(header){
+	        $api.fixIos7Bar(header);
+	    }
+	    var pos = $api.offset(header);
+		var h = pos.h;
+		
+    	googleMap.open({
+		    rect: {
+		        x: 0,
+		        y: h
+		    },
+		    showUserLocation: true,
+		    zoomLevel: 16,
+		    center: {
+		        lon: 116.4021310000,
+		        lat: 39.9994480000
+		    },
+		    fixedOn: api.frameName,
+		    fixed: true
+		}, function(ret, err) {
+			if (ret.status) {
+				googleMap.getCoordsFromName({
+					city: 'USA',
+				    address: address
+				}, function(ret, err) {
+				    if (ret.status) {				     
+						setCenterLocation(ret.lon, ret.lat);
+				    }
+				});
+			}
+		});
+    }
+	
+	/**
+	 *设置中心点 
+	 */
+	function setCenterLocation(lon, lat){
+	   googleMap.setCenter({
+		    coords: {
+		        lon: lon,
+		        lat: lat
+		    }
+		});
+		
+		googleMap.addAnnotations({
+			annotations: [{
+			    id: 1,
+			    lon: lon,
+			    lat: lat
+			}],
+			icons: ['widget://image/portal/positioning-icon.png'],
+		    draggable: false
+		}, function(ret) {
+		});
+	}
+</script>
+</html>

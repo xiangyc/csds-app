@@ -1,0 +1,116 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, initial-scale=1.0, width=device-width"/>
+	<meta name="format-detection" content="telephone=no, email=no, date=no, address=no">
+	<title>Edit</title>
+	<link rel="stylesheet" type="text/css" href="../../../css/aui.css" />
+	<link rel="stylesheet" type="text/css" href="../../../css/common.css" />
+	<link rel="stylesheet" type="text/css" href="../../../css/member.css" />
+</head>
+<body>
+<div id="header" class="aui-bar aui-bar-text padded-t-25">
+	<a tapmode onclick="api.closeWin();" class="black-return-text">
+		<img src="../../../image/member/black-return.png">Edit
+	</a>
+	<a tapmode id="confirmId" onclick="saveData();" class="black-return-text-r">Save</a>
+</div>
+<div class="nickname-modify">
+     <div class="nickname-modify-input"><input id="nickName" type="text" onkeyup="nicknameUp();" placeholder="please input nickname" maxlength="20"><span class="aui-hide">Username</span><i tapmode onclick="clearNickName();" class="input-close"><img id="imgId" class="aui-hide" src="../../../image/member/input-close-icon.png"></i> </div>
+</div>
+</body>
+<script type="text/javascript" src="../../../script/api.js"></script>
+<script type="text/javascript" src="../../../script/common/global.js" ></script>
+<script type="text/javascript" src="../../../script/common/validate.js" ></script>
+<script type="text/javascript">
+	apiready = function(){
+        if(global.getUserName()){
+            $api.removeCls($api.byId('imgId'), 'aui-hide');
+        }
+		$api.val($api.byId('nickName'), global.getUserName());
+	};
+	
+	/**
+	 *清除别名 
+	 */
+	function clearNickName(){
+		$api.val($api.byId('nickName'), '');
+        $api.addCls($api.byId('imgId'), 'aui-hide');
+
+	}
+
+    /**
+     *昵称输入 
+     */
+    function nicknameUp(){
+      var nickName =$api.val($api.byId('nickName'));
+        if (nickName && !validate.isEmpty(nickName)) {     
+           $api.removeCls($api.byId('imgId'), 'aui-hide');        
+        }else{
+             $api.addCls($api.byId('imgId'), 'aui-hide');
+        }
+    }
+	
+	/**
+	 *保存 
+	 */
+	function saveData(){
+		
+		var nickName =$api.val($api.byId('nickName'));
+
+        $api.attr($api.byId('confirmId'), 'disabled', 'disabled');
+        $api.removeAttr($api.byId('confirmId'), 'onclick');
+
+		api.ajax({
+            method : 'post',
+            cache : false,
+            dataType : 'json',
+            returnAll : false,
+            url : global.getRequestUri() + '/member/info/update/nickname',
+            headers : global.getRequestToken(),
+            data : {
+                values :  {
+                    'nickName' : nickName
+                }
+            }
+        }, function(ret, err) {
+            if(ret && ret.code === "403"){
+                api.sendEvent({
+                    name:'tokenExpiredEvent',
+                    extra:{
+                        msg : ret.message
+                    }
+                });
+                
+                return;
+            }        
+            if (ret) {
+                if (ret.success) {
+                    global.setToast('Save Successfully');
+
+					global.setUserName(nickName);
+
+                    api.sendEvent({
+	                    name:'nickNameSuccessEvent',
+	                    extra:{
+	                    	nickName : nickName
+	                    }
+                    });
+
+                    setTimeout("api.closeWin();", 1000);                
+                    
+                } else {
+                    $api.removeAttr($api.byId('confirmId'), 'disabled');
+                    global.setToast(ret.message);
+                }
+            } else {
+                $api.removeAttr($api.byId('confirmId'), 'disabled');
+                global.setErrorToast();
+            }
+
+            $api.attr($api.byId('confirmId'), 'onclick', 'saveData();');
+        });
+	}
+</script>
+</html>

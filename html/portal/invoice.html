@@ -1,0 +1,94 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, initial-scale=1.0, width=device-width"/>
+	<meta name="format-detection" content="telephone=no, email=no, date=no, address=no">
+	<title>发票信息</title>
+	<link rel="stylesheet" type="text/css" href="../../css/aui.css" />
+	<link rel="stylesheet" type="text/css" href="../../css/common.css" />
+	<link rel="stylesheet" type="text/css" href="../../css/portal.css" />
+	<style>
+		.aui-bar.aui-bar-text{ background-color: #fff;}
+	</style>
+</head>
+<body id="Body" class="bc-fafafa">
+<header class="aui-bar aui-bar-text" style="padding-top: 25px;">
+	<a tapmode onclick="api.closeWin();" class="black-return-text">
+		<img src="../../image/member/black-return.png"/>发票信息
+	</a>
+</header>
+<div class="aui-content padded-b-50">
+	<div class="invoice">
+		<div class="invoice-c">
+		   <h4>发票类型</h4>
+			<ul>
+				<li id="li1" tapmode onclick="switchBar(1);" class="current">纸质发票</li>
+				<li id="li2" tapmode onclick="switchBar(2);" >电子发票</li>
+				<li id="li3" tapmode onclick="switchBar(3);" >增值税发票</li>
+			</ul>
+		</div>
+
+		<div class="invoice-c">
+			<h4>发票抬头</h4>
+			<ul>
+				<li id="typeLi1" tapmode onclick="switchTypeBar(1);" >个人</li>
+				<li id="typeLi2" tapmode onclick="switchTypeBar(2);"  class="current">单位</li>
+			</ul>
+			<div class="invoice-input"><input id="head" type="text" maxlength="50" placeholder="请输入抬头"></div>
+		</div>
+	</div>
+
+	<footer class="aui-bar aui-bar-tab shop-b-fixed">
+			<div tapmode onclick="save();" class="aui-bar-tab-item bg-blue aui-text-white">确定</div>
+	</footer>
+
+</div>
+
+
+
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/library/zepto.min.js"></script>
+<script type="text/javascript">
+	var type = '纸质发票';
+	var head = '';
+	
+    apiready = function(){
+    };
+    
+    function save(){
+    	head = $api.val($api.byId('head'));
+    	api.sendEvent({
+	        name: 'invoiceSelectEvent',
+	        extra: {
+	        	type : type,
+	        	head : head
+	        }
+        });
+    }
+    
+    /**
+	 *切换内容 
+	 */
+	function switchBar(item){
+		$api.removeCls($api.byId('li1'), 'current');
+		$api.removeCls($api.byId('li2'), 'current');
+		$api.removeCls($api.byId('li3'), 'current');
+		
+		$api.addCls($api.byId('li' + item), 'current');
+		type = $api.html($api.byId('li' + item));
+	}
+	
+	/**
+	 *切换单位 
+	 */
+	function switchTypeBar(item){
+		$api.removeCls($api.byId('typeLi1'), 'current');
+		$api.removeCls($api.byId('typeLi2'), 'current');
+		
+		$api.addCls($api.byId('typeLi' + item), 'current');
+	}
+	
+</script>
+</html>

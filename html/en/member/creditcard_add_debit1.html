@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>填写银行卡信息</title>
+    <link rel="stylesheet" type="text/css" href="../../../css/aui.css" />
+    <link rel="stylesheet" type="text/css" href="../../../css/common.css" />
+    <link rel="stylesheet" type="text/css" href="../../../css/member.css" />
+</head>
+<body>
+<header class="aui-bar aui-bar-text" style=" padding-top: 25px;">
+    <a tapmode onclick="api.closeWin();" class="black-return-text">
+        <img src="../../../image/member/black-return.png">Information
+    </a>
+</header>
+ <div class="bankcard-add-debit">
+     <ul class="aui-list aui-form-list">
+         <li class="aui-list-item">
+             <div class="aui-list-item-inner">
+                 <div class="aui-list-item-input"><input type="text" id="cardType" maxlength="20" placeholder="Card Type"></div>
+             </div>
+         </li>
+         <li class="aui-list-item">
+             <div class="aui-list-item-inner">
+                 <div class="aui-list-item-input"><input type="text" id="cardName" maxlength="20" placeholder="Name on Card"></div>
+             </div>
+         </li>
+         <li class="aui-list-item">
+             <div class="aui-list-item-inner">
+                 <div class="aui-list-item-input"><input type="tel" id="cardNo" maxlength="20" placeholder="Card No"></div>
+             </div>
+         </li>
+         <li class="aui-list-item" onclick="choiceValidate();">
+             <div class="aui-list-item-inner">
+                 <div class="aui-list-item-input"><input type="text" id="validateDate" readonly="true" placeholder="Expiration Date:Month/Year"></div>
+             </div>
+         </li>
+         <li class="aui-list-item">
+             <div class="aui-list-item-inner">
+                 <div class="aui-list-item-input"><input type="tel" id="safeCode" maxlength="3"  placeholder="CVV"></div>
+             </div>
+         </li>
+         <li class="aui-list-item">
+             <div class="aui-list-item-inner aui-padded-b-0">
+                 <div class="aui-list-item-input"><input type="tel" id="mobile" maxlength="11"  placeholder="phone"></div>
+             </div>
+         </li>
+     </ul>
+     <div class="user-contract"><i id="argeeId" onclick="agreement();" class="agree-icon"></i>Accept《<em onclick="privacyAgreement();">Privacy Policy</em>》</div>
+     <div class="aui-btn-box">
+         <div tapmode onclick="openNextWin();" class="aui-btn aui-btn-login">next</div>
+     </div>
+
+ </div>
+</body>
+<script type="text/javascript" src="../../../script/api.js"></script>
+<script type="text/javascript" src="../../../script/common/global.js" ></script>
+<script type="text/javascript" src="../../../script/common/validate.js" ></script>
+<script>
+    var agreementFlag = true;
+    var validateDate='';
+
+    /**
+     *合约
+     */
+    function agreement(){
+        var agree = $api.byId('argeeId');
+        if(agreementFlag){
+            $api.removeCls($api.byId('argeeId'), 'agree-icon');
+            agreementFlag = false;
+
+        }else{
+            $api.addCls($api.byId('argeeId'), 'agree-icon');
+            agreementFlag = true;
+        }
+    }
+
+	/**
+	 *下一步 
+	 */
+	function openNextWin(){
+        var name = $api.val($api.byId('cardName'));
+        var no = $api.val($api.byId('cardNo'));
+        var cardType = $api.val($api.byId('cardType'));
+        var safeCode = $api.val($api.byId('safeCode'));
+        var mobile = $api.val($api.byId('mobile'));
+
+         if (validate.isEmpty(name)) {
+            global.setToast("Name on Card incorrect");
+            return;
+        }
+
+        if (validate.isEmpty(no)) {
+            global.setToast("Card No incorrect");
+            return;
+        }
+
+        if (no.length <10) {
+            global.setToast("Enter at least 10 bits at card no");
+            return;
+        }
+
+        if (validate.isEmpty(cardType)) {
+            global.setToast("Card Type incorrect");
+            return;
+        }
+        if (validate.isEmpty(validateDate)) {
+            global.setToast("ValidateDate incorrect");
+            return;
+        }
+         if (validate.isEmpty(safeCode)) {
+            global.setToast("CVV incorrect");
+            return;
+        }
+
+        if (validate.isEmpty(mobile)) {
+            global.setToast("Phone incorrect");
+            return;
+        }
+
+        if(mobile.length == 11){
+            if (!validate.mobile(mobile)) {
+                global.setToast("Please enter valid phone");
+                return;
+            }
+        }   
+
+        if(!agreementFlag){
+             global.setToast("Please Accept《Privacy Policy》");
+            return;
+        }
+
+        var item = {name : name, no : no, cardType : cardType, validateDate: validateDate, safeCode: safeCode, mobile: mobile};
+                
+        $api.setStorage("addCreditCardInfo", item);
+
+		api.openWin({
+			name : 'addCreditCardSubWin3',
+			url : './auth_verify_select.html',
+			pageParam : {
+				type : 3
+			}
+		});
+	}
+
+
+/**
+ * 有效期
+ */
+function choiceValidate() {
+       
+    api.openPicker({
+        type : 'date',
+        //date: $api.html(global.formatDate($api.byId("birthdayId"), 'yyyy-MM')),
+        date: validateDate,
+        title : 'select Month/Year'
+    }, function(ret, err) {
+        if (ret) {
+            var tempDay = ret.year + '-' + ret.month + '-' + ret.day;
+
+            if(global.compareDateTime( ret.year + '/' + ret.month + '/' + ret.day) ==2){
+                global.setToast('Please select Correct Month/Year ');
+
+                return ;
+            }
+
+            $api.val($api.byId('validateDate'), ret.month + '/' + ret.year);
+
+            validateDate = tempDay ;
+        }
+    });
+}
+
+function privacyAgreement(){
+    api.openWin({
+        name : 'privacyAgreement',
+        url : 'privacy_agreement.html'
+    });
+} 
+</script>
+</html>

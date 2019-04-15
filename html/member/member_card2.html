@@ -1,0 +1,157 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, initial-scale=1.0, width=device-width"/>
+    <meta name="format-detection" content="telephone=no, email=no, date=no, address=no">
+    <title>我的会员卡</title>
+    <link rel="stylesheet" type="text/css" href="../../css/aui.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/common.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/portal.css" />
+</head>
+<body>
+<div class="aui-content">
+
+     <script id="card-template" type="text/x-dot-template">
+        {{ for(var i=0; i< it.length; i++) { }}
+        	 <div class="member-card-box member-card-add">
+		        <i class="input-close" onclick="showDel({{=it[i].id}});"><img src="../../image/member/input-close-icon.png"></i>
+		        <div tapmode onclick="showIntegral({{=it[i].id}});" class="bind-member-card">
+		            <div class="card-top"></div>
+		            <div class="card-number"><span>卡号</span><em>{{=it[i].no}}</em></div>
+		        </div>
+		    </div>
+        {{ } }}
+     </script>
+
+  <div id="card-content"></div>
+  
+	<div class="no-data aui-hide" id="nonDataId">
+	 <i></i>
+	 暂无数据
+	</div>
+</div>
+ <div id="maskDiv" class="aui-mask aui-mask-in aui-hide"></div>
+ <div id="promptDiv" class="prompt-mask aui-hide">
+     <div class="text-title">删除会员卡</div>
+     <div class="prompt-mask-btn"><div tapmode onclick="del();" class="aui-btn">确认</div> <div tapmode onclick="cancel();" class="aui-btn">取消</div> </div>
+ </div>
+</body>
+
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/common/global.js"></script>
+<script type="text/javascript" src="../../script/common/page.js"></script>
+<script type="text/javascript" src="../../script/library/doT.min.js"></script>
+<script type="text/javascript">
+	var cardId ;
+	apiready = function(){
+	  initEvent();
+      queryList();
+   }
+
+    /**
+     *查询 
+     */
+    function queryList(){
+        var params = '?start=0&maxResult=20';
+        var url = global.getRequestUri() + '/card/associator/list';
+        page.init(20, 'card-content', 'card-template', url, params, true, 'nonDataId');
+      
+    }
+
+    /**
+   *初始化事件
+   */
+  function initEvent() {
+    api.setCustomRefreshHeaderInfo({
+      bgColor : '#fdf7e7',
+      image : {
+        pull : global.pullImage(),
+        load : global.pushImage()
+      }
+    }, function(ret, err) {
+      queryList();
+      api.refreshHeaderLoadDone();
+    });
+  
+    api.addEventListener({
+      name : 'scrolltobottom',
+      extra : {
+        threshold : 0
+      }
+    }, function(ret, err) {
+      page.scrollRefresh();
+    });
+
+    api.addEventListener({
+	   name:'addMemberCardSuccessEvent'
+    },function(ret,err){
+		queryList();
+    });
+    
+  }
+  
+	/**
+	 *显示功能按钮 
+	 */
+	function showDel(id){
+		cardId =id;
+
+		$api.removeCls($api.byId('maskDiv'), 'aui-hide');
+		$api.removeCls($api.byId('promptDiv'), 'aui-hide');
+	}
+	
+	function showIntegral(id){
+		api.openWin({
+			name : 'integralWin',
+			url : '../common/common_win.html',
+			pageParam : {
+				title : '我的积分', 
+				page : '../member/integral',
+				memberCardIid : id
+			}
+		});
+	}
+	
+	/**
+	 *取消 
+	 */
+	function cancel(){
+		$api.addCls($api.byId('maskDiv'), 'aui-hide');
+		$api.addCls($api.byId('promptDiv'), 'aui-hide');	
+	}
+	/**
+	 *删除 
+	 */
+	function del(){
+		cancel();
+		
+ 		api.ajax({
+            method : 'put',
+            cache : false,
+            dataType : 'json',
+            returnAll : false,
+            url : global.getRequestUri() + '/card/associator/del',
+            headers : global.getRequestToken(),
+            data : {
+                values :  {
+                    'id' : cardId
+                }
+            }
+        }, function(ret, err) {
+            if (ret) {
+                if (ret.success) {
+                    global.setToast('删除成功');
+                     queryList();
+                } else {
+                    global.setToast(ret.message);
+                }
+            } else {
+                global.setErrorToast();
+            }
+
+            $api.attr($api.byId('btnSave'), 'onclick', 'save();');
+        });
+	}
+</script>
+</html>

@@ -1,0 +1,397 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, initial-scale=1.0, width=device-width"/>
+    <meta name="format-detection" content="telephone=no, email=no, date=no, address=no">
+    <title>Store details</title>
+  	<link rel="stylesheet" type="text/css" href="../../../css/aui.css" />
+    <link rel="stylesheet" type="text/css" href="../../../css/common.css" />
+    <link rel="stylesheet" type="text/css" href="../../../css/portal.css" />
+    <style>
+    .aui-popup.aui-popup-top-right{ top: 1.7rem; }
+    .aui-list .aui-list-item{ height: 1.2rem; line-height: 1.2rem; }
+    </style>
+</head>
+<body class="padded-b-50">
+    <div class="aui-content">
+        <script id="coupon-template" type="text/x-dot-template">
+		<div class="coupon-box aui-padded-t-10">
+        <h4>Coupon</h4>
+          {{ for(var i=0; i< it.length; i++) { }}
+          	{{if(it[i].hasReceive){}}
+            <div class="coupon-list coupon-gray">
+                <div class="coupon-l"><div><sub>{{=it[i].unit }}</sub><em style="font-size: 1.45rem">{{=it[i].value }}</em></div><span>
+				<i style="font-size: 0.6rem"> 
+					{{ if(it[i].couponTypeName == '满减券'){}}  
+					 	Full cut coupons
+					{{ }else{ }}
+						Discount coupons
+					{{ } }}
+				</i>
+                
+                <em>
+                	{{ if(it[i].name.indexOf('优惠券') >0){}}  
+					 	{{=tranCouponTypeName(it[i].value)}}
+					{{ }else{ }}
+						{{=tranCouponName(it[i].name)}}
+					{{ } }}</em>
+					</span>
+				</div>
+                <div class="coupon-r"><div class="coupon-r-btn">Received</div></div>
+            </div>
+            {{ }else{ }}
+            <div class="coupon-list">
+                <div class="coupon-l"><div><sub>{{=it[i].unit }}</sub><em  style="font-size: 1.45rem">{{=it[i].value }}</em></div><span>
+                <i style="font-size: 0.6rem"> 
+					{{ if(it[i].couponTypeName == '满减券'){}}  
+					 	Full cut coupons
+					{{ }else{ }}
+						Discount coupons
+					{{ } }}
+				</i>
+                
+                <em>
+                	{{ if(it[i].name.indexOf('优惠券') >0){}}  
+					 	{{=tranCouponTypeName(it[i].value)}}
+					{{ }else{ }}
+						{{=tranCouponName(it[i].name)}}
+					{{ } }}</em>
+					</span>
+                </div>
+                <div class="coupon-r"><div tapmode onclick="receiveCoupon('{{=it[i].no }}');" class="coupon-r-btn">Receive</div></div>
+            </div>
+            {{ } }}
+          {{ } }}
+		</div>
+        </script>
+        <div id="coupon-content"></div>
+        
+        <div class="select-shop-list aui-padded-t-10">
+        <script id="product-template" type="text/x-dot-template">
+          {{ for(var i=0; i< it.length; i++) { }}
+          	{{ if(i==0 && it[i].productTypeName != lastProductTypeName){ }}
+			<h4>{{=it[i].productTypeName }}</h4>
+			{{ }else if(i> 0 && it[i].productTypeName != it[i-1].productTypeName){}}
+			<h4>{{=it[i].productTypeName }}</h4>
+			{{ } }}
+            <a class="item">
+                <div class="cnt">
+					<img tapmode onclick="openDetail({{=it[i].id }}, '{{=it[i].name }}');" id="img{{=it[i].id }}" class="pic" src="{{=global.getImgUri() + '/' + it[i].image}}" onerror="this.src='../../../image/portal/shop-img.jpg'" >
+					<div class="wrap">
+						<div class="wrap2">
+							<div tapmode onclick="openDetail({{=it[i].id }}, '{{=it[i].name }}');" class="select-shop-l">
+								<div class="shopname" id="div{{=it[i].id }}" >{{=it[i].name }}</div>
+								<div class="sales">Sales：<em>{{=it[i].salesVolume }}</em></div>
+								<div class="introduction">{{=it[i].summary }}</div>
+							</div>
+							<div class="select-shop-r">
+								<div class="price">￥<em id="em{{=it[i].id }}">{{=it[i].price }}</em></div>
+								<div class="amount">
+									<div tapmode onclick="subCount({{=it[i].id }});" class="aui-bar-btn-item"><img src="../../../image/portal/amount-less.png"/></div>
+									<div class="aui-bar-btn-item" tapmode="" data-item-order="1">
+										<input id="{{=it[i].id }}" type="number" onkeyup="setCount({{=it[i].id }});" class="aui-input aui-text-center" value="0" oninput="if(value.length>7)value=value.slice(0,7);" >
+									</div>
+									<div tapmode onclick="addCount({{=it[i].id }});" class="aui-bar-btn-item"><img src="../../../image/portal/amount-plus.png"/></div>
+								</div>
+							</div>
+						</div>
+					</div>
+                </div>
+            </a>
+          {{ } }}
+        </script>
+        <div id="product-content"></div>
+
+        </div>
+    </div>
+    
+   <footer id="footer" class="aui-bar aui-bar-tab shop-b-fixed">
+        <div class="aui-bar-tab-item aui-border-r" tapmode="" style="width: 3.65rem;">
+            <div id="countDiv" class="aui-bar-tab-label text-blue">Items(0)</div>
+        </div>
+        <div class="aui-bar-tab-item" tapmode="" style="width: 7.2rem;">
+            <div class="aui-bar-tab-label">Total Orders<em id="productPriceEm" class="text-blue">￥0.00</em></div>
+        </div>
+        <div tapmode onclick="buy();" class="aui-bar-tab-item bg-blue aui-text-white" tapmode="" style="width: auto;">Buy now</div>
+    </footer>
+</body>
+<script type="text/javascript" src="../../../script/api.js"></script>
+<script type="text/javascript" src="../../../script/common/global.js"></script>
+<script type="text/javascript" src="../../../script/common/page.js"></script>
+<script type="text/javascript" src="../../../script/common/calculate.js"></script>
+<script type="text/javascript" src="../../../script/library/doT.min.js"></script>
+<script type="text/javascript">	
+	//门店ID
+	var storeId;
+	//开始页数
+	var start = 0;
+	//总页数
+	var totalPages = 0;
+	//产品类型名称
+	var lastProductTypeName = '';
+	//产品件数
+	var productCount = 0;
+	//产品价格
+	var productPrice = 0;
+	
+	apiready = function(){
+		$api.fixTabBar($api.byId('footer'));
+		storeId = api.pageParam.storeId;
+	
+		getCoupon();
+		getProductInfo();
+		initEvent();
+	}
+	
+	/**
+	 *初始化事件 
+	 */
+	function initEvent(){
+		api.addEventListener({
+			name : 'scrolltobottom',
+			extra : {
+				threshold : 0
+			}
+		}, function(ret, err) {
+			if(start + 1 <= totalPages){
+				getProductInfo();
+	        }
+		});
+	}
+
+	/**
+	 *优惠券 
+	 */
+	function getCoupon(){
+		var params = '?start=0&maxResult=10&storeId' + storeId;
+	  	var url = global.getRequestUri() + '/coupon/store';
+	  	page.init(10, 'coupon-content', 'coupon-template', url, params, true, '');
+	}
+	
+	/**
+	 *获取门店产品信息 
+	 */
+	function getProductInfo(){
+		api.ajax({
+			method : 'get',
+			cache : false,
+			dataType : 'json',
+			returnAll : false,
+			url : global.getRequestUri() + '/product/all-list?maxResult=20&start=' + start + '&storeId=' + storeId,
+			headers : global.getRequestToken()
+		}, function(ret, err) {
+			if(ret){
+				totalPages = ret.totalPages;
+				if (ret.items && ret.items.length > 0) {
+	                var template = $api.byId('product-template').text;
+	                var tempFun = doT.template(template);
+	                if(start === 0){
+	                	$api.html($api.byId('product-content'), tempFun(ret.items));
+	                }else{
+	                	$api.append($api.byId('product-content'), tempFun(ret.items));
+	                }
+	                
+	                lastProductTypeName = ret.items[ret.items.length-1].productTypeName;
+				}
+			}
+			
+			start = start + 1;
+		});
+	}
+	
+	/**
+	 *打开功能 
+	 */
+	function openMore(){
+		if($api.hasCls($api.byId('extUl'), 'aui-hide')){
+			$api.removeCls($api.byId('extUl'), 'aui-hide');
+		}else{
+			$api.addCls($api.byId('extUl'), 'aui-hide');
+		}
+	}
+	
+	/**
+	 *关注 
+	 */
+	function interest(){
+		$api.addCls($api.byId('extUl'), 'aui-hide');
+		
+		if($api.html($api.byId('interestLi')) == 'Following'){
+			$api.html($api.byId('interestLi'), 'already Followed');
+		}else{
+			$api.html($api.byId('interestLi'), 'Following');
+		}
+	}
+	
+	/**
+	 *绑定会员卡 
+	 */
+	function openMemberCard(){
+		$api.addCls($api.byId('extUl'), 'aui-hide');
+		api.openWin({
+			name : 'memberCardWin',
+			url : '../member/member_card.html'
+		});
+	}
+	
+	/**
+	 *详情 
+	 */
+	function openDetail(id, name){
+		api.openWin({
+			name : 'scanit4',
+			url : './scanit4.html',
+			pageParam : {
+				productId : id,
+				name : name,
+				storeId : storeId
+			}
+		});
+	}
+	
+	/**
+	 *获取选择商品 
+	 */
+	function getSelectProduct(){
+		var num = 0;
+		var id = 0;
+		var nameTemp = '';
+		var imgTemp = '';
+		var amountTemp = '';
+		var productPay = [];
+		var pro = $api.domAll($api.byId('product-content'), 'input');
+		for (var j = 0; j < pro.length; j++) {
+			num = $api.val(pro[j]);
+			
+			if(num > 0){
+				id = $api.attr(pro[j], 'id');
+				amountTemp = $api.html($api.byId('em' + id));
+				imgTemp = $api.attr($api.byId('img' + id), 'src');
+				nameTemp = $api.html($api.byId('div' + id));
+				
+				var item = {id : id, name : nameTemp, image : imgTemp, price : amountTemp, number: num };
+				productPay.push(item);
+			}
+		}
+		
+		if(pro.length > 0){
+			$api.setStorage("productPay", productPay);
+		}
+	}
+	
+	/**
+	 *结算 
+	 */
+	function buy(){
+		getSelectProduct();
+		
+		var productPay = $api.getStorage("productPay");
+		if(productPay.length < 1){
+			global.setToast('Please select at least one item');
+			return;
+		}
+		
+		api.openWin({
+			name : 'scanit6',
+			url : '../common/common_win.html',
+			pageParam : {
+				title : 'Proceed to checkout',
+				page : '../portal/scanit6',
+				storeId : storeId
+			}
+		});
+	}
+	
+	/**
+	 *减少 
+	 */
+	function subCount(id){
+		var count = $api.val($api.byId(id));
+		count = calculate.sub(count, 1);
+		
+		if(count >= 0){
+			$api.val($api.byId(id), count);
+			productCount = calculate.sub(productCount, 1);
+			productPrice = calculate.sub(productPrice, $api.html($api.byId('em' + id)));
+					
+			$api.html($api.byId('countDiv'),  'Items(' + productCount + ')');
+			$api.html($api.byId('productPriceEm'), '￥' + global.formatCurrency(productPrice, 2));
+		}
+	}
+	
+	/**
+	 *增加 
+	 */
+	function addCount(id){
+		var count = $api.val($api.byId(id));
+		count = calculate.add(count, 1);
+		
+		$api.val($api.byId(id), count);
+		productCount = calculate.add(productCount, 1);
+		productPrice = calculate.add(productPrice, $api.html($api.byId('em' + id)));
+		
+		$api.html($api.byId('countDiv'), 'Items(' + productCount + ')');
+		$api.html($api.byId('productPriceEm'), '￥' + global.formatCurrency(productPrice, 2));
+	}
+	
+	/**
+	 *设置数量 
+	 */
+	function setCount(id){
+		productCount = 0;
+		productPrice = 0;
+		
+		var priceId;
+		var pro = $api.domAll($api.byId('product-content'), 'input');
+		for (var j = 0; j < pro.length; j++) {
+			num = $api.val(pro[j]);
+			
+			if(num > 0){
+				productCount = calculate.add(productCount, num);
+				
+				priceId = $api.attr(pro[j], 'id');
+				productPrice = calculate.add(productPrice, calculate.mul($api.html($api.byId('em' + id)), num));
+			}
+		}
+		
+		$api.html($api.byId('countDiv'), 'Items(' + productCount + ')');
+		$api.html($api.byId('productPriceEm'), '￥' + global.formatCurrency(productPrice, 2));
+	}
+	
+	/**
+	 *领取券 
+	 */
+	function receiveCoupon(no){
+		api.ajax({
+			method : 'post',
+			cache : false,
+			dataType : 'json',
+			returnAll : false,
+			url : global.getRequestUri() + '/coupon/add',
+			headers : global.getRequestToken(),
+			data : {
+				values : {
+					'no' : no
+				}
+			}
+		}, function(ret, err) {
+			if(ret){
+				if(ret.success){
+					getCoupon();
+				}else{
+					global.setToast(ret.message);
+				}
+			}
+		});
+	}
+	
+	function tranCouponTypeName(couponValue){
+		return 'discount of '+(parseFloat(10) - parseFloat(couponValue)) *10+'%';
+	}
+
+	function tranCouponName(couponName){
+		return couponName.replace('满', 'Full ').replace('减', ' Cut ') ;
+	}
+</script>
+</html>

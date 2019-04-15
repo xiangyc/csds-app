@@ -1,0 +1,274 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, initial-scale=1.0, width=device-width"/>
+	<meta name="format-detection" content="telephone=no, email=no, date=no, address=no">
+	<title>注册绑定手机</title>
+	<link rel="stylesheet" type="text/css" href="../../../css/aui.css" />
+	<link rel="stylesheet" type="text/css" href="../../../css/common.css" />
+	<link rel="stylesheet" type="text/css" href="../../../css/member.css" />
+</head>
+<body>
+<div class="aui-content">
+	<header class="aui-bar  padded-t-25">
+		<a tapmode onclick="api.closeWin();" class="black-return">
+			<img src="../../../image/member/black-return.png"/>
+		</a>
+	</header>
+
+	<h3 id="titleH" class="register-h3"></h3>
+	<ul class="aui-list aui-form-list">
+		<li class="aui-list-item">
+			<div class="aui-list-item-inner">
+				<div class="aui-list-item-input"><input id="mobile" maxlength="11" type="text" placeholder="please enter phone number" onkeyup="validateMobile();"></div>
+			</div>
+		</li>
+		<li class="aui-list-item">
+			<div class="aui-list-item-inner">
+				<div class="aui-list-item-input"><input id="code" maxlength="6" type="number" placeholder="Please enter verification code"></div>
+				<input type="button" id="sendButton" onclick="sendSmsCode();" disabled class="aui-btn-obtain" value="Send">
+			</div>
+		</li>
+	</ul>
+
+	<div class="aui-btn-box aui-padded-t-15">
+		<div id="registerDiv" tapmode onclick="registe();" class="aui-btn aui-btn-login aui-margin-t-13 ">sign up</div>
+	</div>
+</div>
+</body>
+<script type="text/javascript" src="../../../script/api.js"></script>
+<script type="text/javascript" src="../../../script/common/global.js"></script>
+<script type="text/javascript" src="../../../script/library/base64.js"></script>
+<script type="text/javascript" src="../../../script/common/validate.js" ></script>
+<script type="text/javascript">
+	//计数
+	var smsInterval = 120;
+	//临时计数
+	var smsIntervalTemp = 120;
+	//计数器
+	var smsTimer;
+	//第三方用户信息
+	var type = 0;
+	var openId = '';
+	var nickname = '';
+	var sex = '1';
+	var headIcon = '';
+
+
+    apiready = function(){
+		type = api.pageParam.type;
+		if(type){
+			nickname = api.pageParam.nickname;
+			sex = api.pageParam.sex;
+			headIcon = api.pageParam.headIcon;
+			openId = api.pageParam.openId;
+			$api.html($api.byId('titleH'), 'Confirm your phone number');
+			$api.html($api.byId('registerDiv'), 'Confirm');
+		}else{
+			$api.html($api.byId('titleH'), 'sign up');
+		}
+    };
+    
+    /**
+	 *验证手机
+	 */
+	function validateMobile(){
+		var mobile = $api.val($api.byId('mobile'));
+		if ((mobile.length == 10 || mobile.length == 11) && 
+			(smsInterval == 0 || smsInterval == 120)) {
+			$api.removeAttr($api.byId('sendButton'), 'disabled');
+		}
+	}
+	
+	/**
+	 *发送短信验证码
+	 */
+	function sendSmsCode() {
+		var mobile = $api.val($api.byId('mobile'));
+		if (mobile.length < 1) {
+			global.setToast("phone number can not be empty");
+			return;
+		}
+
+	    if (!validate.mobile(mobile)) {
+	        global.setToast('please enter a valid phone number');
+	        return;
+	    }
+
+		$api.attr($api.byId('sendButton'), 'disabled', 'disabled');
+		$api.removeAttr($api.byId('sendButton'), 'onclick');
+		var url = global.getRequestUri() + '/code/register?mobile=' + mobile;
+		if(openId){
+			url = global.getRequestUri() + '/code/bind-member?mobile=' + mobile;
+		}
+		
+		api.ajax({
+			method : 'get',
+			cache : false,
+			dataType : 'json',
+			returnAll : false,
+            headers : global.getRequestToken(),
+			url : url
+		}, function(ret, err) {
+			if (ret) {
+				if(ret.success){
+					global.setToast('code has been sent');
+					smsTimer = window.setInterval("smsMsgInterval();", 1000);
+				}else{
+					global.setToast(ret.message);
+					$api.removeAttr($api.byId('sendButton'), 'disabled');
+					$api.attr($api.byId('sendButton'), 'onclick', 'sendSmsCode();');
+				}
+			} else {
+				global.setErrorToast();
+				$api.removeAttr($api.byId('sendButton'), 'disabled');
+				$api.attr($api.byId('sendButton'), 'onclick', 'sendSmsCode();');
+			}
+		});
+	}
+	
+	/**
+	 *注册 
+	 */
+    function registe(){
+    	var mobile = $api.val($api.byId('mobile'));
+    	var code = $api.val($api.byId('code'));
+
+		if (mobile.length < 1) {
+			global.setToast("phone number can not be empty");
+			return;
+		}
+
+	    if (!validate.mobile(mobile)) {
+	        global.setToast('please enter a valid phone number');
+	        return;
+	    }
+	    
+	    if (code.length < 1) {
+			global.setToast("code number can not be empty");
+			return;
+		}
+
+		mobile = new Base64().encode(mobile);
+		var sendType = 4;
+		if(openId){
+			sendType = 6;
+		}
+    	api.ajax({
+			method : 'post',
+			cache : false,
+			dataType : 'json',
+			returnAll : false,
+			url : global.getRequestUri() + '/auth/check/code',
+            headers : global.getRequestToken(),
+			data : {
+				values : {
+					mobile : mobile,
+					code : code,
+					sendType : sendType,
+					type : type,
+					nickname: nickname,
+					sex: sex,
+					headIcon: headIcon,
+					openId:openId,
+					platfromSource : global.getPlatformSource()
+				}
+			}
+		}, function(ret, err) {
+			if (ret) {
+				if(ret.success){
+					if(ret.obj && ret.obj.mobile){
+						//登录
+						setTokenInfo(ret);
+
+						api.sendEvent({
+					        name:'loginSuccessEvent'
+				        });
+
+// 						api.closeWin({
+//			        		name : 'loginWin'
+//			            });
+//			            
+//				        api.closeWin({
+//			        		name : 'bindMobileWin'
+//			            });
+				         
+					}else{
+						//注册
+						api.openWin({
+							name : 'registerEmailWin',
+							url : './register.html',
+							pageParam : {
+								mobile : mobile,
+								type : type,
+								nickname: nickname,
+								sex: sex,
+								headIcon: headIcon,
+								openId:openId
+							}
+						});
+					}
+				}else{
+					global.setToast(ret.message);
+				}
+			} else {
+				global.setErrorToast();
+			}
+		});
+    }
+    
+    /**
+	 *重置倒计时
+	 */
+	function smsResetInterval(){
+		$api.val($api.byId('sendButton'), 'Verification');
+		$api.removeAttr($api.byId('sendButton'), 'disabled');
+		$api.attr($api.byId('sendButton'), 'onclick', 'sendSmsCode();');
+		window.clearInterval(smsTimer);
+	}
+
+	/**
+	 *倒计时
+	 */
+	function smsMsgInterval() {
+		if (eval(smsInterval < 1)) {
+			smsInterval = smsIntervalTemp;
+			smsResetInterval();
+			return false;
+		}
+
+		if (isNaN(smsInterval - 1) || isNaN(smsInterval)) {
+			smsResetInterval();
+			smsInterval = smsIntervalTemp;
+		} else {
+			$api.val($api.byId('sendButton'), smsInterval + 's');
+		}
+
+		smsInterval = smsInterval - 1;
+	}
+	
+		/**
+	 *设置token 
+	 */
+	function setTokenInfo(ret){
+		//存储会话信息
+		var token = ret.message.split('_');
+		if(token && token.length > 1){
+			global.setToken(token[0]);
+			global.setKey(token[1]);
+		}
+		global.setTokenExpires(ret.code);
+		global.setUserName(ret.obj.nickName);
+		global.setMobile(ret.obj.mobile);
+		global.setHeadIcon(ret.obj.headIcon);
+		global.setType(ret.obj.type);
+		global.setUserSex(ret.obj.sex);
+		global.setUserEmail(ret.obj.email);
+		global.setAuthStatus(-1);
+		global.setBindBankCard(0);
+		global.setBindCreditCard(0);
+
+	}
+</script>
+</html>

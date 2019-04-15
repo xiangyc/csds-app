@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>钱包</title>
+    <link rel="stylesheet" type="text/css" href="../../css/aui.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/common.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/member.css" />
+</head>
+<header class="aui-bar aui-bar-text bg-blue aui-border-none padded-t-25  padded-t-25">
+    <a tapmode onclick="api.closeWin();" class="black-return-text color-white">
+        <img src="../../image/portal/white-return.png">
+    </a>
+</header>
+<body>
+ <div class="aui-grid wallet-top bg-blue">
+     <div class="aui-row">
+         <div class="aui-col-xs-6">
+             <i><img src="../../image/member/wallet-cash-icon.png"></i>
+             <p>现金</p>
+             <em id="balance">￥0</em>
+         </div>
+         <div tabmode onclick="bankcardWin();" class="aui-col-xs-6">
+             <i><img src="../../image/member/wallet-bankcard-icon.png"></i>
+             <p>银行卡</p>
+         </div>
+     </div>
+ </div>
+
+ <div class="aui-grid grid-box">
+     <div class="aui-row">
+         <div tabmode onclick="doSubWin(3);" class="aui-col-xs-4">
+             <i><img src="../../image/member/wallet-paymg-icon.png"></i>
+             <p>支付管理</p>
+         </div>
+         <div tabmode onclick="doSubWin(4);" class="aui-col-xs-4">
+             <i><img src="../../image/member/wallet-safetyattest-icon.png"></i>
+             <p>安全盾认证</p>
+         </div>
+         <div tabmode onclick="doSubWin(5);" class="aui-col-xs-4">
+             <i><img src="../../image/member/wallet-consumerecord-icon.png"></i>
+             <p>消费记录</p>
+         </div>
+         <div tabmode onclick="doSubWin(6);" class="aui-col-xs-4">
+             <i><img src="../../image/member/wallet-help-icon.png"></i>
+             <p>帮助中心</p>
+         </div>
+         <div tabmode onclick="doSubWin(7);" class="aui-col-xs-4">
+             <i><img src="../../image/member/wallet-contactus-icon.png"></i>
+             <p>联系我们</p>
+         </div>
+     </div>
+ </div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/common/global.js"></script>
+<script type="text/javascript">
+
+	apiready = function(){
+		getUserInfo();
+	}
+	
+	/**
+	 * 查询用户信息
+	 */
+	 function getUserInfo(){
+		api.ajax({
+            method : 'get',
+            cache : false,
+            dataType : 'json',
+            returnAll : false,
+            url : global.getRequestUri() + '/member/info/my',
+            headers : global.getRequestToken()
+        }, function(ret, err) {
+            if (ret) {
+            	$api.html($api.byId('balance'), '￥' + global.formatCurrency(ret.balance) );
+            }
+        });
+	 }
+	 
+	/**
+	 *打开子窗体 
+	 */
+	function doSubWin(item){
+		var winName = 'openWalletSubWin';
+		var url = '';
+		var page = '';
+		var title = '';
+		
+		switch(item) {
+			case 1:
+				url = './bankcard.html';
+				break;
+			case 2:
+				title = '银行卡';
+				url = '../common/common_win.html';
+				page = '../member/bankcard'
+				break;
+			case 3:
+				url = './pay_manage.html';
+				break;
+			case 4:
+				url = './safe_verify.html';
+				break;
+			case 5:
+				url = './consume_win.html';
+				break;
+			case 6:
+				url = '../statics/help.html';
+				break;
+			case 7:
+				url = '../statics/contact.html';
+				break;
+		}
+
+		if(item === 1){
+			return;
+		}
+		
+		api.openWin({
+			name : winName,
+			url : url,
+			pageParam:{
+				title: title,
+				page: page
+			}
+		});
+	}
+
+	/**
+	 *银行卡
+	 */
+	function bankcardWin(){
+		if( global.getAuthStatus() == '0'){//实名认证申请中
+          	api.confirm({
+				//title : '请先实名认证',
+				msg : '实名认证申请中',
+				buttons : ['去看看', '先逛逛']
+		    },function(ret,err){
+				if (ret.buttonIndex === 1) {
+                    // api.openWin({
+                    //    name : 'authSubWin',
+                    //    url : 'auth_win.html'
+                    // });
+                    auth();  
+				}
+			});
+
+        }else if( global.getAuthStatus() == '-1'){//请先实名认证
+          	api.confirm({
+				//title : '请先实名认证',
+				msg : '请先实名认证',
+				buttons : ['去实名认证', '先逛逛']
+		    },function(ret,err){
+				if (ret.buttonIndex === 1) {
+                    api.openWin({
+                       name : 'authSubWin',
+                       url : 'auth_win.html'
+                    });  
+				}
+			});
+
+        }else{
+
+        	api.openWin({
+    			name : 'openWalletSubWin',
+				url : '../common/common_win.html',
+				pageParam:{
+					title: '银行卡',
+					page: '../member/bankcard'
+				}
+			});
+        }
+	}
+
+	function auth(){
+		api.ajax({
+            method : 'get',
+            cache : false,
+            dataType : 'json',
+            returnAll : false,
+            url : global.getRequestUri() + '/member/info/auth',
+            headers : global.getRequestToken()           
+        }, function(ret, err) {
+            if(ret && ret.code === "403"){
+                api.sendEvent({
+                    name:'tokenExpiredEvent',
+                    extra:{
+                        msg : ret.message
+                    }
+                });
+                
+                return;
+            }
+
+            if (ret) {
+                if (ret.success) {
+                    if(ret.obj){                     
+                        api.openWin({
+                            name : 'authInfoSubWin',
+                            url : './auth_info.html',
+                            pageParam : {
+                                name : ret.obj.firstName,
+                                lastName : ret.obj.lastName,
+                                idCard :ret.obj.idCard,
+                                email : ret.obj.email,
+                                status:ret.obj.status
+                            }
+                        });  
+                    }else{
+			            api.openWin({
+							name : 'authSubWin',
+							url : './auth_win.html'
+						});
+                    }
+                } else {
+                    global.setToast(ret.message);
+                }
+            } else {
+                global.setErrorToast();
+            }
+        });
+	}
+</script>
+</html>

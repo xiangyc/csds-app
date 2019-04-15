@@ -1,0 +1,264 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, initial-scale=1.0, width=device-width"/>
+    <meta name="format-detection" content="telephone=no, email=no, date=no, address=no">
+    <title>Home</title>
+    <link rel="stylesheet" type="text/css" href="../../../css/aui.css" />
+    <link rel="stylesheet" type="text/css" href="../../../css/common.css" />
+    <link rel="stylesheet" type="text/css" href="../../../css/portal.css" />
+    <link rel="stylesheet" type="text/css" href="../../../css/swiper.min.css" />
+    <style>
+    .swiper-container {
+        width: 100%;
+        height: 3.55rem;
+        margin: 0px auto;
+    }
+    .swiper-slide {
+        text-align: center;
+        font-size: 18px;
+        background: #fff;
+        
+        /* Center slide text vertically */
+        display: -webkit-box;
+        display: -ms-flexbox;
+        display: -webkit-flex;
+        display: flex;
+        -webkit-box-pack: center;
+        -ms-flex-pack: center;
+        -webkit-justify-content: center;
+        justify-content: center;
+        -webkit-box-align: center;
+        -ms-flex-align: center;
+        -webkit-align-items: center;
+        align-items: center;
+    }
+ 
+    .swiper-slide img{ width: 5rem; height: 3.55rem; border-radius: 0.15rem; max-width:5rem; }
+    .index-recommend{ padding: 0.6rem 0 0.85rem 0rem; }
+    .index-recommend .index-recommend-title{ margin-left: 0.625rem; }
+    </style>
+</head>
+<body class="body-bg-gray">
+    <div class="aui-content">
+        <div class="aui-grid index-grid ">
+            <div class="aui-row" id="classify">
+                <div tapmode onclick="scan();" class="aui-col-xs-4">
+                    <i class="index-icon-image"><img src="../../../image/portal/scanit-icon.png"/></i>
+                    <div class="aui-grid-label">Scan</div>
+                </div>
+                <div tapmode onclick="openWalletWin();" class="aui-col-xs-4">
+                    <i class="index-icon-image"><img src="../../../image/portal/wallet-icon.png"/></i>
+                    <div class="aui-grid-label">Wallet</div>
+                </div>
+                <div tapmode onclick="openMerchantWin();" class="aui-col-xs-4">
+                    <i class="index-icon-image"><img src="../../../image/portal/supermarket-icon.png"/></i>
+                    <div class="aui-grid-label">Stores</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="index-recommend aui-margin-t-0 main" >
+            <div tapmode onclick="openNearByWin();" class="index-recommend-title"><h3 class="blue">Frequently bought </h3><span class="blue">More</span></div>
+            <div class="box_top">
+               <script id="nearby-template" type="text/x-dot-template">
+               	{{ for(var i=0; i< it.length; i++) { }}
+               	<div class="swiper-slide">
+               		<img tapmode onclick="openNearByDetailWin({{=it[i].supermarket}}, &quot;{{=it[i].name}}&quot;);" src="{{=global.getImgUri() + '/' + it[i].banner}}" onerror="this.src='../../image/portal/index-recommend-img.jpg'" />
+               	</div>
+            	{{ } }}
+            	</script>
+            	
+	            <!-- Swiper -->
+			    <div class="swiper-container">
+			        <div id="movieList" class="swiper-wrapper">
+			        </div>
+			    </div> 
+            </div>   
+        </div>
+
+        <script id="activity-template" type="text/x-dot-template">
+          {{ for(var i=0; i< it.length; i++) { }}
+			<img tapmode onclick="openActivity({{=it[i].id}}, &quot;{{=it[i].name}}&quot;);" src="{{=global.getImgUri() + '/' + it[i].banner}}" onerror="this.src='../../../image/portal/index-add-img01.jpg'" />
+          {{ } }}
+        </script>
+        <div id="activity-content" class="index-add-box aui-margin-t-0"></div>
+    </div>
+</body>
+<script type="text/javascript" src="../../../script/api.js"></script>
+<script type="text/javascript" src="../../../script/common/global.js"></script>
+<script type="text/javascript" src="../../../script/common/page.js"></script>
+<script type="text/javascript" src="../../../script/library/doT.min.js"></script>
+<script type="text/javascript" src="../../../script/library/zepto.min.js"></script>
+<script type="text/javascript" src="../../../script/library/swiper.min.js"></script>
+<script type="text/javascript">
+	var swiper;
+	apiready = function(){
+		queryNearBy();
+		setTimeout(function(){
+			queryActivity();
+		}, 300);
+
+		initEvent();
+	}
+	
+		
+	/**
+	 *初始化事件
+	 */
+	function initEvent() {        
+	    api.addEventListener({
+	        name:'loginSuccessEvent'
+        },function(ret,err){
+			queryNearBy();
+			setTimeout(function(){
+				queryActivity();
+			}, 300);
+        });
+        
+        api.addEventListener({
+	        name:'activityRefreshEvent'
+        },function(ret,err){
+			queryNearBy();
+			setTimeout(function(){
+				queryActivity();
+			}, 300);
+        });
+
+        api.addEventListener({
+            name: 'closeScanit1Event'
+        }, function(ret, err){
+           setTimeout("closeScanWin();", 1500); 
+        });
+        
+            
+        api.addEventListener({
+            name: 'movieList-record'
+        }, function(ret, err){
+			 swiper = new Swiper('.swiper-container', {
+		        slidesPerView: 3,
+		        spaceBetween: 5,
+		        freeMode: true
+		    });
+        });
+	}
+		
+    function closeScanWin(){
+        api.closeWin({
+            name: 'scanit1'
+        });
+    }
+	
+	/**
+	 *查询附近的人都在买
+	 */
+	function queryNearBy(){
+	  	var params = '?start=0&maxResult=10&location=1';
+	  	var url = global.getRequestUri() + '/supermarket/activity-list';
+  		page.init(10, 'movieList', 'nearby-template', url, params, true, '');
+	}
+	
+	/**
+	 *查询门店 
+	 */
+	function queryActivity(){
+		api.ajax({
+            url: global.getRequestUri() + '/supermarket/activity-list?start=0&maxResult=20&location=2',
+            method: 'get',
+            timeout: 30,
+            dataType: 'json',
+            cache: true,
+            headers: global.getRequestToken(),
+            returnAll: false
+        },function(ret,err){
+			if(ret){
+                var template = $api.byId('activity-template').text;
+                var tempFun = doT.template(template);
+                $api.html($api.byId('activity-content'), tempFun(ret.items));
+            }
+        });
+	}
+	
+	/**
+	 *扫一扫 
+	 */
+	function scan(){
+		api.openWin({
+			name : 'scanit1',
+			url : 'scanit1.html'
+		});
+	}
+		
+	/**
+	 *钱包 
+	 */
+	function openWalletWin(){
+		api.openWin({
+			name : 'walletWin',
+			url : '../member/mywallet.html'
+		});
+	}
+	
+	/**
+	 *商场 
+	 */
+	function openMerchantWin(){
+		api.openWin({
+			name : 'merchantWin',
+			url : '../common/common_win.html',
+			pageParam : {
+				title : "supermarket",
+				page : "../portal/merchant_list",
+				type : 1
+			}
+		});
+	}
+	
+	/**
+	 *更多附近的人都在买
+	 */
+	function openNearByWin(){
+		api.openWin({
+			name : 'nearbyWin',
+			url : '../common/common_win.html',
+			pageParam : {
+				title : "Frequently bought ",
+				page : "../portal/nearby_list"
+			}
+		});
+	}
+	
+	/**
+	 *更多附近的人都在买详情
+	 */
+	function openNearByDetailWin(storeId, name){
+		api.openWin({
+			name : 'productListWin',
+			url : './nearby_win.html',
+			pageParam : {
+				title : name,
+				page : "../portal/nearby",
+				productTypeId : '',
+				storeId : storeId
+			}
+		});
+	}
+	
+	/**
+	 *活动 
+	 */
+	function openActivity(id, name){
+		api.openWin({
+			name : 'merchantWin',
+			url : '../common/common_win.html',
+			pageParam : {
+				title : 'Category',
+				page : "../portal/merchant_list",
+				type : 2,
+				activityId : id
+			}
+		});
+	}
+</script>
+</html>

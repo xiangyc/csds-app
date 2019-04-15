@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>认证信息</title>
+    <link rel="stylesheet" type="text/css" href="../../css/aui.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/common.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/member.css" />
+</head>
+<body>
+<header class="aui-bar aui-bar-text padded-t-25">
+    <a tapmode onclick="api.closeWin();" class="black-return-text">
+        <img src="../../image/member/black-return.png">认证信息
+    </a>
+</header>
+ <div class="aui-content">
+         <ul class="pay-manage-list">
+             <li class="auth_info">姓名<span id="nameId"></span></li>
+             <li class="auth_info">证件类型<span>身份证</span></li>
+             <li class="auth_info">证件号<span id="idCardId"></span></li>
+             <li class="auth_info">电子邮件<span id="emailId"></span></li>
+
+            <li class="auth_info" onclick="openAuth();">状态<span id="statusId" class="text-blue"></span></li>
+         </ul>
+ </div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/common/global.js" ></script>
+<script type="text/javascript">
+    var status;
+
+	apiready = function(){
+	    initEvent();
+
+		var name = api.pageParam.name;
+        var lastName = api.pageParam.lastName;
+        var idCard = api.pageParam.idCard;
+        var email = api.pageParam.email;
+        status = api.pageParam.status;
+
+        var firstIdCardChar;
+        var endIdCardChar;
+        var firstEmailChar;
+        var endEmailChar;
+
+        if(idCard){
+            firstIdCardChar =idCard.substring(0,3); 
+            endIdCardChar =idCard.substring(idCard.length-3,idCard.length); 
+        }
+
+        var str_lastName ='';
+        var str_idCard ='';
+        var str_email ='';
+        for(var i=0;i<lastName.length;i++){ 
+            str_lastName +='*';
+        } 
+
+        for(var i=0;i<idCard.length -6;i++){ 
+            str_idCard +='*';
+        } 
+
+        if(email){
+           var pos = email.indexOf('@');
+           var perStr = email.substring(0,pos);
+           var endEmailChar = email.substring(pos,email.length);
+
+            if(perStr.length >6){
+                firstEmailChar =perStr.substring(0,3); 
+
+                for(var i=0;i<perStr.length -3;i++){ 
+                    str_email +='*';
+                } 
+
+                $api.html($api.byId('emailId'), firstEmailChar+str_email+endEmailChar);
+            }else{
+                $api.html($api.byId('emailId'),  perStr.substring(0,2) +'***' + endEmailChar);
+            }          
+        }
+
+        $api.html($api.byId('nameId'), name);
+        $api.html($api.byId('idCardId'), firstIdCardChar+str_idCard+endIdCardChar);
+       
+
+        if(status ==0){
+             $api.html($api.byId('statusId'), "审核中");
+        }else if(status ==1){
+             $api.html($api.byId('statusId'), "审核通过");
+        }else if(status == -1){
+             $api.html($api.byId('statusId'), "审核不通过");
+        }
+	}
+
+	/**
+	 *初始化事件 
+	 */
+	function initEvent(){
+		api.addEventListener({
+	        name:'viewappear'
+        },function(ret,err){
+    	    api.closeWin({
+        		name : 'authSubWin'
+            });
+        	api.closeWin({
+        		name : 'authSubWin2'
+            });
+            api.closeWin({
+        		name : 'authSubWin3'
+            });
+            api.closeWin({
+                 name:'authSubWin4'
+            });
+        });
+	}
+	
+    /**
+    *重新实名认证
+    */
+    function openAuth(){
+        if(status == -1){
+             api.openWin({
+                name : 'authSubWin',
+                url : './auth_frame.html'
+            });  
+        }
+    }
+</script>
+</html>

@@ -1,0 +1,76 @@
+{
+    "topCitys": [
+             /*    {
+                 "city": "北京",
+                 "id": 333,
+                 "pinyin": "beijing"
+                 },
+                 {
+                    "city": "上海",
+                    "id": 334,
+                    "pinyin": "上海"
+                 },*/
+                 {
+                 "city": "Albany",
+                 "id": 12201,
+                 "pinyin": "Albany 12201"
+                 },
+                 {
+                    "city": "Atlanta",
+                    "id": 30301,
+                    "pinyin": "Atlanta 30301"
+                 },
+                 {
+                 "city": "Chicago",
+                 "id": 60601,
+                 "pinyin": "Chicago 60601"
+                 },                 
+                {
+                    "city": "Los Angeles",
+                    "id": 90001,
+                    "pinyin": "Los Angeles 90001"
+                },
+                {
+                    "city": "New York",
+                    "id": 10001,
+                    "pinyin": "New York 10001"
+                }
+             ],
+    "citys":
+[
+    {"city":"Albany","id":12201,"pinyin":"Albany 12201"},
+    {"city":"Atlanta","id":30301,"pinyin":"Atlanta 30301"},
+    {"city":"Annapolis","id":21401,"pinyin":"Annapolis 21401"},   
+    {"city":"Baltimore","id":21201,"pinyin":"Baltimore 21201"},
+    {"city":"Birmingham","id":35201,"pinyin":"Birmingham 35201"},
+    {"city":"Buffalo","id":14201,"pinyin":"Buffalo 14201"},
+    {"city":"Chicago","id":60601,"pinyin":"Chicago 60601"},    
+    {"city":"Cincinnati","id":45201,"pinyin":"Cincinnati 45201"},
+    {"city":"Cleveland","id":44101,"pinyin":"Cleveland 44101"},
+    {"city":"Columbus","id":43085,"pinyin":"Columbus 43085"},
+    {"city":"Dallas","id":71953,"pinyin":"Dallas 71953"},
+    {"city":"Denver","id":80002,"pinyin":"Denver 80002"},
+    {"city":"Fairbanks","id":99701,"pinyin":"Fairbanks 99701"},
+    {"city":"Philidelphia","id":19019,"pinyin":"Philidelphia 19019"},
+    {"city":"Honolulu","id":96801,"pinyin":"Philidelphia 96801"},
+    {"city":"Indianapolis","id":46201,"pinyin":"Indianapolis 46201"},
+    {"city":"Jacksonville","id":32099,"pinyin":"Jacksonville 32099"},
+    {"city":"Kansas City","id":64101,"pinyin":"Kansas City 64101"},
+    {"city":"Los Angeles","id":90001,"pinyin":"Los Angeles 90001"},
+    {"city":"Las Vegas","id":89101,"pinyin":"Las Vegas 89101"},
+    {"city":"Minneapolis","id":55199,"pinyin":"Minneapolis 55199"},
+    {"city":"New York","id":10001,"pinyin":"New York 10001"},
+    {"city":"New Orleaans","id":70112,"pinyin":"New Orleaans 70112"},
+    {"city":"Omaha","id":68046,"pinyin":"Omaha 68046"},
+    {"city":"Phoenix","id":85001,"pinyin":"Phoenix 85001"},
+    {"city":"Pittsburgh","id":15122,"pinyin":"Pittsburgh 15122"},
+    {"city":"Salt Lake City","id":84101,"pinyin":"Salt Lake City 84101"},
+    {"city":"Sacramento","id":94203,"pinyin":"Sacramento 94203"},
+    {"city":"San Diego","id":92101,"pinyin":"San Diego 92101"},
+    {"city":"San Francisco","id":94101,"pinyin":"San Francisco 94101"},
+    {"city":"San Jose","id":95101,"pinyin":"San Jose 95101"},
+    {"city":"Saint Paul","id":55101,"pinyin":"Saint Paul 55101"},
+    {"city":"Saint Louis","id":63101,"pinyin":"Saint Louis 63101"},
+    {"city":"Seattle","id":98101,"pinyin":"Seattle 98101"},
+    {"city":"Tampa","id":33601,"pinyin":"Tampa 33601"} 
+]}

@@ -1,0 +1,37 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, initial-scale=1.0, width=device-width"/>
+	<meta name="format-detection" content="telephone=no, email=no, date=no, address=no">
+	<title>Scan</title>
+	<link rel="stylesheet" type="text/css" href="../../css/aui.css" />
+	<link rel="stylesheet" type="text/css" href="../../css/common.css" />
+	<link rel="stylesheet" type="text/css" href="../../css/portal.css" />
+	<style>
+    	html,body {background-color: transparent !important; overflow: hidden !important;}
+		.scan-img{ width: 250px; height: 228px; margin: -114px auto auto -125px; position: absolute; top: 50%; left: 50%; }
+		.photo-clip-mask-left{ position: absolute; left: 0px; right: 50%; top: 50%; bottom: 50%; width: auto; height: 228px; margin-right: 125px; margin-top: -114px; margin-bottom: -114px; background-color: rgba(0, 0, 0, 0.3); }
+		.photo-clip-mask-right{ position: absolute; left: 50%; right: 0px; top: 50%; bottom: 50%; margin-left: 125px; margin-top: -114px; margin-bottom: -114px; background-color: rgba(0, 0, 0, 0.3); }
+		.photo-clip-mask-top{ width:100%; background-color: rgba(0, 0, 0, 0.3); height: 50%; position: absolute; top: -114px; }
+        .photo-clip-mask-bottom{ width:100%; background-color: rgba(0, 0, 0, 0.3); height: 50%; position: absolute; bottom: -114px; }
+       
+   </style>
+</head>
+
+<body> 
+    <img src="../../image/portal/scan.png" class="scan-img"> 
+   	<div class="photo-clip-mask-top"></div>
+    <div class="photo-clip-mask-left"></div>
+    <div class="photo-clip-mask-right"></div>
+   	<div class="photo-clip-mask-bottom"></div> 
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/common/global.js"></script>
+<script type="text/javascript">
+	 apiready = function(){
+	   	document.ontouchstart=function(){return false;}
+    }
+</script>
+
+</html>

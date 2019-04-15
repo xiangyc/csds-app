@@ -1,0 +1,1278 @@
+/*首页*/
+/*首页top*/
+.aui-bar-white {
+    background-color: #fff;
+}
+
+.aui-bar-white .aui-searchbar {
+    background-color: #fff;
+    height: 2.4rem;
+}
+
+.aui-bar-white .aui-searchbar .aui-searchbar-input {
+    background-color: #e9eff4;
+}
+
+.aui-bar-white .aui-searchbar-input .icon-search {
+    width: 0.625rem;
+    height: 0.625rem;
+    margin-right: 0.2rem;
+    display: inline-block;
+    margin-top: 0.3875rem;
+}
+
+.aui-bar-white .aui-searchbar-input .icon-search img {
+    width: 0.625rem;
+    height: 0.625rem;
+}
+
+.index-message-icon {
+    width: 2.175rem;
+    height: 2.4rem;
+    line-height: 2.4rem;
+    display: inline-block !important;
+    padding-right: 0.65rem !important;
+    padding-left: 0.75rem !important;
+    position: relative;
+}
+
+.index-message-icon img {
+    width: 0.775rem;
+    height: 0.675rem;
+    margin-top: 0.85rem;
+    vertical-align: top;
+    display: inline-block;
+}
+
+.index-message-icon .aui-badge {
+    background-color: #c11b1b;
+    font-size: 0.6rem;
+    color: #fff;
+    width: auto;
+    min-width: 0.65rem;
+    padding: 0;
+    top: 0.55rem;
+    left: 55%;
+    height: 0.65rem;
+    line-height: 0.65rem;
+    border-radius: 0.325rem;
+}
+
+.index-location-icon {
+    width: auto;
+    min-width: 3.35rem;
+    height: 2.4rem;
+    line-height: 2.4rem;
+    display: inline-block !important;
+    margin: 0;
+    padding-left: 0.65rem !important;
+    position: relative;
+    font-size: 0.6rem !important;
+    color: #333 !important;
+}
+
+.index-location-icon img {
+    width: 0.575rem;
+    min-width: 0.575rem;
+    height: 0.8rem;
+    margin-right: 0.2rem;
+    margin-top: 0.8rem;
+    vertical-align: top;
+    display: inline-block;
+}
+
+/*首页c*/
+.aui-grid.index-grid {
+    padding: 0 0.5rem;
+}
+
+.aui-grid.index-grid .index-icon-image {
+    padding: 0 0.68rem;
+    display: inline-block;
+    float: left;
+    width: 100%;
+}
+
+.aui-grid.index-grid .index-icon-image img {
+    width: 3.8rem;
+    margin: 0 auto;
+}
+
+.aui-grid.index-grid .aui-grid-label {
+    line-height: 1;
+    margin-top: 0.5rem;
+    padding-bottom: 0.45rem;
+    float: left;
+    width: 100%;
+    font-size: 0.6rem;
+    color: #333;
+}
+
+.aui-grid [class*=aui-col-xs-]:active {
+    background-color: #fff;
+}
+
+.index-recommend {
+    background-color: #ffffff;
+    padding: 0.6rem 0 0.85rem 0.625rem;
+}
+
+.index-recommend .index-recommend-title {
+    font-size: 0.6rem;
+    padding-bottom: 0.5rem;
+    margin-right: 0.65rem;
+    color: #999;
+    position: relative;
+}
+
+.index-recommend .index-recommend-title h3 {
+    font-size: 0.6rem;
+    display: inline-block;
+}
+
+.index-recommend .index-recommend-title span {
+    position: absolute;
+    right: 0;
+}
+
+.index-recommend .index-recommend-img {
+    overflow: hidden;
+    font-size: 0;
+}
+
+/*box_top*/
+.main {
+    position: relative;
+    -webkit-box-flex: 1;
+    -webkit-flex: 1;
+    flex: 1;
+}
+
+.index-recommend .box_top {
+    /*    position: absolute;
+        height: 26%;*/
+    height: 3.55rem;
+    width: 100%;
+    z-index: 2;
+    overflow: hidden;
+}
+
+#movieList {
+    position: absolute;
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-box-orient: horizontal;
+    -webkit-flex-direction: row;
+    flex-direction: row;
+    /*    height: 100%;*/
+    height: 3.55rem;
+}
+
+#movieList .movies {
+    width: 6.3em;
+    margin-right: 0.4rem;
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: flex;
+    /*padding: .5em 0;*/
+}
+
+#movieList .movies .moviesTransBox {
+    -webkit-box-flex: 1;
+    -webkit-flex: 1;
+    flex: 1;
+    text-align: left;
+    position: relative;
+}
+
+#movieList .movies img {
+    width: 5rem;
+    height: 3.55rem;
+    border-radius: 0.15rem;
+    /*height: 100%;*/
+    display: inline-block;
+    /*position:absolute;*/
+    /*    left:2.5rem;*/
+    /*    top: 1.75rem;
+        -webkit-transform:translate(-50%,-50%);*/
+}
+
+/*列表end*/
+.index-add-box {
+    background-color: #fff;
+    padding-top: 0.75rem;
+    padding-bottom: 0.55rem;
+}
+
+.index-add-box img {
+    margin-bottom: 0.2rem;
+    max-height: 6.75rem;
+    width: 100%;
+}
+
+/*关注*/
+.attention-shop-box {
+    position: relative;
+    padding: 0.4rem 0.65rem 0.85rem 0.65rem;
+}
+
+.attention-shop-box .attention-shop-l {
+    display: inline-block;
+}
+
+.attention-shop-box .attention-shop-list {
+    padding: 0.7rem 0;
+}
+
+.attention-shop-box .attention-shop-list.list-item-arrow:after {
+    right: 0;
+}
+
+.attention-shop-box .pic {
+    width: 4.15rem;
+    height: 2.35rem;
+    border-radius: 0.15rem;
+    margin-right: 0.45rem;
+    margin-top: 0.25rem;
+    vertical-align: top;
+    display: inline-block;
+}
+
+.attention-shop-list .attention-shop-l .shopname {
+    color: #333;
+    font-size: 0.75rem;
+    line-height: 1;
+    max-width: 9.2rem;
+}
+
+.attention-shop-list .attention-shop-l .notice {
+    color: #999;
+    font-size: 0.6rem;
+    line-height: 1;
+    padding-top: 0.4rem;
+    padding-bottom: 0.35rem;
+}
+
+.attention-shop-list .attention-shop-l .label-shop {
+    height: 0.8rem;
+    line-height: 0.8rem;
+    overflow: hidden;
+    vertical-align: top;
+    float: left;
+}
+
+.aui-label.aui-label-shop {
+    background-color: #3d5999;
+    padding: 0.15em 0.2em;
+    color: #ffffff;
+    margin-right: 0.35rem;
+    vertical-align: top;
+}
+
+/*扫一扫*/
+.scanit-enter-box {
+    padding: 1.85rem 0.65rem 0 0.65rem;
+}
+
+.scanit-enter-box .scanit-barcode-img {
+    width: 9.6rem;
+    height: 4.6rem;
+    padding-top: 0.85rem;
+    border-radius: 0.15rem;
+    background-color: #a6a6a6;
+    margin: 0 auto;
+}
+
+.scanit-enter-box .scanit-barcode-img img {
+    width: 6.7rem;
+    height: 2.9rem;
+    margin: 0 auto;
+}
+
+.scanit-enter-box .aui-list-item-input {
+    padding-top: 1.1rem;
+}
+
+.scanit-enter-box .aui-list-item-input input {
+    /*    color: #425894 !important;
+        text-shadow: 0px 0px 0px #000 !important;
+        -webkit-text-fill-color: transparent !important;
+        online:none;*/
+    /*  caret-color: #425894;*/
+    height: 2rem;
+    background-color: #f4f7f9;
+    color: #333;
+    font-size: 0.75rem;
+    border: 0.05rem solid #dadadd;
+    border-radius: 0.2rem;
+    padding-left: 0.75rem;
+}
+
+.scanit-enter-box .aui-list-item-input input:focus {
+    caret-color: #425894;
+}
+
+/*商品详情*/
+.shop-details-top {
+    padding-top: 1.25rem;
+    position: relative;
+}
+
+.shop-details-top .aui-bar {
+    position: absolute;
+    /*top: 1.25rem;*/
+    top: 0;
+}
+
+.shop-details-top .shop-details-top-img {
+    width: 100%;
+ max-height: 9rem;
+    margin-top: -1.25rem;
+    position: relative;
+    text-align: center;
+}
+
+.shop-details-top .shop-details-top-img img {
+    max-width: 100%;
+    max-height: 9rem;
+    display: inline-block;
+}
+
+.shop-details-top .shop-details-top-bg {
+    background-color: rgba(0, 0, 0, 0.5);
+    position: absolute;
+    width: 100%;
+    height: 9rem;
+    top: 0;
+    left: 0;
+    z-index: 2;
+}
+
+.shop-details-top .shop-details-top-address {
+    background-color: rgba(0, 0, 0, 0.7);
+    width: 100%;
+    height: 1.5rem;
+    padding-left: 0.65rem;
+    line-height: 1.5rem;
+    position: absolute;
+    bottom: 2rem;
+    z-index: 3;
+    font-size: 0.6rem;
+    color: #fff;
+}
+@media(max-width: 320px) {
+  .shop-details-top .shop-details-top-address {
+    bottom: 1.65rem;
+    }
+}
+.shop-details-top .shop-details-top-address img {
+    width: 0.6rem;
+    height: 1.5rem;
+    padding: 0.35rem 0;
+    margin-right: 0.5rem;
+    display: inline-block;
+    vertical-align: top;
+}
+
+.shop-details-t {
+    padding: 1.1rem 0.65rem 0.1rem 0.65rem;
+}
+
+.shop-details-t .shopname {
+    font-size: 0.75rem;
+    color: #333;
+    line-height: 1;
+}
+
+.shop-details-t .sales {
+    font-size: 0.6rem;
+    color: #999;
+    line-height: 1;
+    padding-top: 0.35rem;
+}
+
+.shop-details-c .select-shop-r .amount { /*padding-top: 0.2rem; */
+}
+
+.shop-details-c .select-shop-r {
+    padding: 0.9rem 0.45rem 0.9rem 0.65rem;
+    height: 2.95rem;
+}
+
+.shop-details-c .select-shop-r .price {
+    float: left;
+    color: #3d5999;
+    font-size: 0.45rem;
+    line-height: 1;
+}
+
+.shop-details-c .select-shop-r .price em {
+    font-size: 1.15rem;
+    padding-left: 0.1rem;
+}
+
+.shop-details-c .introduction {
+    padding: 0.85rem 0.65rem 0.85rem 0.65rem;
+    color: #666;
+    font-size: 0.6rem;
+    border-top: 0.05rem solid #f1f1f1;
+    border-bottom: 0.05rem solid #f1f1f1;
+}
+
+.shop-details-comment {
+    padding: 1rem 0.65rem 0rem 0.65rem;
+}
+
+.shop-details-comment h3 {
+    color: #333;
+    font-size: 0.75rem;
+    padding-bottom: 0.45rem;
+}
+
+.shop-details-comment .comment-switch {
+    width: 100%;
+}
+
+.shop-details-comment .comment-switch div {
+    width: 2.7rem;
+    height: 1rem;
+    line-height: 1rem;
+    display: inline-block;
+    margin-right: 0.65rem;
+    border-radius: 0.5rem;
+    color: #3d5a99;
+    font-size: 0.6rem;
+    border: 0.05rem solid #3d5a99;
+    text-align: center;
+}
+
+.shop-details-comment .comment-switch div.aui-active {
+    background-color: #3d5a99;
+    color: #fff;
+}
+
+.shop-details-comment .aui-list .aui-list-item {
+    margin: 0;
+    padding-top: 0.4rem;
+}
+
+.shop-details-comment .aui-list .aui-list-item-media {
+    width: 1.9rem;
+    padding-right: 0.65rem;
+}
+
+.shop-details-comment .aui-list .aui-list-item-media img {
+    width: 1.25rem;
+    height: 1.25rem;
+    border-radius: 0.625rem;
+}
+
+.shop-details-comment .aui-list .aui-list-item-inner {
+    padding-bottom: 0rem;
+    padding-right: 0rem;
+}
+
+.shop-details-comment .aui-list .aui-list-item-inner .aui-info {
+    font-size: 0.6rem;
+    color: #999;
+    padding: 0.2rem 0 0.15rem 0;
+}
+
+.shop-details-comment .aui-list .aui-list-item-text {
+    font-size: 0.8rem;
+    color: #333;
+}
+
+.shop-details-comment .aui-list .aui-list-item:active {
+    background-color: #fff;
+}
+
+.shop-b-fixed {
+    height: 2.4rem;
+    box-shadow: #dedede 0 -0.15rem 0.3rem -0.15rem;
+}
+
+.shop-b-fixed .aui-bar-tab-item {
+    height: 2.4rem;
+    font-size: 0.75rem;
+}
+
+.shop-b-fixed .aui-bar-tab-item.aui-border-r {
+    border-right: 0.05rem solid #e5e5e5;
+}
+
+.shop-b-fixed .aui-bar-tab-item .aui-bar-tab-label {
+    font-size: 0.65rem;
+    color: #333;
+}
+
+.shop-car-list {
+    padding: 0.625rem 0.45rem 0.625rem 0;
+}
+
+.select-shop-list.shop-car-list .pic {
+    margin-bottom: 0;
+}
+
+.select-shop-list h4 {
+    font-size: 0.6rem;
+    color: #999;
+    line-height: 1;
+    padding: 0.35rem 0.65rem 0 0.65rem;
+}
+
+.select-shop-list.shop-car-list .aui-radio {
+    margin: 0 0.75rem;
+}
+
+.aui-radio {
+    width: 0.65rem;
+    height: 0.65rem;
+    border: 0.07rem solid #bfbfbf;
+    border-radius: 0.325rem;
+    float: left;
+}
+
+.aui-radio:checked {
+    background-color: #fff;
+    padding: 0.1rem;
+    border-color: #3d5999;
+}
+
+.aui-radio:checked:before,
+.aui-radio.aui-checked:before,
+.aui-checkbox:checked:before,
+.aui-checkbox.aui-checked:before {
+    width: 0;
+    height: 0;
+    border: none !important;
+}
+
+.aui-radio:checked:after,
+.aui-radio.aui-checked:after,
+.aui-checkbox:checked:after,
+.aui-checkbox.aui-checked:after {
+    width: 0.35rem !important;
+    height: 0.35rem !important;
+    border: none !important;
+    background-color: #3d5999 !important;
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+    margin-left: -0.18rem;
+    margin-top: -0.17rem;
+    border-radius: 0.35rem;
+}
+
+.aui-radio:checked,
+.aui-radio.aui-checked,
+.aui-checkbox:checked,
+.aui-checkbox.aui-checked {
+    background-color: transparent;
+    border-color: #3d5999;
+}
+
+.select-shop-list.shop-car-list .select-shop-radio {
+    padding-top: 1.05rem;
+    float: left;
+}
+
+.select-shop-list.shop-car-list .select-shop-radio .aui-radio-img {
+    margin: 0 0.55rem;
+}
+
+.select-shop-list.shop-car-list .cnt {
+    height: 3.2rem;
+}
+
+.select-shop-list.shop-car-list .shopname {
+    padding-bottom: 0.85rem;
+}
+
+.select-shop-list.shop-car-list .price {
+    text-align: left;
+    color: #3d5999;
+    font-size: 0.45rem;
+    line-height: 1;
+}
+
+.select-shop-list.shop-car-list .price em {
+    font-size: 1.15rem;
+    padding-left: 0.1rem;
+}
+
+.select-shop-list.shop-car-list .select-shop-r {
+    position: relative;
+    padding-top: 1.05rem;
+}
+
+.shop-b-fixed .aui-bar-tab-item .aui-bar-tab-label .aui-radio {
+    margin-left: 0.65rem;
+    margin-top: 0.25rem;
+    margin-right: 0.2rem;
+}
+
+/*结算*/
+.settlement-shop-top {
+    padding: 0.87rem 0.75rem;
+    height: 3.4rem;
+}
+
+.settlement-shop-top h4 {
+    font-size: 0.75rem;
+    color: #333;
+    line-height: 1;
+}
+
+.settlement-shop-top p {
+    font-size: 0.6rem;
+    color: #999;
+    line-height: 1;
+    padding-top: 0.25rem;
+}
+
+.settlement-pay-select {
+    font-size: 0.6rem;
+    color: #999;
+    padding: 0.55rem 0;
+}
+
+.settlement-pay-select .settlement-pay-list {
+    height: 1.735rem;
+    line-height: 1.1rem;
+    padding-top: 0.3175rem;
+    padding-bottom: 0.3175rem;
+    display: block;
+}
+
+.settlement-pay-select .select-shop-radio {
+    float: left;
+    padding: 0 0.75rem 0 0.75rem;
+}
+
+.settlement-pay-list em {
+    padding-left: 0.4rem;
+}
+
+.settlement-pay-coupon {
+    height: 2.95rem;
+    line-height: 2.95rem;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+}
+
+.settlement-pay-coupon h3 {
+    font-size: 0.75rem;
+    color: #333;
+    display: inline-block;
+}
+
+.settlement-pay-coupon span {
+    font-size: 0.6rem;
+    color: #999;
+    padding-right: 0.75rem;
+    float: right;
+}
+
+.shop-b-fixed .aui-bar-tab-item .aui-bar-tab-label .aui-font-size-12 {
+    line-height: 1;
+    padding-bottom: 0.05rem;
+    text-align: left;
+}
+
+/*结算弹框*/
+.pay-password-mask {
+    width: 12rem;
+    min-height: 12.75rem;
+    background-color: #fff;
+    position: absolute;
+    top: 8.15rem;
+    left: 50%;
+    margin-left: -6rem;
+    z-index: 12;
+}
+
+.pay-password-mask .close-icon {
+    height: 1.45rem;
+    margin-bottom: 0.65rem;
+    position: relative;
+}
+
+.pay-password-mask .close-icon img {
+    width: 1.65rem;
+    height: 1.45rem;
+    padding: 0.5rem 0.6rem;
+    float: right;
+}
+
+.pay-password-mask .text-title {
+    text-align: center;
+    font-size: 0.75rem;
+    color: #333;
+    line-height: 1;
+}
+
+.btn-define {
+    height: 2rem;
+    text-align: center;
+}
+
+.btn-define .aui-btn-login {
+    width: 8.5rem;
+    margin: 0 auto;
+    white-space: inherit;
+}
+
+.password-input {
+    width: 9.9rem;
+    height: 2rem;
+    margin: 2.1rem auto 2.35rem auto;
+}
+
+/*商城首页*/
+/*绑定会员卡*/
+.member-card-box { /*padding: 1.05rem 1.55rem 0.2rem 1.55rem;*/
+    padding: 1.05rem 0 1.9rem 0;
+    text-align: center;
+    position: relative;
+}
+
+.bind-member-card {
+    width: 14.9rem;
+    height: 7.75rem;
+    background-color: #b7b7b7;
+    border-radius: 0.2rem;
+    margin: 0 auto;
+    padding-top: 0.6rem;
+}
+
+.bind-member-card .card-top {
+    width: 14.9rem;
+    height: 1.55rem;
+    background-color: #141c30;
+}
+
+.bind-member-card .card-number {
+    padding: 1.8rem 0.7rem 0 0.6rem;
+}
+
+.bind-member-card .card-number span {
+    float: left;
+    height: 1.75rem;
+    line-height: 1.75rem;
+    color: #333;
+    font-size: 0.75rem;
+    padding-right: 0.6rem;
+}
+
+.bind-member-card .card-number input {
+    background-color: #f1f1f1;
+    border-radius: 0.1rem;
+    float: left;
+    width: 11.5rem;
+    height: 1.75rem; /*line-height: 1.75rem; */
+    color: #333;
+    font-size: 0.75rem;
+    padding-left: 0.7rem;
+}
+
+.bind-member-card .card-number input::-webkit-input-placeholder {
+    color: #333;
+}
+
+.bind-member-card .card-number input::-moz-placeholder {
+    color: #333;
+}
+
+.bind-member-card .card-number input:-moz-placeholder {
+    color: #333;
+}
+
+.bind-member-card .card-number em {
+    background-color: #f1f1f1;
+    border-radius: 0.1rem;
+    float: left;
+    width: 11.5rem;
+    height: 1.75rem;
+    line-height: 1.75rem;
+    text-align: left;
+    color: #333;
+    font-size: 0.75rem;
+    padding-left: 0.7rem;
+}
+
+.member-card-box .input-close {
+    width: 1.1rem;
+    height: 1.1rem;
+    position: absolute;
+    top: 1.75rem;
+    right: 1.55rem;
+}
+
+.member-card-add {
+    padding-top: 3.15rem;
+}
+
+/*支付结果*/
+.pay-result {
+    padding: 0.75rem 0 2.4rem 3rem;
+}
+
+.pay-result .pay-result-icon {
+    width: 3.9rem;
+    height: 3.9rem;
+    margin-right: 0.8em;
+    float: left;
+}
+
+.pay-result .pay-result-icon img {
+    width: 3.9rem;
+    height: 3.9rem;
+}
+
+.pay-result h3 {
+    font-size: 0.9rem;
+    color: #333;
+    padding: 0.85rem 0;
+    line-height: 1;
+}
+.pay-result.pay-result2 h3{  
+    font-size: 1rem;
+    line-height: 1.1;
+    color: #3d5999;
+    padding: 1.45rem 0;  }
+
+.pay-result.pay-result2 h3.pay-failure-h3{ line-height: 1.1; padding: 0.85rem 0;   }
+
+
+.pay-result h3.pay-failure-h3 {
+    line-height: 3.9rem;
+    padding: 0;
+}
+
+.pay-result p {
+    font-size: 0.9rem;
+    color: #333;
+    line-height: 1;
+}
+
+.pay-shop-list {
+    border-top: 0.05rem solid #f1f1f1;
+    border-bottom: 0.05rem solid #f1f1f1;
+    padding: 0.85rem 1.6rem 0.85rem 0.75rem;
+}
+
+.pay-shop-list li {
+    font-size: 0.6rem;
+    color: #333;
+    height: 1.75rem;
+    line-height: 1.75rem;
+}
+
+.pay-shop-list li span {
+    float: right;
+    text-align: right;
+}
+
+.pay-coupon-coupon {
+    border-bottom: 0.05rem solid #f1f1f1;
+    padding: 0.75rem 1.6rem 0.75rem 0.75rem;
+}
+
+.pay-coupon-coupon li {
+    font-size: 0.6rem;
+    color: #333;
+    height: 1.75rem;
+    line-height: 1.75rem;
+}
+
+.pay-coupon-coupon li span {
+    float: right;
+    text-align: right;
+}
+
+.pay-btn {
+    text-align: right;
+    padding: 1.8rem 0.65rem 0 0.65rem;
+    width: 18rem;
+    margin: 0 auto;
+}
+
+.pay-btn .aui-btn.aui-btn-login {
+    width: 8.05rem;
+    float: left;
+}
+
+.pay-btn .aui-btn.aui-btn-login.aui-btn-first {
+    margin-right: 0.6rem;
+}
+
+@media (max-width: 359px) {
+    .pay-btn {
+        width: 98%;
+    }
+
+    .pay-btn .aui-btn.aui-btn-login {
+        width: 47%;
+    }
+}
+
+.aui-btn.aui-btn-login.aui-btn-reappear {
+    width: 8.05rem;
+    margin: 0 auto;
+    margin-top: 2.6rem;
+}
+
+/*超市商城*/
+.merchant-list {
+    padding: 0.325rem 0.65rem 0.85rem 0.65rem;
+}
+
+.attention-shop-box.merchant-list .attention-shop-list {
+    padding: 0.35rem 0;
+}
+
+.attention-shop-box.merchant-list .pic {
+    margin-top: 0 !important;
+}
+
+.merchant-list .attention-shop-list .attention-shop-l .shopname {
+    padding-top: 0.3rem;
+}
+
+.merchant-list .attention-shop-list .attention-shop-l .shopname span {
+    color: #3d5999;
+    font-size: 0.6rem;
+}
+
+.merchant-list .attention-shop-list .attention-shop-l .notice {
+    padding-bottom: 0;
+}
+
+/*消息*/
+.message {
+    padding: 0.5rem 0.65rem;
+}
+
+.message li {
+    padding: 0.6rem 0 0.45rem 0;
+    color: #999;
+    line-height: 1;
+    padding-left: 0.95rem;
+    position: relative;
+}
+
+.message li span {
+    font-size: 0.75rem;
+    line-height: 1.2;
+    padding-bottom: 0.25rem;
+    display: block;
+}
+
+.message li i {
+    width: 0.35rem;
+    height: 0.35rem;
+    border-radius: 0.175rem;
+    background-color: #3d5a99;
+    display: none;
+    position: absolute;
+    left: 0;
+    top: 1.3rem;
+}
+
+.message li em {
+    font-size: 0.6rem;
+    display: block;
+}
+
+.message li.not-read span {
+    color: #333;
+}
+
+.message li.not-read i {
+    display: inline-block;
+}
+
+/*发票信息*/
+.invoice {
+}
+
+.invoice .invoice-c {
+    padding: 0.65rem 0.65rem 0.75rem 0.65rem;
+    margin-bottom: 0.25rem;
+    background-color: #fff;
+}
+
+.invoice .invoice-c h4 {
+    font-size: 0.6rem;
+    color: #999;
+    line-height: 1;
+    padding-bottom: 0.6rem;
+}
+
+.invoice .invoice-c ul {
+    height: 2rem;
+    line-height: 2rem;
+    text-align: center;
+    font-size: 0.75rem;
+    color: #333;
+}
+
+.invoice .invoice-c ul li {
+    max-width: 5.15rem;
+    width: 30.5%;
+    height: 2rem;
+    line-height: 2rem;
+    float: left;
+    border: 0.05rem solid #e5e5e5;
+    border-radius: 0.1rem;
+    margin-right: 0.625rem;
+}
+
+.invoice .invoice-c ul li:last-child {
+    margin-right: 0;
+}
+
+.invoice .invoice-c ul li.current {
+    background-color: #3d5999;
+    color: #fff;
+    border-color: #3d5999;
+}
+
+.invoice .invoice-c .invoice-input {
+    padding-top: 0.625rem;
+}
+
+.invoice .invoice-c .invoice-input input {
+    height: 2rem;
+    line-height: 2rem;
+    background-color: #eee;
+    border-radius: 0.1rem;
+    padding-left: 0.6rem;
+    font-size: 0.75rem;
+    color: #333;
+}
+
+/*你的订单*/
+.yourorder {
+    padding: 0.825rem 0.65rem 0 0.65rem;
+}
+
+.yourorder p {
+    padding-bottom: 2.25rem;
+    font-size: 0.6rem;
+    color: #999;
+    line-height: 1.5;
+}
+
+.yourorder p span {
+    color: #3b5999;
+}
+
+.yourorder h3 {
+    padding-bottom: 0.35rem;
+    font-size: 0.75rem;
+    color: #333;
+    line-height: 1;
+    padding-left: 0.15rem;
+}
+
+.yourorder .yourorder-time {
+    padding-top: 0.475rem;
+    padding-bottom: 0.65rem;
+    padding-left: 0.15rem;
+}
+
+.yourorder .yourorder-time span {
+    font-size: 0.6rem;
+    color: #999;
+    display: block;
+    line-height: 1;
+    padding-bottom: 0.2rem;
+}
+
+.yourorder .yourorder-time em {
+    font-size: 0.6rem;
+    color: #3d5999;
+    display: block;
+    line-height: 1;
+}
+
+.yourorder ul {
+    padding: 0.35rem 1.25rem 0.35rem 0.15rem;
+}
+
+.yourorder ul li {
+    height: 1.15rem;
+    line-height: 1.15rem;
+    font-size: 0.6rem;
+    color: #999;
+}
+
+.yourorder ul li em {
+    float: right;
+}
+
+.yourorder ul li:last-child {
+    height: 1.5rem;
+    line-height: 1.5rem;
+    color: #333;
+    border-top: 0.05rem solid #f0f0f0;
+    margin-top: 0.25rem;
+    border-bottom: 0.05rem solid #f0f0f0;
+}
+
+.yourorder ul li:last-child em {
+    color: #3d5999;
+}
+
+/*分类*/
+.product_sort.attention-shop-box .pic {
+    width: 2.35rem;
+    height: 2.35rem;
+}
+
+.product_sort.attention-shop-box .attention-shop-list {
+    line-height: 2.35rem;
+    font-size: 0.75rem;
+}
+
+/*具体类*/
+.product_list_ui {
+    padding: 0.65rem;
+}
+
+.product_list_ui li { /* max-width: 5.4rem;*/
+    width: 32.333%;
+    float: left;
+    background-color: #fff;
+    border-radius: 0.15rem;
+    text-align: center;
+    margin-right: 0.22rem;
+    margin-bottom: 0.25rem;
+}
+
+.product_list_ui li:nth-child(3n) {
+    margin-right: 0;
+}
+
+.product_list_ui li .pic-img {
+    width: 100%;
+    height: 100%;
+    border-radius: 0.1rem;
+}
+
+.product_list_ui li p {
+    height: 1.25rem;
+    line-height: 1.25rem;
+    font-size: 0.6rem;
+    color: #333;
+    border-left: 0.05rem solid #e1e1e1;
+    border-right: 0.05rem solid #e1e1e1;
+    border-bottom: 0.05rem solid #e1e1e1;
+    border-bottom-left-radius: 0.15rem;
+    border-bottom-right-radius: 0.15rem;
+}
+
+/*定位*/
+.location-bar {
+    height: 1.9rem;
+    line-height: 1.9rem;
+}
+
+.location-bar .location-icon {
+    width: auto;
+    min-width: 3.35rem;
+    height: 1.9rem;
+    display: inline-block !important;
+    margin: 0;
+    padding-left: 0.65rem !important;
+    position: relative;
+    font-size: 0.6rem !important;
+    color: #999 !important;
+}
+
+.location-bar .location-icon img {
+    width: 0.575rem;
+    min-width: 0.575rem;
+    height: 0.8rem;
+    margin-right: 0.2rem;
+    margin-top: 0.55rem;
+    vertical-align: top;
+    display: inline-block;
+}
+
+.location-bar .location-icon span {
+    color: #333;
+    padding-left: 0.85rem;
+}
+
+.location-bar .location-text-r {
+    padding-right: 0.65rem;
+    display: inline-block;
+    float: right;
+    height: 1.9rem;
+    line-height: 1.9rem;
+    font-size: 0.6rem;
+    color: #3d5999;
+    position: relative;
+}
+
+/*定位弹框*/
+.location-mask {
+    width: 12rem;
+    min-height: 12.75rem;
+    background-color: #fff;
+    position: absolute;
+    top: 8.15rem;
+    left: 50%;
+    margin-left: -6rem;
+    z-index: 12;
+}
+
+.location-mask h3 {
+    font-size: 0.75rem;
+    color: #333;
+    text-align: center;
+    line-height: 1;
+    margin-top: 2.1rem;
+    padding-bottom: 2.55rem;
+}
+
+.location-mask .location-icon {
+    width: 6.5rem;
+    height: 1.9rem;
+    line-height: 1.9rem;
+    margin: 0 auto;
+    font-size: 0.6rem;
+    color: #999;
+}
+
+.location-mask .location-icon img {
+    width: 0.575rem;
+    min-width: 0.575rem;
+    height: 0.8rem;
+    margin-right: 0.2rem;
+    margin-top: 0.55rem;
+    vertical-align: top;
+    display: inline-block;
+}
+
+.location-mask .location-icon span {
+    color: #333;
+    padding-left: 0.85rem;
+}
+
+.location-mask .location-btn {
+    padding: 0 0.95rem;
+    margin-top: 2.1rem;
+}
+
+.location-mask .location-btn .aui-btn-login {
+    width: 4.2rem;
+    margin: 0 0.425rem;
+    float: left;
+}
+
+
+

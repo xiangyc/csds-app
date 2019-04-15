@@ -1,0 +1,1096 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,initial-scale=1.0,width=device-width"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>超市电商</title>
+    <link rel="stylesheet" type="text/css" href="./css/api.css" />
+    <link rel="stylesheet" type="text/css" href="./css/aui.css" />
+	<link rel="stylesheet" type="text/css" href="./css/common.css" />
+	<link rel="stylesheet" type="text/css" href="./css/portal.css" />
+    <style>
+		html,body{
+			height: 100%;
+			width:100%;
+		}
+		#wrap{
+		    height: 100%;
+		    display: -webkit-box;
+		    display: -webkit-flex;
+		    display: flex;
+		    -webkit-box-orient: vertical;
+		    -webkit-flex-flow: column;
+		           flex-flow: column;
+		}
+		#header{
+		    text-align: center;
+		   	background-color: #fff;
+			color: #3B5999;
+		    width: 100%;
+		    position:relative;
+		    padding-top: 25px;
+		}
+		.topbar {
+			height: 44px;
+			line-height: 44px;
+			font-size: 18px;
+			text-align: center;
+			display: none;
+			color: #3B5999;
+		}
+		.topbar .help-icon{
+	        background-size: 1.4rem auto;
+	        bottom: 0;
+	        display: block;
+	        height: 44px;
+	        right: 0;
+	        position: absolute;
+	        width: 40px;
+	        line-height: 44px;
+	        font-size: 16px;
+		}
+		.topbar .set-icon{
+			background: rgba(0, 0, 0, 0) url("./image/top-setup-icon.png") no-repeat scroll center center;
+	        background-size: 1.4rem auto;
+	        bottom: 0;
+	        display: block;
+	        height: 44px;
+	        right: 0;
+	        position: absolute;
+	        width: 40px;
+	        line-height: 44px;
+	        font-size: 16px;
+		}
+		.topbar .news-icon{
+			background: rgba(0, 0, 0, 0) url("./image/top-news-icon.png") no-repeat scroll center center;
+	        background-size: 1.4rem auto;
+	        bottom: 0;
+	        display: block;
+	        height: 44px;
+	        left: 0;
+	        position: absolute;
+	        width: 40px;
+	        line-height: 44px;
+	        font-size: 16px;
+		}
+		#main{
+		    -webkit-box-flex: 1;
+		    -webkit-flex: 1;
+		    flex: 1;
+		}
+		ul {
+			display: -webkit-box;
+			display: -webkit-flex;
+			display: flex;
+		}
+		#footer li {
+			-webkit-box-flex: 1;
+			-webkit-flex: 1;
+			flex: 1;
+			height: 48px;
+			padding-top: 7px;
+			background-color: #fff;
+		}
+		#footer {
+			width: 100%;
+			text-align: center;
+		/*	height: 56px;*/
+			line-height: 48px;
+			background-color: #fff;
+			border-top: 1px solid #e0e0e0;
+			bottom: 0px;
+		}
+		.bottom_btn {
+			background-position-y: 0px;
+			padding-top: 4px;
+			font-size: 11px;
+			color: #666666;
+			width: 99%;
+			height: 32px;
+			background-repeat: no-repeat no-repeat;
+			background-position-x: center;
+			background-size: 19px;
+		}
+		.index {
+			background-image: url(./image/tab_index01.png);
+		}
+		.interest {
+			background-image: url(./image/tab_interest01.png);
+		}
+		.cart {
+			background-image: url(./image/tab_cart01.png);
+		}
+		.account {
+			background-image: url(./image/tab_my01.png);
+		}
+		.active .index {
+			background-image: url(./image/tab_index02.png);
+		}
+		.active .interest {
+			background-image: url(./image/tab_interest02.png);
+		}
+		.active .cart {
+			background-image: url(./image/tab_cart02.png);
+		}
+		.active .account {
+			background-image: url(./image/tab_my02.png);
+		}
+		.active .bottom_btn {
+			color: #3B5999;
+			background-size: 19px;		
+		}
+		.activebar {
+			display: block;
+		}
+		.aui-bar-white{ background-color: #fff; }
+		.aui-bar-white .aui-searchbar{ background-color: #fff; height: 2.4rem; }
+		.aui-bar-white .aui-searchbar .aui-searchbar-input{ background-color: #e9eff4; }
+		.aui-bar-white .aui-searchbar-input .icon-search{ width: 0.625rem; height: 0.625rem; margin-right:0.2rem; display: inline-block; margin-top: 0.3875rem; }
+		.aui-bar-white .aui-searchbar-input .icon-search img{ width: 0.625rem; height: 0.625rem; }
+		.index-message-icon{ width:2.175rem; height: 2.4rem; line-height: 2.4rem;  display: inline-block !important;  padding-right: 0.65rem !important; padding-left: 0.75rem !important; position: relative; }
+		.index-message-icon img{width:0.775rem; height: 0.675rem; margin-top: 0.85rem; vertical-align: top; display: inline-block;   }
+		.index-message-icon .aui-badge{ background-color: #c11b1b; font-size:0.6rem; color: #fff; width:auto; min-width: 0.65rem; padding: 0;  top: 0.55rem; left: 55%;  height: 0.65rem; line-height: 0.65rem; border-radius: 0.325rem; }
+		.index-location-icon{ width:auto; min-width:3.35rem; height: 2.4rem; line-height: 2.4rem; display: inline-block !important; margin: 0;  padding-left: 0.65rem !important; position: relative;  font-size:0.6rem !important; color: #333 !important; }
+		.index-location-icon img{ width:0.575rem; min-width:0.575rem; height: 0.8rem; margin-right: 0.2rem; margin-top: 0.8rem; vertical-align: top; display: inline-block; }
+	</style>
+</head>
+<body>
+	<div id="wrap">
+		 <div id="header" class="aui-bar aui-bar-nav aui-bar-white">
+			<div id="index" class="topbar activebar">
+			    <a tapmode onclick="openLocationWin();" class="aui-pull-left index-location-icon">
+		            <img src="./image/portal/location-icon.png"/><span id="cityName"></span>
+		        </a>
+		        <div class="aui-title" style="left:3.35rem; right: 2.175rem;">
+		            <div class="aui-searchbar" id="search">
+		                <div tapmode onclick="openSearchWin();" class="aui-searchbar-input aui-border-radius aui-margin-0">
+		                    <i class="icon-search"><img src="./image/portal/search-icon.png"/></i>
+		                    <input type="search" disabled="disabled" placeholder="" id="search-input">
+		                    <div class="aui-searchbar-clear-btn">
+		                        <i class="aui-iconfont aui-icon-close"> </i>
+		                    </div>
+		                </div>
+		                <div set-lan="html:cacle" class="aui-searchbar-btn" tapmode="">取消</div>
+		            </div>
+		        </div>
+		        <a tapmode onclick="openMessageWin();" class="aui-pull-right index-message-icon">
+		            <div id="unReadMessNumId" class="aui-badge aui-hide"></div>
+		            <img src="./image/portal/message-icon.png"/>
+		        </a>
+			</div>
+			<div id="cart" class="topbar">
+				<div class="aui-bar aui-bar-nav aui-bar-white border-b-f0">
+				    <a tapmode onclick="openLocationWin();" class="aui-pull-left index-location-icon">
+			            <img src="./image/portal/location-icon.png"/><span id="cityName2"></span>
+			        </a>
+					<a id="statusA" set-lan="html:edit" tapmode onclick="editShopCart();" class="black-return-text-r aui-font-size-12">编辑</a>
+				</div>
+			</div>
+		</div>
+		<div id="main"></div>
+		<div id="footer">
+			<ul>
+				<li id="homeLi" class="active" onclick="doNavigation(this, 'index', 0)">
+					<a set-lan="html:home" class="bottom_btn index">首页</a>
+				</li>
+				<li onclick="doNavigation(this, 'index', 1)">
+					<a set-lan="html:favorite" class="bottom_btn interest">关注</a>
+				</li>
+				<li onclick="doNavigation(this, 'cart', 2)">
+					<a set-lan="html:cart" class="bottom_btn cart">购物车</a>
+				</li>
+				<li id="myLi" onclick="doNavigation(this, 'index', 3)">
+					<a set-lan="html:me" class="bottom_btn account">我的</a>
+				</li>
+			</ul>
+		</div>
+	</div>
+</body>
+<script type="text/javascript" src="./script/api.js"></script>
+<script type="text/javascript" src="./script/library/lanuage.js"></script>
+<script type="text/javascript" src="./script/common/global.js"></script>
+<script type="text/javascript" src="./script/library/zepto.min.js"></script>
+<script type="text/javascript">
+	var ajpush;
+	var dialogBox;
+	var currentIndex = 0;
+
+    apiready = function(){
+    	ajpush = api.require('ajpush');
+    	dialogBox = api.require('dialogBox');
+    	initLanuage();
+		initEvent();
+		hasFirstLoad()
+		getLocation();
+
+		readLanuage();
+
+		$api.fixTabBar($api.byId('footer'));
+		//logCrash();
+    };
+
+    function logCrash(){
+		var LogMoudle = api.require('logCrash');
+		LogMoudle.listenCrash();
+    }
+    
+    function initLanuage(){
+    	var lan = global.getLanuage();
+    	if(lan != 'en' && lan != 'zh'){
+    		lan = 'en';
+    		global.setLanuage(lan);
+    	}
+
+    	global.setLanuage(lan);
+    	api.ajax({
+            method : 'put',
+            cache : false,
+            dataType : 'json',
+            returnAll : false,
+            url : global.getRequestUri() + '/auth/setLang?lang=' + lan,
+            headers : global.getRequestToken()
+        }, function(ret, err) {
+			//global.setLanuage(value);
+        });
+    }
+
+	/**
+	 *初始化页面事件
+	 */
+    function initEvent(){
+    	//登录更新事件
+    	api.addEventListener({
+	        name:'loginSuccessEvent'
+        },function(ret,err){
+        	api.closeWin({
+        		name : 'loginWin'
+            });
+            
+            api.closeWin({
+        		name : 'registerResultWin'
+            });
+            
+            api.closeWin({
+        		name : 'findPasswordResultWin'
+            });
+            
+            api.closeWin({
+        		name : 'bindMobileWin'
+            });
+
+            if(ret && ret.value && ret.value.isRegister === 1){
+                api.closeWin({
+	        		name : 'memberCardScanWin'
+	            });
+	            api.closeWin({
+	        		name : 'memberCardInputWin'
+	            });
+        	}
+
+        	unReadMessNum(1);
+        	openMainWin();
+        	
+        	setTimeout(function(){
+				doNavigation($api.byId('homeLi'), 'index', 0);
+			}, 300);
+        });
+        
+        //登录更新事件
+    	api.addEventListener({
+	        name:'logOutEvent'
+        },function(ret,err){
+        	var lang = global.getLanuage();
+        	$api.clearStorage();
+        	global.setLanuage(lang);
+			openLoginWin(-1);
+        });
+        
+    	api.addEventListener({
+            name:'citySelectorEvent'
+        },function(ret,err){
+        	if(ret && ret.value){
+        		global.setCityName(ret.value.cityName);
+        		$api.html($api.byId('cityName'), ret.value.cityName);
+        		$api.html($api.byId('cityName2'), ret.value.cityName);
+        	}
+        });
+
+        api.addEventListener({
+            name:'setLocationEvent'
+        },function(ret,err){
+        	if(ret && ret.value){
+        		global.setCityName(ret.value.cityName);
+        		$api.html($api.byId('cityName'), ret.value.cityName);
+        		$api.html($api.byId('cityName2'), ret.value.cityName);
+        	}
+        });
+
+        api.addEventListener({
+            name:'readMessageEvent'
+        },function(ret,err){
+        	if(ret){
+        		unReadMessNum(2);
+        	}
+        });    
+        
+        api.addEventListener({
+            name:'lanuageSetEvent'
+        },function(ret,err){
+        	$api.setStorage("currentIndex", 3);
+        	
+        	readLanuage();
+        	getLocation();
+        	changeMainWin();
+			
+			setTimeout(function(){
+			doNavigation($api.byId('myLi'), 'index', 3);
+			}, 300);
+        });   
+        
+        api.addEventListener({
+	        name:'openCartFrameEvent'
+        },function(ret,err){
+        	switchShopCartFrame();
+        }); 
+        
+        api.addEventListener({
+	        name:'tokenExpiredEvent'
+        },function(ret,err){
+        	api.closeToWin({
+	            name: 'root'
+            });
+        	var lang = global.getLanuage();
+        	$api.clearStorage();
+        	global.setLanuage(lang);
+            
+            setTimeout(function(){
+            	openLoginWin(-1);
+            }, 2000);
+        });  
+    }
+    
+    /**
+     *更新未读信息条数 
+     */
+    function unReadMessNum(type){
+    	var num = global.getUnReadMessNum();
+    	
+    	$api.addCls($api.byId('unReadMessNumId'), 'aui-hide');
+		
+    	if(type==1){//登录
+    		if(num >0){
+    			$api.removeCls($api.byId('unReadMessNumId'), 'aui-hide');
+    			$api.html($api.byId('unReadMessNumId'), num);
+    		}
+    	}else{//点击已读
+    		var  num_= num -1;
+    		global.setUnReadMessNum(num_);
+    		if(num_ >0){
+    			$api.removeCls($api.byId('unReadMessNumId'), 'aui-hide');	
+    			$api.html($api.byId('unReadMessNumId'), num_);
+    		}else{    		
+    			//$api.removeCls($api.byId('unReadMessNumId'), 'aui-hide');	
+    			$api.html($api.byId('unReadMessNumId'), '');				
+    		}
+    	}    	
+    }
+
+	/**
+	 *定位
+	 */
+	function getLocation(){
+		var lang = global.getLanuage();
+		
+		if(lang == 'zh'){
+			var aMap = api.require('aMap');
+			aMap.open({
+			    rect: {
+			        x: 0,
+			        y: 0,
+			        w: 0,
+			        h: 0
+			    },
+			    showUserLocation: true,
+			    center: {
+			        lon: 116.4021310000,
+			        lat: 39.9994480000
+			    },
+			}, function(ret, err) {
+			    if (ret.status) {
+					aMap.getLocation(function(ret, err) {
+				    	if (ret.status) {		
+				    		var lon = ret.lon;
+							var lat = ret.lat;
+							
+							aMap.getNameFromCoords({
+						    	lon: lon,
+							    lat: lat
+							}, function(ret, err) {
+							    if (ret.status) {
+							    	var cityName;
+							    	if(ret.city){
+							    		cityName = ret.city;
+							    	}else{
+							    		cityName = ret.state;
+							    	}
+									$api.html($api.byId('cityName'), cityName);
+	        						$api.html($api.byId('cityName2'), cityName);
+	        						
+	        						global.setCityName(cityName);
+							    }
+							});
+				    	}
+					});
+			    }
+			});
+		}else{
+			var googleMap = api.require('googleMap');
+			googleMap.open({
+			    rect: {
+			        x: 0,
+			        y: 0,
+			        w: 0,
+			        h: 0
+			    },
+			    showUserLocation: true,
+			    center: {
+			        lon: 116.4021310000,
+			        lat: 39.9994480000
+			    },
+			}, function(ret, err) {
+			    if (ret.status) {
+					googleMap.getLocation(function(ret, err) {
+				    	if (ret.status) {		
+				    		var lon = ret.lon;
+							var lat = ret.lat;
+							
+							googleMap.getNameFromCoords({
+						    	lon: lon,
+							    lat: lat
+							}, function(ret, err) {
+							    if (ret.status) {
+							    	var cityName;
+							    	if(ret.city){
+							    		cityName = ret.city;
+							    	}else{
+							    		cityName = ret.state;
+							    	}
+									$api.html($api.byId('cityName'), cityName);
+	        						$api.html($api.byId('cityName2'), cityName);
+	        						
+	        						global.setCityName(cityName);
+							    }
+							});
+				    	}
+					});
+			    }
+			});
+		}
+	}
+	
+    /**
+     *该版本是否首次打开
+     */
+    function hasFirstLoad() {
+		if (global.getGuideFlag() !== global.getVersion()) {
+			//global.setGuideFlag();
+			//global.openWinName('guide', './html/guide', '{}');
+			initFrame();
+		}else{
+			initFrame();
+		}
+	}
+
+	/**
+	 *初始化框架
+	 */
+	function initFrame() {
+		if (global.isValidUser()) {
+			openMainWin();
+		} else {
+			openLoginWin(1);
+		}
+	}
+
+	/**
+	 *打开登录页
+	 */
+	function openLoginWin(type) {
+		var params = { "type" : type };
+		var loginUrl = './html/member/login';
+		if(global.getLanuage() === 'en'){
+			loginUrl = './html/en/member/login';
+		}
+		
+		//global.openWinName('loginWin', loginUrl, params);
+		
+		api.openWin({
+			name : 'loginWin',
+			url : loginUrl+'.html',
+			pageParam : params,
+			slidBackEnabled : false
+		});
+	}
+
+	/**
+	 *打开框架页
+	 */
+	function openMainWin() {
+		changeMainWin();
+
+		//初始化ajpush
+		initAJPush();
+	}
+	
+	/**
+	 *底部导航切换
+	 */
+	function doNavigation(obj, name, index) {
+	//	alert('doNavigation>>>'+obj+'>>>>'+ name+'>>>'+ index);
+//		api.setFrameAttr({
+//		    name: 'shopCartFrame',
+//		    hidden: true
+//		});
+		currentIndex = index;
+		$api.setStorage("currentIndex",currentIndex);
+		
+		if(index === 1){
+			$api.addCls($api.byId('header'), 'aui-bar-text');
+		}else{
+			$api.removeCls($api.byId('header'), 'aui-bar-text');
+		}
+		var $header = $api.byId('header');
+		var $titleBar = $api.domAll($header, '.topbar');
+		for (var i = 0; i < $titleBar.length; i++) {
+			$api.removeCls($titleBar[i], 'activebar');
+		}
+		$api.addCls($api.byId(name), 'activebar');
+
+		var $footer = $api.byId('footer');
+		var $footerBar = $api.domAll($footer, 'li');
+		for (var j = 0; j < $footerBar.length; j++) {
+			$api.removeCls($footerBar[j], 'active');
+		}
+		$api.addCls(obj, 'active');
+		
+		var $body = $api.dom('body');
+		var $footer = $api.byId('footer');
+		var header_h = $api.offset($header).h;
+		var body_h = $api.offset($body).h;
+		var footer_h = $api.offset($footer).h;
+		var rect_h = body_h - header_h - footer_h;
+
+		api.setFrameGroupAttr({
+			name : 'frameGroup',
+			rect : {
+				x : 0,
+				y : header_h,
+				w : 'auto',
+				h : 'auto',
+			    marginLeft:0,
+			    marginTop:0,
+			    marginBottom:48 +api.safeArea.bottom ,
+			    marginRight:0
+			}
+		});
+		
+
+
+		api.setFrameGroupIndex({
+			name : 'frameGroup',
+			index : index
+		});
+		
+				
+		//switchShopCartFrame();
+		var hidden = (index === 2 ? false : true );
+		api.sendEvent({
+	        name:'switchShopCartFrameEvent',
+	        extra: {
+	        	hidden : hidden
+	        }
+        });
+	}
+	
+	/**
+	 *打开消息 
+	 */
+	function openMessageWin(){
+		var messageUrl = './html/common/common_win.html';
+		if(global.getLanuage() === 'en'){
+			messageUrl = './html/en/common/common_win.html';
+		}  
+		api.openWin({
+			name : 'messageWin',
+			url : messageUrl,
+			pageParam : {
+				title : get_lan('message'),
+				page : "../portal/message"
+			}
+		});
+	}
+	
+	/**
+	 *编辑购物车 
+	 */
+	function editShopCart(){
+		var text = $api.html($api.byId('statusA'));
+		
+		api.execScript({
+			frameName: 'shop_cart',
+	        script: "switchStatus('" + text + "');"
+        });
+        
+		if(text === get_lan('edit')){
+			$api.html($api.byId('statusA'), get_lan('finish'));
+		}else{
+			$api.html($api.byId('statusA'), get_lan('edit'));
+		}
+	}
+	
+	/**
+	 *选择城市 
+	 */
+	function selectCity(){
+		var selectUrl = './html/portal/city_win.html';
+		if(global.getLanuage() === 'en'){
+			selectUrl = './html/en/portal/city_win.html';
+		}  
+		api.openWin({
+			name : 'cityWin',
+			url : selectUrl
+		});
+	}
+	
+	/**
+	 *定位 
+	 */
+	function openLocationWin(){
+	    var locationUrl = './html/portal/location.html';
+		if(global.getLanuage() === 'en'){
+			locationUrl = './html/en/portal/location.html';
+		}  
+		api.openWin({
+			name : 'locationWin',
+			url : locationUrl
+		});
+	}
+	
+	/**
+	 *搜索商品 
+	 */
+	function openSearchWin(){
+        var searchUrl = './html/portal/product_search_win.html';
+		if(global.getLanuage() === 'en'){
+			searchUrl = './html/en/portal/product_search_win.html';
+		}  
+		api.openWin({
+			name : 'searchWin',
+			url : searchUrl
+		});
+	}
+
+	/**
+	 *初始化
+	 */
+	function initAJPush(){
+		if(api.systemType === 'ios'){
+			bindAlias();
+			addListener();
+		}else{
+			ajpush.init(function(ret, err){
+				if(ret && ret.status){
+					bindAlias();
+					addListener();
+				}
+			});
+		}
+	}
+
+	/**
+	 *绑定别名
+	 */
+	function bindAlias(){
+		ajpush.bindAliasAndTags({
+			alias: global.getMobile(),
+			tags: ['' + global.getType() + '']
+		}, function(ret, err){
+			//alert('bindAlias'+JSON.stringify(ret));
+		});
+	}
+
+	/**
+	 *监听
+	 */
+	function addListener(){
+		ajpush.setListener(function(ret){
+		
+			if(ret){
+        		messageHandle(ret.content, ret.extra, true);
+			}
+		});
+
+		if(api.systemType === 'ios'){
+			api.addEventListener({
+		   		name: 'noticeclicked'
+			}, function(ret, err) {
+			    if (ret && ret.value) {
+			        var data = ret.value;
+					messageHandle(data.content, data.extra, false);
+			    }
+			});
+		}else{
+			api.addEventListener({
+		    	name: 'appintent'
+			}, function(ret, err) {
+			    if (ret && ret.appParam.ajpush) {
+			        var data = ret.appParam.ajpush;
+					messageHandle(data.content, data.extra, false);
+			    }
+			});
+		}
+	}
+
+	/**
+	 *处理监听消息
+	 */
+	function messageHandle(content, extra, message){
+		var extraJson = eval("(" + JSON.stringify(extra) + ")");
+		extraJson = eval("(" + extraJson.from + ")");
+
+		if(extraJson.type === undefined){
+			return;
+		}
+
+		if(extraJson.type == '1'){//1.活动
+			api.sendEvent({
+	            name:'activityRefreshEvent'
+            });
+			dialogBox.alert({
+			    texts: {
+			        content: content,
+			        leftBtnTitle: get_lan('know'),
+			        rightBtnTitle: get_lan('see')
+			    },
+			    tapClose: true,
+			    styles: {
+			        bg: '#fff',
+			        corner: 10,
+			        w: 310,
+			        content: {
+			        	marginT: 50, 
+			            color: '#000',
+			            size: 16
+			        },
+			        left: {
+			            marginB: 7,
+			            marginL: 20,
+			            w: 130,
+			            h: 35,
+			            corner: 2,
+			            bg: '#fff',
+			            color: '#fc531f',
+			            size: 14
+			        },
+			        right: {
+			            marginB: 7,
+			            marginL: 10,
+			            w: 130,
+			            h: 35,
+			            corner: 2,
+			            bg: '#fff',
+			            color: '#fc531f',
+			            size: 14
+			        }
+			    }
+			}, function(ret) {
+			    if (ret.eventType == 'right') {
+					if(extraJson.location === 1){			
+						openNearByDetailWin(extraJson.supermarket, extraJson.name);
+					}else if(extraJson.location === 2){
+						openActivity(extraJson.id, extraJson.name);
+					}
+			    }
+
+			    dialogBox.close({
+			    	dialogName: 'alert'
+			    });
+
+			});
+				
+		}else if(extraJson.type == '2'){//实名认证
+			
+			global.setAuthStatus(extraJson.status);
+
+			var lan = global.getLanuage();
+			if(extraJson.status =='1'){
+				if(lan == 'en'){
+					content ='Your application for real-name certification has been passed';
+				}
+			}else if(extraJson.status =='-1'){
+				if(lan == 'en'){
+					content ='Your application for real-name certification has been failed';
+				}
+			}
+
+			dialogBox.alert({
+			    texts: {
+			        content: content,
+			        leftBtnTitle: get_lan('know'),
+			        rightBtnTitle: get_lan('see')
+			    },
+			    tapClose: true,
+			    styles: {
+			        bg: '#fff',
+			        corner: 10,
+			        w: 310,
+			        content: {
+			        	marginT: 50, 
+			            color: '#000',
+			            size: 16
+			        },
+			        left: {
+			            marginB: 7,
+			            marginL: 20,
+			            w: 130,
+			            h: 35,
+			            corner: 2,
+			            bg: '#fff',
+			            color: '#fc531f',
+			            size: 14
+			        },
+			        right: {
+			            marginB: 7,
+			            marginL: 10,
+			            w: 130,
+			            h: 35,
+			            corner: 2,
+			            bg: '#fff',
+			            color: '#fc531f',
+			            size: 14
+			        }
+			    }
+			}, function(ret) {
+			    if (ret.eventType == 'right') {
+					auth();
+
+			    }
+			    dialogBox.close({
+			    	dialogName: 'alert'
+			    });
+        
+			});
+		
+		}
+	}
+
+	/**
+     *实名认证
+     */
+	function auth(){
+		api.ajax({
+            method : 'get',
+            cache : false,
+            dataType : 'json',
+            returnAll : false,
+            url : global.getRequestUri() + '/member/info/auth',
+            headers : global.getRequestToken()           
+        }, function(ret, err) {
+            if(ret && ret.code === "403"){
+                api.sendEvent({
+                    name:'tokenExpiredEvent',
+                    extra:{
+                        msg : ret.message
+                    }
+                });
+                
+                return;
+            }
+
+            if (ret) {
+                if (ret.success) {
+                    if(ret.obj){  
+                        var authInfoUrl = './html/member/auth_info.html';
+						if(global.getLanuage() === 'en'){
+							authInfoUrl = './html/en/member/auth_info.html';
+						}                   
+                        api.openWin({
+                            name : 'authInfoSubWin',
+                            url : authInfoUrl,
+                            reload : true,
+                            pageParam : {
+                                name : ret.obj.firstName,
+                                lastName : ret.obj.lastName,
+                                idCard :ret.obj.idCard,
+                                email : ret.obj.email,
+                                status:ret.obj.status
+                            }
+                        });
+                    }else{
+                		var authUrl = './html/member/auth_win.html';
+						if(global.getLanuage() === 'en'){
+							authUrl = './html/en/member/auth_win.html';
+						}
+			            api.openWin({
+                            name : 'authSubWin',
+                            url : authUrl,
+                            reload : true
+                        });
+                    }
+                } else {
+                    global.setToast(ret.message);
+                }
+            } else {
+                global.setErrorToast();
+            }
+        });
+	}
+	
+	function changeMainWin(){
+		var $header = $api.byId('header');
+		var systemType = api.systemType;
+	    var systemVersion = parseFloat(api.systemVersion);
+	    if (systemType == "ios" || (systemType == "android" && systemVersion >= 4.4)) {
+			if (systemType == "android") {
+				header.style.paddingTop = '22px';
+				
+				api.setStatusBarStyle({
+					color : '#000000'
+				});
+			}
+	    } else {
+	       	$api.fixIos7Bar(header);
+		}
+		var $body = $api.dom('body');
+		var $footer = $api.byId('footer');
+		var header_h = $api.offset($header).h;
+		var body_h = $api.offset($body).h;
+		var footer_h = $api.offset($footer).h;
+		var rect_h = api.frameHeight - footer_h - header_h;
+		
+		api.closeFrameGroup({
+		    name: 'frameGroup'
+		});
+		
+		var indexUrl = './html/portal/main.html';
+		var interestUrl = './html/portal/interest.html';
+		var cartUrl = './html/member/shop_cart.html';
+		var meUrl = './html/member/main.html';
+		if(global.getLanuage() != 'zh'){
+			indexUrl = './html/en/portal/main.html';
+			interestUrl = './html/en/portal/interest.html';
+			cartUrl = './html/en/member/shop_cart.html';
+			meUrl = './html/en/member/main.html';
+		}
+		
+		//打开frameGroup
+		api.openFrameGroup({
+			name : 'frameGroup',
+			scrollEnabled : false,
+			rect : {
+				x : 0,
+				y : header_h,
+				w : 'auto',
+				h : 'auto',
+			    marginLeft:0,
+			    marginTop:0,
+			    marginBottom:48 + api.safeArea.bottom ,
+			    marginRight:0
+			},
+			index : 0,
+			frames : [{
+				name : 'index_frame',
+				url : indexUrl,
+				pageParam : {
+					headerHeight : header_h,
+					bodyHeight : rect_h
+				}
+			}, {
+				name : 'interest_frame',
+				url : interestUrl,
+				pageParam : {
+					headerHeight : header_h,
+					bodyHeight : rect_h
+				}
+			}, {
+				name : 'shop_cart',
+				url : cartUrl,
+				pageParam : {
+					headerHeight : header_h,
+					bodyHeight : rect_h,
+					safeAreaTop : api.safeArea.bottom
+				}
+			}, {
+				name : 'account_frame',
+				url : meUrl,
+				pageParam : {
+					headerHeight : header_h,
+					bodyHeight : rect_h
+				}
+			}]
+		}, function(ret, err) {
+		});
+	}
+	
+	/**
+	 *更多附近的人都在买详情
+	 */
+	function openNearByDetailWin(storeId, name){
+		var storeUrl = '../portal/nearby';
+		var headerUrl = './html/common/common_win.html';
+		if(global.getLanuage() === 'en'){
+			storeUrl = './html/en/portal/nearby';
+			headerUrl = './html/en/common/common_win.html';
+		}
+		
+		api.openWin({
+			name : 'productListWin',
+			url : headerUrl,
+			pageParam : {
+				title : name,
+				page : storeUrl,
+				productTypeId : '',
+				storeId : storeId
+			}
+		});
+	}
+	
+	/**
+	 *活动 
+	 */
+	function openActivity(id, name){
+		var merchantUrl = '../portal/merchant_list';
+		var headerUrl = './html/common/common_win.html';
+		if(global.getLanuage() === 'en'){
+			merchantUrl = './html/en/portal/merchant_list';
+			headerUrl = './html/en/common/common_win.html';
+		}
+		
+		api.openWin({
+			name : 'merchantWin',
+			url : headerUrl,
+			pageParam : {
+				title : name,
+				page : merchantUrl,
+				type : 2,
+				activityId : id
+			}
+		});
+	}
+	
+	function switchShopCartFrame(){
+		if(currentIndex == 2){
+			api.setFrameAttr({
+			    name: 'shopCartFrame',
+			    hidden: false
+			});
+		}else{
+			api.setFrameAttr({
+			    name: 'shopCartFrame',
+			    hidden: true
+			});
+		}
+	}
+</script>
+</html>

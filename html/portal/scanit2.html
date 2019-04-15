@@ -1,0 +1,193 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, initial-scale=1.0, width=device-width"/>
+	<meta name="format-detection" content="telephone=no, email=no, date=no, address=no">
+	<title>扫一扫</title>
+	<link rel="stylesheet" type="text/css" href="../../css/aui.css" />
+	<link rel="stylesheet" type="text/css" href="../../css/common.css" />
+	<link rel="stylesheet" type="text/css" href="../../css/portal.css" />
+</head>
+<body>
+<header class="aui-bar aui-bar-text" style="padding-top: 25px;">
+	<a tapmode onclick="closeScanit();" class="black-return-text">
+		<img src="../../image/member/black-return.png"/>手动输入号码
+	</a>
+</header>
+<div class="aui-content">
+	<div class="scanit-enter-box">
+		<div class="scanit-barcode-img"><img src="../../image/portal/barcode-img.png"/></div>
+		<div class="aui-list-item-input aui-padded-b-15"><input type="text" id="qrcode" placeholder="请输入条形码" maxlength="20"></div>
+		<div class="pay-btn-box aui-margin-t-15">
+			<div tapmode="" onclick="next();" class="aui-btn aui-btn-login">下一步</div>
+		</div>
+
+	</div>
+
+
+</div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/common/global.js"></script>
+<script type="text/javascript">
+	apiready = function(){
+		initEvent();
+	}
+
+	function initEvent(){
+		api.addEventListener({
+		    name: 'keyback'
+		}, function(ret, err) {
+		    api.sendEvent({
+	        	name:'openScanitEvent'				        
+       		 });
+	         setTimeout("api.closeWin();", 200);
+		});
+	}
+
+	function closeScanit(){
+		//api.closeWin();
+
+		api.sendEvent({
+	        name:'openScanitEvent'				        
+        });
+        setTimeout("api.closeWin();", 200);
+	}
+
+	function next(){
+		var no = $api.val($api.byId('qrcode'));
+		
+		if(no.length === 0){
+			global.setToast('请输入条形码');
+			return;
+		}
+
+		var prefix = no.substring(0,3);
+		switch(prefix){
+			case 'GSN':
+				//扫超市SN
+				openStoreWin(no);
+				break;
+			case 'GPN':
+				//扫商品PN
+				openProduct(no);
+				break;
+			case 'GMN':
+				//扫会员卡MN
+				openMemberCard(no);
+				break;
+			case 'GCN':
+				//扫优惠券CN
+				openCoupon(no);
+				break;
+			default:
+				global.setToast('无效码');
+				break;
+		}
+	}
+	
+	/**
+	 *门店列表 
+	 */
+	function openStoreWin(no){
+		api.ajax({
+			method : 'get',
+			cache : false,
+			dataType : 'json',
+			returnAll : false,
+			url : global.getRequestUri() + '/supermarket/qrcode?qrcode=' + no,
+			headers : global.getRequestToken()
+		}, function(ret, err) {
+			if (ret && ret.id) {
+				api.openWin({
+					name : 'storeWin',
+					url : '../common/common_win.html',
+					pageParam : {
+						title : ret.name,
+						page : '../portal/store_frame',
+						supermarketId : ret.id,
+						type : 1
+					}
+				});
+			}else{
+				global.setToast('条形码不正确');
+			}
+		});
+	}
+	
+	/**
+	 *商品 
+	 */
+	function openProduct(no){
+		api.ajax({
+			method : 'get',
+			cache : false,
+			dataType : 'json',
+			returnAll : false,
+			url : global.getRequestUri() + '/product/qrcode?qrcode=' + no,
+			headers : global.getRequestToken()
+		}, function(ret, err) {
+			if (ret && ret.id) {
+				api.openWin({
+					name : 'scanit4',
+					url : './scanit4.html',
+					pageParam : {
+						productId : ret.id,
+						name : ret.name,
+						storeId : ret.supermarketStoreId 
+					}
+				});
+			}
+		});
+	}
+	
+		/**
+	 *会员卡
+	 */
+	function openMemberCard(no){
+		api.ajax({
+			method : 'get',
+			cache : false,
+			dataType : 'json',
+			returnAll : false,
+			url : global.getRequestUri() + '/card/qrcode?qrcode=' + no,
+			headers : global.getRequestToken()
+		}, function(ret, err) {
+			if (ret && ret.id) {
+				api.openWin({
+					name : 'memberCardInputWin',
+					url : '../member/member_card.html',
+					pageParam : {
+						no : ret.no
+					}
+				});
+			}else{
+				global.setToast('条形码不正确');
+			}
+		});
+	}
+	
+	/**
+	 *优惠券
+	 */
+	function openCoupon(no){
+		api.sendEvent({
+            name:'scanCouponEvnet',
+            extra: {
+            	no: no
+            }
+        });
+
+		api.openFrame({
+	        name: 'couponAddFrm',
+	        url: '../member/coupon_add.html',
+	        reload : true,
+			pageParam : {
+				no : no
+			}
+        });
+
+	}
+</script>
+</html>

@@ -1,0 +1,76 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, initial-scale=1.0, width=device-width"/>
+	<meta name="format-detection" content="telephone=no, email=no, date=no, address=no">
+	<title>My Order</title>
+	<link rel="stylesheet" type="text/css" href="../../../css/aui.css" />
+	<link rel="stylesheet" type="text/css" href="../../../css/common.css" />
+	<link rel="stylesheet" type="text/css" href="../../../css/member.css" />
+</head>
+<body>
+<div id="header" class="aui-bar padded-t-25  padded-t-25">
+    <a tapmode onclick="api.closeWin();" class="black-return-text">
+        <img src="../../../image/member/black-return.png">My Order
+    </a>
+</div>
+<div id="top" class="order-box">
+	<ul id="barUl" class="order-switch">
+	   <li id="bar1" class="order-current" tapmode onclick="switchBar(1, this, true);"><span>All</span></li>
+	   <li id="bar2" tapmode onclick="switchBar(2, this, true);"><span>Pending</span></li>
+	   <li id="bar3" tapmode onclick="switchBar(3, this, true);"><span>Review</span></li>
+	</ul>
+</div>
+</body>
+<script type="text/javascript" src="../../../script/api.js"></script>
+<script type="text/javascript" src="../../../script/library/zepto.min.js"></script>
+<script type="text/javascript">
+	apiready = function(){
+	    var header = $api.byId('header');
+	    var top = $api.byId('top');
+	    if(header){
+	        $api.fixIos7Bar(header);
+	    }
+	    var pos = $api.offset(header);
+	    var topBar = $api.offset(top);
+		var h = pos.h + topBar.h;
+		
+	    api.openFrame({
+	        name: 'order_frame',
+	        url: 'order_frame.html',
+	        rect:{
+	            x: 0,
+	            y: h,
+	            w: 'auto',
+	            h: 'auto'
+	        },
+	        pageParam : api.pageParam,
+	        bounces: false,
+	        vScrollBarEnabled: false
+	    });
+	    
+	    switchBar(api.pageParam.type, $api.byId('bar' + api.pageParam.type), false);
+	}
+    
+	/**
+	 *切换内容 
+	 */
+	function switchBar(item, el, query){
+		var barUl = $api.byId('barUl');
+		var barLi = $api.domAll(barUl, 'li');
+		for (var i = 0; i < barLi.length; i++) {
+			$api.removeCls(barLi[i], 'order-current');
+		}
+		
+		$api.addCls(el, 'order-current');
+		
+		if(query){
+			api.execScript({
+				frameName: 'order_frame',
+		        script: 'switchType(' + item + ');'
+	        });
+        }
+	}
+</script>
+</html>

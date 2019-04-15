@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<title>title</title>
+		<link href="../../../css/api.css" rel="stylesheet" type="text/css">
+	</head>
+	<body>
+		<div id="label-content" ></div>
+	</body>
+	<script type="text/javascript" src="../../../script/api.js"></script>
+	<script type="text/javascript">
+		apiready = function() {
+			UICityList = api.require('UICityList');
+			UICityList.open({
+				rect : {
+					y : 0,
+					h : api.frameHeight
+				},
+				resource : 'widget://res/cityEnList.json',
+				styles : {
+					searchBar : {
+						bgColor : '#f0f0f0',
+						cancelColor : '#E3E3E3'
+					},
+					location : {
+						color : '#666', //（可选项）字符串类型；定位提示文字颜色，支持 rgb、rgba、#，默认：'#696969'
+						size : 12 //（可选项）数字类型；定位提示文字大小，默认：12.0
+					},
+					sectionTitle : {//（可选项）JSON对象；标题的样式
+						bgColor : '#eee', //（可选项）字符串类型；标题的背景色，支持 rgb、rgba、#；默认：'#EEEEEE'
+						color : '#333333', //（可选项）字符串类型；标题文字颜色，支持 rgb、rgba、#；默认：'#000000'
+						size : 12, //（可选项）数字类型；标题文字大小；默认：12.0
+						height : 25 //（可选项）数字类型；区域标题的高度，默认：25.0
+					},
+					item : {//（可选项）JSON对象；列表项的样式
+						bgColor : '#fff', //（可选项）字符串类型；列表项的背景色，支持 rgb、rgba、#；默认：'#FFFFFF'
+						activeBgColor : '#ccc', //（可选项）字符串类型；列表项按下时的背景色，支持 rgb、rgba、#；默认：'#696969'
+						color : '#333', //（可选项）字符串类型；列表项的文字颜色，支持 rgb、rgba、#，默认：'#000000'
+						size : 13, //（可选项）数字类型；列表项的文字大小，默认：14.0
+						height : 40 //（可选项）数字类型；列表项的高度，默认：40.0
+					},
+					indicator : {//（可选项）JSON对象；右侧字母导航条样式
+						bgColor : '#fff', //（可选项）字符串类型；字母导航条背景色，支持 rgb、rgba、#，默认：'#FFFFFF'
+						color : '#666' //（可选项）字符串类型；字母导航条字母颜色，支持 rgb、rgba、#，默认：'#696969'
+					}
+				},
+				currentCity : name,
+				locationWay : 'Current area',
+				hotTitle : 'Popular city',
+				fixedOn : api.frameName,
+				placeholder : 'Enter the city name or first letter query'
+			}, function(ret, err) {
+				if (ret) {
+					if (ret.eventType === 'selected') {
+						api.sendEvent({
+							name : 'citySelectorEvent',
+							extra : {
+								cityName : ret.cityInfo.city,
+								cityId : ret.cityInfo.id
+							}
+						});	
+					}
+				}
+			});
+		};
+	</script>
+</html>

@@ -1,0 +1,96 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, initial-scale=1.0, width=device-width"/>
+    <meta name="format-detection" content="telephone=no, email=no, date=no, address=no">
+    <title>衣服</title>
+    <link rel="stylesheet" type="text/css" href="../../css/aui.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/common.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/portal.css" />
+</head>
+<body class="bc-fafafa">
+    <div class="product_list">
+	    <script id="catalog-template" type="text/x-dot-template">
+          {{ for(var i=0; i< it.length; i++) { }}
+            <li tapmode onclick="openProduct({{=it[i].id }});">
+                <img class="pic-img" src="{{=global.getImgUri() + '/' + it[i].icon}}" onerror="this.src='../../image/portal/product-list-img.jpg'">
+                <p>{{=it[i].name }}</p>
+            </li>
+          {{ } }}
+        </script>
+
+        <ul id="catalog-content" class="product_list_ui aui-clearfix"></ul>
+    </div>
+    
+   <div class="no-data aui-hide" id="nonDataId">
+     <i></i>
+    	 暂无商品分类
+ 	</div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/common/global.js"></script>
+<script type="text/javascript" src="../../script/common/page.js"></script>
+<script type="text/javascript" src="../../script/library/doT.min.js"></script>
+<script type="text/javascript">
+	//门店ID
+	var storeId;
+	//大分类ID
+	var parent;
+				
+	apiready = function(){
+		storeId = api.pageParam.storeId;
+		parent = api.pageParam.parent;
+		
+		queryProductCatalog();
+		initEvent();
+	}
+	
+	/**
+	 *初始化事件
+	 */
+	function initEvent() {
+		api.setCustomRefreshHeaderInfo({
+			bgColor : '#fdf7e7',
+			image : {
+				pull : global.pullImage(),
+				load : global.pushImage()
+			}
+		}, function(ret, err) {
+			queryProductCatalog();
+			api.refreshHeaderLoadDone();
+		});
+	
+		api.addEventListener({
+			name : 'scrolltobottom',
+			extra : {
+				threshold : 0
+			}
+		}, function(ret, err) {
+			page.scrollRefresh();
+		});
+	}
+	
+	/**
+	 *查询门店 
+	 */
+	function queryProductCatalog(){
+	  	var params = '?start=0&maxResult=20&parent=' + parent + '&storeId=' + storeId;
+	  	var url = global.getRequestUri() + '/product-type/store';
+  		page.init(20, 'catalog-content', 'catalog-template', url, params, true, 'nonDataId');
+	}
+	
+	function openProduct(id){
+		api.openWin({
+			name : 'productListWin',
+			url : '../portal/nearby_win.html',
+			pageParam : {
+				title : "商品列表",
+				page : "../portal/nearby",
+				productTypeId : id,
+				storeId : storeId
+			}
+		});
+	}
+</script>
+</html>

@@ -1,0 +1,192 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, initial-scale=1.0, width=device-width"/>
+	<meta name="format-detection" content="telephone=no, email=no, date=no, address=no">
+	<title>sign up</title>
+	<link rel="stylesheet" type="text/css" href="../../../css/aui.css" />
+	<link rel="stylesheet" type="text/css" href="../../../css/common.css" />
+	<link rel="stylesheet" type="text/css" href="../../../css/member.css" />
+</head>
+<body>
+<div class="aui-content">
+	<header class="aui-bar  padded-t-25">
+		<a tapmode onclick="api.closeWin();" class="black-return">
+			<img src="../../../image/member/black-return.png"/>
+		</a>
+	</header>
+
+	<h3 class="register-h3">sign up</h3>
+	<ul class="aui-list aui-form-list">
+		<li class="aui-list-item">
+			<div class="aui-list-item-inner">
+				<div class="aui-list-item-input"><input id="email" maxlength="50" type="text" placeholder="Sign Up With Your Email Address"></div>
+			</div>
+		</li>
+		<li class="aui-list-item">
+			<div class="aui-list-item-inner">
+				<div class="aui-list-item-input"><input id="password" maxlength="20" type="password" placeholder="Please enter your password"></div>
+			</div>
+		</li>
+		<li class="aui-list-item">
+			<div class="aui-list-item-inner">
+				<div class="aui-list-item-input"><input id="confirmPassword" maxlength="20" type="password" placeholder="Please confirm the password"></div>
+			</div>
+		</li>
+
+		<li class="aui-list-item">
+			<div class="aui-list-item-inner">
+				<div class="aui-list-item-input"><input id="patchcaCode" type="text" maxlength="6" placeholder="enter code"></div>
+				<div class="aui-image-yzm"><img id="captchaImg" onclick="changeRand();" src="../../../image/member/yzm.jpg"></div>
+			</div>
+		</li>
+	</ul>
+
+	<div class="aui-btn-box aui-padded-t-15">
+		<div id="registeBtn" tapmode onclick="registe();" class="aui-btn aui-btn-login aui-margin-t-10 ">sign up</div>
+	</div>
+</div>
+<script type="text/javascript" src="../../../script/api.js"></script>
+<script type="text/javascript" src="../../../script/common/global.js"></script>
+<script type="text/javascript" src="../../../script/library/base64.js"></script>
+<script type="text/javascript" src="../../../script/common/validate.js" ></script>
+<script type="text/javascript">
+	var mobile;
+	//第三方用户信息
+	var type = 0;
+	var openId = '';
+	var nickname = '';
+	var sex = -1;
+	var headIcon = '';
+	
+    apiready = function(){
+    	mobile = api.pageParam.mobile;
+    	type = api.pageParam.type;
+		if(type){
+			nickname = api.pageParam.nickname;
+			sex = api.pageParam.sex;
+			headIcon = api.pageParam.headIcon;
+			openId = api.pageParam.openId;
+		}
+		
+    	changeRand();
+    };
+    
+    /**
+     *生成随机码 
+     */
+    function changeRand() {
+		document.getElementById("captchaImg").src = global.getRequestUri() + "/auth/captcha?rid=" + new Date().getTime();
+	}
+
+	/**
+	 *注册 
+	 */
+    function registe(){
+    	var email = $api.val($api.byId('email'));
+    	var password = $api.val($api.byId('password'));
+		var confirmPassword = $api.val($api.byId('confirmPassword'));
+		var patchcaCode = $api.val($api.byId('patchcaCode'));
+	
+		if (email.length < 1) {
+			global.setToast("you can't leave this empty");
+			return;
+		}
+		if (!validate.email(email)) {
+	        global.setToast("Please enter a valid email");
+	        return;
+	    }
+	    
+		if (password.length < 1) {
+			global.setToast("you can't leave this empty");
+			return;
+		}
+		if (confirmPassword.length < 1) {
+			global.setToast("you can't leave this empty");
+			return;
+		}
+		if (patchcaCode.length < 1) {
+			global.setToast("you can't leave this empty");
+			return;
+		}
+		if (password != confirmPassword) {
+			global.setToast("password does not match");
+			return;
+		}
+	    if (!validate.passwordRule(password)) {
+			global.setToast('password must be between 6 and 20 characters and contain all of letters and numbers');
+			return;
+		}
+		
+		$api.removeAttr($api.byId('registeBtn'), 'onclick');
+		password = new Base64().encode(password);
+    	api.ajax({
+			method : 'post',
+			cache : false,
+			dataType : 'json',
+			returnAll : false,
+			url : global.getRequestUri() + '/auth/register',
+            headers : global.getRequestToken(),
+			data : {
+				values : {
+					mobile : mobile,
+					password : password,
+					confirmPassword : confirmPassword,
+					patchcaCode : patchcaCode,
+					type : type,
+					email : email,
+					nickname: nickname,
+					sex: sex,
+					headIcon: headIcon,
+					openId:openId,
+					platfromSource : global.getPlatformSource()
+				}
+			}
+		}, function(ret, err) {
+			$api.attr($api.byId('registeBtn'), 'onclick', 'doLogin();');
+			if (ret) {
+
+				if(ret.success){
+					setTokenInfo(ret);
+
+					api.openWin({
+						name : 'registerResultWin',
+						url : './register_result.html',
+						pageParam : {
+							success: ret.success
+						}
+					});
+				}else{
+					global.setToast(ret.message);
+				}
+
+			} else {
+				global.setToast('Registe Fail');
+			}
+		});
+    }
+    
+    /**
+	 *设置token 
+	 */
+	function setTokenInfo(ret){
+		//存储会话信息
+		var token = ret.message.split('_');
+		if(token && token.length > 1){
+			global.setToken(token[0]);
+			global.setKey(token[1]);
+		}
+		global.setTokenExpires(ret.code);
+		global.setUserName(ret.obj.nickName);
+		global.setMobile(ret.obj.mobile);
+		global.setHeadIcon(ret.obj.headIcon);
+		global.setType(ret.obj.type);
+		global.setUserSex(ret.obj.sex);
+		global.setUserEmail(ret.obj.email);
+		global.setAuthStatus(-1);
+		global.setBindBankCard(0);
+		global.setBindCreditCard(0);
+	}
+</script>
+</html>
